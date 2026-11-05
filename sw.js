@@ -1,5 +1,5 @@
 // يخزّن الصفحة والمكتبات على الجهاز علشان البرنامج يفتح من غير نت. غيّر V عند كل تحديث كبير.
-const V='kenisty-v1';
+const V='kenisty-v4';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(['./','index.html','manifest.webmanifest'])));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);

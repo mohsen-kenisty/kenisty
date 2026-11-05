@@ -294,7 +294,7 @@ function bulkAdd(){const sid=$('#sb [data-k=sid]').value,ns=$('#mbk').value.spli
 function noteSheet(id){noteSheetOld(id);curM=id;const m=findM(id),h=$('#sb>div>div');if(!h)return;
  const row=(l,v,s,ph)=>v?`<div class="flex justify-between items-center gap-2 py-1.5 border-b border-line last:border-0 text-sm"><span class="text-mute shrink-0">${l}</span><span class="flex items-center gap-2 ${s?'sens':''}"><span ${ph?'dir="ltr"':''}>${esc(v)}</span>${ph?`<a href="tel:${esc(v)}" aria-label="اتصال" class="w-7 h-7 grid place-items-center rounded-full bg-acc text-white text-xs">📞</a><a target="_blank" rel="noopener" href="${wa(v)}" aria-label="واتساب" class="w-7 h-7 grid place-items-center rounded-full bg-ok text-white text-xs">✆</a>`:''}</span></div>`:'';
  $('#sb a[href^="tel:"]')?.parentElement.remove();
- h.insertAdjacentHTML('afterend',`<div class="flex justify-end"><button data-a="medit" data-id="${id}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5 mt-2">✎ تعديل البيانات</button></div>
+ h.insertAdjacentHTML('afterend',`<div class="flex justify-end"><button data-a="medit" data-id="${id}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5 mt-2">✎ تعديل البيانات</button><button data-a="mdel" data-id="${id}" class="text-xs text-bad border border-bad/40 rounded-lg px-3 py-1.5 mt-2 ms-2">🗑 حذف</button></div>
  <div class="bg-bg border border-line rounded-2xl px-3 py-1 mt-2">${row('الخادم',m.servant)}${row('أمين الخدمة',m.leader)}${row('أب الاعتراف',(m.father||'')+(m.church?' · '+m.church:''))}${row('ولي الأمر',(m.gname||'')+(m.rel?' ('+m.rel+')':''),1)}${row('هاتف ولي الأمر',m.phone,1,1)}${row('طوارئ',m.ephone,1,1)}</div>
  <div class="mt-3"><label class="text-xs text-mute">رسالة واتساب جاهزة</label><select id="tp" class="${inp}">${Object.entries(TPL).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select><textarea id="tx" rows="3" class="${inp}">${esc(fillTpl('abs',m))}</textarea><button data-a="wsend" data-id="${id}" class="w-full mt-2 bg-ok text-white font-bold rounded-xl py-2.5">إرسال على واتساب</button></div>`)}
 function sendWa(id){const m=findM(id);if(!m.phone)return toast('لا يوجد رقم لولي الأمر');
@@ -312,7 +312,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 /* ========== المرحلة ٤: تقارير شهرية + تصدير + سجل جلسات + تعديل تواريخ سابقة + لوحة أمين الخدمة + إشعارات ========== */
 let RD=null;
 const SUBT={plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات'};
-const moreMenu=()=>[['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['out','🚪','تسجيل الخروج','خروج من هذا الجهاز']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const moreMenu=()=>[['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -370,6 +370,17 @@ document.addEventListener('change',e=>{const t=e.target;
  else if(t.id==='mym'){ui.ym=t.value;render()}
  else if(t.dataset.pf){S.pf={...pf(),[t.dataset.pf]:t.type==='checkbox'?t.checked:t.value};save();render()}});
 ['mo','hs','sv'].forEach(id=>{const i=PLAN[3][1].find(x=>x[0]===id);if(i)i[2]=1});   // علّم مهام المرحلة ٤ المنجزة (إشعارات FCM تبقى للمرحلة ٢)
+/* حذف مخدوم + مسح كل البيانات التجريبية */
+function delMember(id){const m=findM(id);if(!m||!confirm('حذف '+m.name+' نهائيًا مع كل ملاحظاته؟'))return;
+ S.members=S.members.filter(x=>x.id!==id);delete S.notes[id];
+ Object.values(S.sess).forEach(d=>delete d[id]);             // يشيله من كشوف الحضور
+ S.reports.forEach(r=>{r.absIds=(r.absIds||[]).filter(x=>x!==id)});
+ save();$('#sheet').classList.add('hidden');render();toast('تم الحذف')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a="mdel"]');if(b)delMember(b.dataset.id)});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-sub="wipe"]'))return;e.stopImmediatePropagation();
+ if(!confirm('سيتم حذف كل المخدومين والحضور والتقارير والملاحظات. هل أنت متأكد؟'))return;
+ if(!confirm('تأكيد أخير: لا يمكن التراجع. متابعة؟'))return;
+ S.members=[];S.sess={};S.reports=[];S.notes={};S.seq=1;ui.f='all';save();render();toast('تم المسح — ابدأ بإضافة مخدومين')},true);
 applyPriv();updSync();render();notifyDue();
 </script>
 
@@ -382,14 +393,18 @@ applyPriv();updSync();render();notifyDue();
   <input id="le" type="email" autocomplete="username" dir="ltr" placeholder="الإيميل" class="w-full bg-bg border border-line rounded-xl px-3 py-3 mb-2 text-right placeholder:text-mute">
   <input id="lp" type="password" autocomplete="current-password" dir="ltr" placeholder="الباسورد" class="w-full bg-bg border border-line rounded-xl px-3 py-3 text-right placeholder:text-mute">
   <div id="lerr" class="text-bad text-sm mt-2 min-h-[1.25rem]"></div>
-  <button class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">دخول</button>
+  <button type="button" id="lgg" class="w-full mb-3 bg-white text-slate-800 font-bold rounded-xl py-3 flex items-center justify-center gap-2"><span class="text-lg font-extrabold" style="color:#4285f4">G</span>الدخول بحساب Google</button>
+  <div class="text-center text-xs text-mute mb-2">أو بالإيميل والباسورد</div>
+  <button id="lgo" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">دخول</button>
+  <button type="button" id="lmode" class="w-full mt-3 text-sm text-acc">ليس لديك حساب؟ أنشئ حساب جديد</button>
+  <button type="button" id="lreset" class="w-full mt-1 text-xs text-mute">نسيت الباسورد؟</button>
  </form>
 </div>
 
 <!-- ===== Firebase: تسجيل الدخول + مزامنة Firestore (يعمل أوفلاين بكاش Firestore) ===== -->
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,setDoc,deleteDoc,collection,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 const app=initializeApp({apiKey:"AIzaSyDAaBA-XOZpiwnS3uB8jYR8ECan_5G7fV8",authDomain:"kenisty-coptic-3.firebaseapp.com",projectId:"kenisty-coptic-3",storageBucket:"kenisty-coptic-3.firebasestorage.app",messagingSenderId:"910306888735",appId:"1:910306888735:web:da7b17e12240873471192a"});
 const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
@@ -409,7 +424,7 @@ FB.push=async snap=>{const ch=pack(snap),ops=[];
 
 function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j]));
  if(!docs.length){                                   // قاعدة البيانات فاضية: أول تشغيل
-  if(first){if(!confirm('قاعدة البيانات فاضية.\nموافق = ابدأ ببيانات تجريبية\nإلغاء = ابدأ من الصفر')){S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1}
+  if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1}
    S.dirty=true;first=false;sync()}return}
  if(S.dirty&&!first)return;                          // عندي تعديلات لسه ما اترفعتش
  const n={seq:S.seq,services:S.services,members:S.members,sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan};
@@ -426,9 +441,16 @@ function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j]));
 onAuthStateChanged(auth,u=>{unsub?.();unsub=null;
  if(u){Q('#login').classList.add('hidden');first=true;last={};unsub=onSnapshot(collection(db,'users',u.uid,'c'),load,()=>toast('تعذّر الاتصال بالسيرفر'))}
  else Q('#login').classList.remove('hidden')});
-Q('#lf').onsubmit=async e=>{e.preventDefault();const b=Q('#lerr');b.textContent='';
- try{await signInWithEmailAndPassword(auth,Q('#le').value.trim(),Q('#lp').value)}
- catch(x){b.textContent=x.code==='auth/network-request-failed'?'لا يوجد إنترنت':x.code==='auth/api-key-not-valid.-please-pass-a-valid-api-key.'?'مفتاح Firebase غير صحيح':'الإيميل أو الباسورد غير صحيح'}};
+let signup=false;const msg=(t,ok)=>{const b=Q('#lerr');b.className=(ok?'text-ok':'text-bad')+' text-sm mt-2 min-h-[1.25rem]';b.textContent=t};
+Q('#lgg').onclick=async()=>{msg('');
+ try{await signInWithPopup(auth,new GoogleAuthProvider())}
+ catch(x){const c=x.code;msg(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'':c==='auth/unauthorized-domain'?'الدومين غير مضاف في Firebase':c==='auth/operation-not-allowed'?'دخول Google غير مفعّل في Firebase':c==='auth/network-request-failed'?'لا يوجد إنترنت':'الدخول بـ Google غير متاح هنا، استخدم الإيميل والباسورد')}};
+Q('#lmode').onclick=()=>{signup=!signup;Q('#lgo').textContent=signup?'إنشاء الحساب':'دخول';Q('#lmode').textContent=signup?'لديك حساب؟ سجّل الدخول':'ليس لديك حساب؟ أنشئ حساب جديد';msg('')};
+Q('#lreset').onclick=async()=>{const m=Q('#le').value.trim();if(!m)return msg('اكتب إيميلك أولًا');
+ try{await sendPasswordResetEmail(auth,m);msg('تم إرسال رابط تغيير الباسورد لإيميلك',1)}catch(_){msg('تعذّر الإرسال، راجع الإيميل')}};
+Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q('#lp').value;msg('');
+ try{signup?await createUserWithEmailAndPassword(auth,m,p):await signInWithEmailAndPassword(auth,m,p)}
+ catch(x){const c=x.code;msg(c==='auth/network-request-failed'?'لا يوجد إنترنت':c==='auth/email-already-in-use'?'الإيميل مسجّل بالفعل، سجّل الدخول':c==='auth/weak-password'?'الباسورد ضعيف (٦ أحرف على الأقل)':c==='auth/invalid-email'?'الإيميل غير صحيح':c==='auth/operation-not-allowed'?'إنشاء الحسابات غير مفعّل':signup?'تعذّر إنشاء الحساب':'الإيميل أو الباسورد غير صحيح')}};
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-sub="out"]'))return;e.stopImmediatePropagation();
  if(confirm('تسجيل الخروج من هذا الجهاز؟')){await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()}},true);
 </script>
