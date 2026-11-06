@@ -454,6 +454,26 @@ Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-sub="out"]'))return;e.stopImmediatePropagation();
  if(confirm('تسجيل الخروج من هذا الجهاز؟')){await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()}},true);
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
+<script>
+/* Service worker registration + offline helpers */
+if ('serviceWorker' in navigator) {
+  addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js', { scope: './' });
+      reg.addEventListener('updatefound', () => {                 // a new version was deployed
+        const nw = reg.installing;
+        nw && nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated' && navigator.serviceWorker.controller) toast('تحديث جديد جاهز - أغلق التطبيق وافتحه');
+        });
+      });
+      const ready = await navigator.serviceWorker.ready;           // cache what this first visit loaded
+      ready.active && ready.active.postMessage({ type: 'CACHE_URLS', urls: performance.getEntriesByType('resource').map(r => r.name) });
+    } catch (_) {}
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist();   // ask the browser not to evict our data
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });   // retry sync when the app returns to front
+  setInterval(() => { if (navigator.onLine) sync(); }, 60000);                                // and once a minute while open
+}
+</script>
 </body>
 </html>
