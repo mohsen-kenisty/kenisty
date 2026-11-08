@@ -1,6 +1,6 @@
 /* Kenisty - offline-first service worker.
    Bump VERSION on every deploy so users get the new files. */
-const VERSION = 'kenisty-v5';
+const VERSION = 'kenisty-v7';
 const SHELL = VERSION + '-shell';   // our own files
 const LIBS  = VERSION + '-libs';    // CDN scripts, fonts, Firebase SDK
 

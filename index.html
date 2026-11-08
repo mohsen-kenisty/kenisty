@@ -312,7 +312,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 /* ========== المرحلة ٤: تقارير شهرية + تصدير + سجل جلسات + تعديل تواريخ سابقة + لوحة أمين الخدمة + إشعارات ========== */
 let RD=null;
 const SUBT={plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات'};
-const moreMenu=()=>[['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const moreMenu=()=>[['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -390,22 +390,38 @@ applyPriv();updSync();render();notifyDue();
   <div class="text-center text-4xl mb-2">⛪</div>
   <h1 class="text-xl font-extrabold text-center">كنيستي القبطية 3</h1>
   <p class="text-xs text-mute text-center mb-4">سجّل الدخول للمتابعة</p>
-  <input id="le" type="email" autocomplete="username" dir="ltr" placeholder="الإيميل" class="w-full bg-bg border border-line rounded-xl px-3 py-3 mb-2 text-right placeholder:text-mute">
+  <input id="le" type="email" autocomplete="username" dir="ltr" placeholder="الإيميل" class="w-full bg-bg border border-line rounded-xl px-3 py-3 text-right placeholder:text-mute mb-2">
   <input id="lp" type="password" autocomplete="current-password" dir="ltr" placeholder="الباسورد" class="w-full bg-bg border border-line rounded-xl px-3 py-3 text-right placeholder:text-mute">
+  <input id="lcode" autocomplete="off" dir="ltr" placeholder="كود الدعوة (لأول مرة فقط)" class="w-full bg-bg border border-line rounded-xl px-3 py-3 text-right placeholder:text-mute mt-2">
+  <p class="text-[11px] text-mute mt-1">الكود بتاخده من أمين الخدمة وبتكتبه مرة واحدة بس.</p>
   <div id="lerr" class="text-bad text-sm mt-2 min-h-[1.25rem]"></div>
-  <button type="button" id="lgg" class="w-full mb-3 bg-white text-slate-800 font-bold rounded-xl py-3 flex items-center justify-center gap-2"><span class="text-lg font-extrabold" style="color:#4285f4">G</span>الدخول بحساب Google</button>
-  <div class="text-center text-xs text-mute mb-2">أو بالإيميل والباسورد</div>
   <button id="lgo" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">دخول</button>
   <button type="button" id="lmode" class="w-full mt-3 text-sm text-acc">ليس لديك حساب؟ أنشئ حساب جديد</button>
   <button type="button" id="lreset" class="w-full mt-1 text-xs text-mute">نسيت الباسورد؟</button>
+  <div class="text-center text-xs text-mute my-3">أو</div>
+  <button type="button" id="lgg" class="w-full bg-white text-slate-800 font-bold rounded-xl py-3 flex items-center justify-center gap-2"><span class="text-lg font-extrabold" style="color:#4285f4">G</span>الدخول بحساب Google</button>
  </form>
+</div>
+<div id="gate" class="fixed inset-0 z-[70] bg-bg grid place-items-center p-6 hidden">
+ <div class="w-full max-w-sm bg-card border border-line rounded-3xl p-6">
+  <div class="text-center text-4xl mb-2">🔑</div>
+  <h2 class="text-lg font-extrabold text-center">كود الدعوة</h2>
+  <p class="text-xs text-mute text-center mb-4">اطلب الكود من أمين الخدمة واكتبه مرة واحدة فقط.</p>
+  <input id="gc" autocomplete="off" dir="ltr" placeholder="الكود" class="w-full bg-bg border border-line rounded-xl px-3 py-3 text-right placeholder:text-mute">
+  <div id="gerr" class="text-bad text-sm mt-2 min-h-[1.25rem]"></div>
+  <button id="gb" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">تأكيد</button>
+  <button id="gr" class="w-full mt-2 border border-line rounded-xl py-3 text-sm font-bold">مفيش معايا كود؟ أرسل طلب انضمام</button>
+  <div id="gstat" class="text-center text-sm text-acc mt-2 min-h-[1.25rem]"></div>
+  <button id="go" class="w-full mt-3 text-sm text-mute">تسجيل الخروج</button>
+ </div>
 </div>
 
 <!-- ===== Firebase: تسجيل الدخول + مزامنة Firestore (يعمل أوفلاين بكاش Firestore) ===== -->
+<div id="own" class="fixed inset-0 z-[65] bg-bg overflow-y-auto hidden"></div>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,setDoc,deleteDoc,collection,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,setDoc,deleteDoc,getDoc,getDocs,updateDoc,query,where,collection,onSnapshot,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 const app=initializeApp({apiKey:"AIzaSyDAaBA-XOZpiwnS3uB8jYR8ECan_5G7fV8",authDomain:"kenisty-coptic-3.firebaseapp.com",projectId:"kenisty-coptic-3",storageBucket:"kenisty-coptic-3.firebasestorage.app",messagingSenderId:"910306888735",appId:"1:910306888735:web:da7b17e12240873471192a"});
 const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
@@ -438,17 +454,107 @@ function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j]));
  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}
  first=false;updSync();render()}
 
+/* ===== كود الدعوة: العضوية تُسجَّل مرة واحدة في members/{uid}، والقواعد تقارن الكود بـ config/invite ===== */
+let pendingCode='';const memKey=id=>'kenisty_member_'+id,H=(s,on)=>Q(s).classList.toggle('hidden',!on);
+async function checkMember(u,code){
+ if(localStorage.getItem(memKey(u.uid))==='1')return true;           // اتأكد قبل كده (يشتغل أوفلاين)
+ const ref=doc(db,'members',u.uid);
+ try{if((await getDoc(ref)).exists()){localStorage.setItem(memKey(u.uid),'1');return true}}
+ catch(_){if(!navigator.onLine)return 'offline'}
+ if(code){try{await setDoc(ref,{code,t:serverTimestamp()});localStorage.setItem(memKey(u.uid),'1');return true}
+  catch(_){return navigator.onLine?'bad':'offline'}}
+ return 'need';
+}
+async function enter(u,code){
+ const adm=await checkAdmin(u);const r=adm?true:await checkMember(u,code);
+ if(r===true){unsubM?.();unsubR?.();H('#login',0);H('#gate',0);first=true;last={};unsub?.();
+  unsub=onSnapshot(collection(db,'users',u.uid,'c'),load,()=>toast('تعذّر الاتصال بالسيرفر'));return}
+ if(r==='offline'){H('#login',0);H('#gate',0);toast('بدون إنترنت - بيانات الموبايل فقط');return}   // لا نمنع الاستخدام أوفلاين
+ H('#login',0);H('#gate',1);
+ Q('#gerr').textContent=r==='bad'?'الكود غير صحيح أو انتهت صلاحيته':'';
+ try{if((await getDoc(doc(db,'requests',u.uid))).exists())watchApproval(u)}catch(_){}
+}
 onAuthStateChanged(auth,u=>{unsub?.();unsub=null;
- if(u){Q('#login').classList.add('hidden');first=true;last={};unsub=onSnapshot(collection(db,'users',u.uid,'c'),load,()=>toast('تعذّر الاتصال بالسيرفر'))}
- else Q('#login').classList.remove('hidden')});
+ if(u){const c=pendingCode;pendingCode='';enter(u,c)}
+ else{window.IS_ADMIN=false;closeOwner();H('#gate',0);H('#login',1)}});
+addEventListener('online',()=>{if(auth.currentUser&&!unsub)enter(auth.currentUser,'')});
+Q('#gb').onclick=()=>{const c=Q('#gc').value.trim();if(!c){Q('#gerr').textContent='اكتب الكود';return}enter(auth.currentUser,c)};
+Q('#go').onclick=async()=>{await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()};
+/* ===== طلبات الانضمام + لوحة المالك (تظهر فقط لحساب موجود في admins) ===== */
+let unsubM=null,unsubR=null;
+async function checkAdmin(u){const k='kenisty_admin_'+u.uid;let a=localStorage.getItem(k)==='1';
+ try{a=(await getDoc(doc(db,'admins',u.uid))).exists();localStorage.setItem(k,a?'1':'0')}catch(_){}
+ if(!!window.IS_ADMIN!==a){window.IS_ADMIN=a;render()}return a}
+function watchApproval(u){H('#gate',1);Q('#gstat').textContent='طلبك قيد المراجعة...';Q('#gr').classList.add('hidden');
+ unsubM?.();unsubR?.();
+ unsubM=onSnapshot(doc(db,'members',u.uid),s=>{if(s.exists()){localStorage.setItem(memKey(u.uid),'1');enter(u,'')}},()=>{});
+ unsubR=onSnapshot(doc(db,'requests',u.uid),s=>{const d=s.data()||{};
+  Q('#gstat').textContent=d.status==='rejected'?'تم رفض الطلب. كلّم أمين الخدمة.':'طلبك قيد المراجعة... هيفتح لك البرنامج لما يتم قبولك'},()=>{})}
+async function sendRequest(u){
+ try{await setDoc(doc(db,'requests',u.uid),{email:u.email||'',name:u.displayName||'',status:'pending',t:serverTimestamp()})}
+ catch(_){Q('#gerr').textContent=navigator.onLine?'تعذّر إرسال الطلب (ربما أُرسل من قبل)':'يلزم إنترنت لإرسال الطلب';return}
+ watchApproval(u)}
+Q('#gr').onclick=()=>sendRequest(auth.currentUser);
+
+const pinKey=id=>'kenisty_pin_'+id,tryKey=id=>'kenisty_pinx_'+id;
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const weak=p=>/^(\d)\1{5}$/.test(p)||'01234567890'.includes(p)||'09876543210'.includes(p)||['123123','112233','121212','111222'].includes(p);
+const AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',gen=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>AL[b%AL.length]).join('');
+const ymNow=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const mlabel=(ym,n)=>{const [y,m]=ym.split('-').map(Number);return new Date(y,m-1+n,1).toLocaleDateString('ar-EG',{month:'long',year:'numeric'})};
+const ob='w-full bg-bg border border-line rounded-xl px-3 py-3 text-center tracking-widest',cd='bg-card border border-line rounded-2xl p-4 mt-3';
+let otab='codes',odata={};const O=()=>Q('#own');
+function closeOwner(){const o=O();if(o){o.classList.add('hidden');o.innerHTML=''}}
+function shell(inner){O().classList.remove('hidden');O().innerHTML=`<div class="max-w-md mx-auto p-4 pb-16"><div class="flex items-center gap-3 mb-3"><button data-oa="close" class="w-10 h-10 rounded-xl bg-card border border-line" aria-label="إغلاق">✕</button><h1 class="text-xl font-extrabold">👑 لوحة المالك</h1></div>${inner}</div>`}
+function openOwner(){const u=auth.currentUser;if(!u)return;localStorage.getItem(pinKey(u.uid))?ownerLock():ownerSet()}
+function ownerSet(m=''){shell(`<div class="${cd}"><h2 class="font-bold mb-1">اختر رقمك السري</h2><p class="text-xs text-mute mb-3">٦ أرقام مميزة. بلاش تاريخ ميلادك ولا ١٢٣٤٥٦.</p><input id="p1" type="password" inputmode="numeric" maxlength="6" placeholder="••••••" class="${ob}"><input id="p2" type="password" inputmode="numeric" maxlength="6" placeholder="أعد كتابته" class="${ob} mt-2"><div class="text-bad text-sm mt-2 min-h-[1.25rem]">${m}</div><button data-oa="setpin" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`)}
+function ownerLock(m=''){shell(`<div class="${cd}"><h2 class="font-bold mb-3">اكتب الرقم السري</h2><input id="p1" type="password" inputmode="numeric" maxlength="6" class="${ob}"><div class="text-bad text-sm mt-2 min-h-[1.25rem]">${m}</div><button data-oa="unlock" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">فتح</button><p class="text-[11px] text-mute mt-3">نسيت الرقم؟ امسح بيانات الموقع من إعدادات المتصفح وسجّل دخول تاني، وتختار رقم جديد.</p></div>`)}
+async function doUnlock(){const u=auth.currentUser,p=Q('#p1').value.trim(),tk=tryKey(u.uid);let t={n:0,until:0};
+ try{t=JSON.parse(localStorage.getItem(tk))||t}catch(_){}
+ if(Date.now()<t.until)return ownerLock('محاولات كتير. جرّب بعد '+Math.ceil((t.until-Date.now())/6e4)+' دقيقة');
+ if(await sha(u.uid+':'+p)===localStorage.getItem(pinKey(u.uid))){localStorage.removeItem(tk);ownerMain()}
+ else{t.n++;if(t.n>=5)t={n:0,until:Date.now()+3e5};localStorage.setItem(tk,JSON.stringify(t));ownerLock('الرقم غير صحيح')}}
+async function ownerMain(){shell('<p class="text-mute text-sm">جاري التحميل…</p>');
+ try{const s=await getDoc(doc(db,'config','invite'));odata.inv=s.exists()?s.data():{};
+  const q=await getDocs(query(collection(db,'requests'),where('status','==','pending')));odata.req=q.docs.map(d=>({id:d.id,...d.data()}))}
+ catch(_){return shell('<p class="text-bad text-sm">تعذّر التحميل. اتأكد من النت ومن إضافة حسابك في admins.</p>')}
+ ownerView()}
+function ownerView(){const inv=odata.inv||{},cs=inv.codes||[],ix=inv.idx??0,rq=odata.req||[],tb=(k,l)=>`<button data-oa="tab" data-t="${k}" class="py-2 rounded-xl text-sm font-bold border ${otab===k?'bg-acc border-acc text-white':'border-line text-mute bg-card'}">${l}</button>`;
+ let body='';
+ if(otab==='codes'){
+  body=(inv.code?`<div class="${cd} text-center"><div class="text-xs text-mute">الكود الحالي</div><div class="text-3xl font-extrabold font-mono tracking-widest my-2" dir="ltr">${esc(inv.code)}</div><div class="grid grid-cols-2 gap-2"><button data-oa="copy" class="border border-line rounded-xl py-2.5 text-sm font-bold">نسخ</button><button data-oa="wa" class="bg-ok text-white rounded-xl py-2.5 text-sm font-bold">إرسال واتساب</button></div></div>`:`<div class="${cd} text-sm text-mute">لا توجد أكواد بعد. اضغط "أنشئ أكواد السنة".</div>`)
+  +(cs.length?`<div class="${cd}"><h2 class="font-bold mb-1">أكواد السنة</h2>${cs.map((c,i)=>`<div class="flex items-center gap-3 py-2 border-b border-line last:border-0"><div class="flex-1"><div class="text-xs text-mute">${mlabel(inv.since||ymNow(),i*2)}</div><div class="font-mono font-bold" dir="ltr">${esc(c)}</div></div>${i===ix?'<span class="text-xs text-ok font-bold">الحالي ✓</span>':`<button data-oa="act" data-i="${i}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">تفعيل</button>`}</div>`).join('')}<button data-oa="next" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-2.5 ${ix>=cs.length-1?'opacity-40':''}">فعّل الكود التالي</button></div>`:'')
+  +`<button data-oa="gen" class="w-full mt-3 border border-line rounded-xl py-3 text-sm font-bold">${cs.length?'أنشئ أكواد جديدة (تستبدل الحالية)':'أنشئ أكواد السنة'}</button><p class="text-[11px] text-mute mt-2">تغيير الكود يمنع الدخول بالكود القديم للخدام الجداد فقط. الخدام الحاليين لا يتأثرون.</p>`}
+ else body=rq.length?rq.map(r=>`<div class="${cd}"><div class="font-bold">${esc(r.name||'بدون اسم')}</div><div class="text-xs text-mute" dir="ltr">${esc(r.email)}</div><div class="grid grid-cols-2 gap-2 mt-3"><button data-oa="ok" data-u="${r.id}" class="bg-ok text-white rounded-xl py-2.5 font-bold">قبول</button><button data-oa="no" data-u="${r.id}" class="border border-bad/50 text-bad rounded-xl py-2.5 font-bold">رفض</button></div></div>`).join(''):`<p class="text-center text-mute py-10">لا توجد طلبات انضمام</p>`;
+ shell(`<div class="grid grid-cols-2 gap-2">${tb('codes','الأكواد')}${tb('req','الطلبات'+(rq.length?' ('+rq.length+')':''))}</div>${body}`)}
+async function saveInv(o){await setDoc(doc(db,'config','invite'),{...o,t:serverTimestamp()},{merge:true});odata.inv={...odata.inv,...o};ownerView()}
+O().addEventListener('click',async e=>{const b=e.target.closest('[data-oa]');if(!b)return;const a=b.dataset.oa,u=auth.currentUser,inv=odata.inv||{},cs=inv.codes||[];
+ try{
+ if(a==='close')closeOwner();
+ else if(a==='setpin'){const p=Q('#p1').value.trim(),q=Q('#p2').value.trim();
+  if(!/^\d{6}$/.test(p))return ownerSet('لازم ٦ أرقام');if(weak(p))return ownerSet('الرقم سهل التخمين، اختار رقم مميز');if(p!==q)return ownerSet('الرقمين مش متطابقين');
+  localStorage.setItem(pinKey(u.uid),await sha(u.uid+':'+p));ownerMain()}
+ else if(a==='unlock')doUnlock();
+ else if(a==='tab'){otab=b.dataset.t;ownerView()}
+ else if(a==='gen'){if(cs.length&&!confirm('هذا يستبدل كل الأكواد والكود الحالي. متأكد؟'))return;const c=Array.from({length:6},gen);await saveInv({codes:c,idx:0,code:c[0],since:ymNow()});toast('تم إنشاء الأكواد')}
+ else if(a==='act'){const i=+b.dataset.i;await saveInv({idx:i,code:cs[i]});toast('تم تفعيل الكود')}
+ else if(a==='next'){const i=(inv.idx??0)+1;if(i>=cs.length)return toast('ده آخر كود في القائمة');await saveInv({idx:i,code:cs[i]});toast('تم تفعيل الكود التالي')}
+ else if(a==='copy'){await navigator.clipboard.writeText(inv.code);toast('تم نسخ الكود')}
+ else if(a==='wa')window.open('https://wa.me/?text='+encodeURIComponent('سلام ونعمة 🙏\nرابط البرنامج: '+location.origin+location.pathname+'\nكود الدعوة: '+inv.code+'\nاكتبه مرة واحدة عند أول دخول.'),'_blank','noopener');
+ else if(a==='ok'||a==='no'){const id=b.dataset.u;
+  if(a==='ok')await setDoc(doc(db,'members',id),{by:'admin',t:serverTimestamp()});
+  await updateDoc(doc(db,'requests',id),{status:a==='ok'?'approved':'rejected'});
+  odata.req=(odata.req||[]).filter(x=>x.id!==id);ownerView();toast(a==='ok'?'تم القبول':'تم الرفض')}
+ }catch(_){toast('تعذّر التنفيذ، اتأكد من النت وصلاحيات المالك')}});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-sub="owner"]'))return;e.stopImmediatePropagation();openOwner()},true);
 let signup=false;const msg=(t,ok)=>{const b=Q('#lerr');b.className=(ok?'text-ok':'text-bad')+' text-sm mt-2 min-h-[1.25rem]';b.textContent=t};
-Q('#lgg').onclick=async()=>{msg('');
+Q('#lgg').onclick=async()=>{msg('');pendingCode=Q('#lcode').value.trim();
  try{await signInWithPopup(auth,new GoogleAuthProvider())}
  catch(x){const c=x.code;msg(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'':c==='auth/unauthorized-domain'?'الدومين غير مضاف في Firebase':c==='auth/operation-not-allowed'?'دخول Google غير مفعّل في Firebase':c==='auth/network-request-failed'?'لا يوجد إنترنت':'الدخول بـ Google غير متاح هنا، استخدم الإيميل والباسورد')}};
 Q('#lmode').onclick=()=>{signup=!signup;Q('#lgo').textContent=signup?'إنشاء الحساب':'دخول';Q('#lmode').textContent=signup?'لديك حساب؟ سجّل الدخول':'ليس لديك حساب؟ أنشئ حساب جديد';msg('')};
 Q('#lreset').onclick=async()=>{const m=Q('#le').value.trim();if(!m)return msg('اكتب إيميلك أولًا');
  try{await sendPasswordResetEmail(auth,m);msg('تم إرسال رابط تغيير الباسورد لإيميلك',1)}catch(_){msg('تعذّر الإرسال، راجع الإيميل')}};
-Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q('#lp').value;msg('');
+Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q('#lp').value;pendingCode=Q('#lcode').value.trim();msg('');
  try{signup?await createUserWithEmailAndPassword(auth,m,p):await signInWithEmailAndPassword(auth,m,p)}
  catch(x){const c=x.code;msg(c==='auth/network-request-failed'?'لا يوجد إنترنت':c==='auth/email-already-in-use'?'الإيميل مسجّل بالفعل، سجّل الدخول':c==='auth/weak-password'?'الباسورد ضعيف (٦ أحرف على الأقل)':c==='auth/invalid-email'?'الإيميل غير صحيح':c==='auth/operation-not-allowed'?'إنشاء الحسابات غير مفعّل':signup?'تعذّر إنشاء الحساب':'الإيميل أو الباسورد غير صحيح')}};
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-sub="out"]'))return;e.stopImmediatePropagation();
