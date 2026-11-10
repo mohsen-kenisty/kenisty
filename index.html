@@ -8,16 +8,16 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>كنيستي القبطية 3</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700&family=Almarai:wght@400;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script>
 tailwind.config={theme:{extend:{fontFamily:{sans:['Tajawal','system-ui','sans-serif']},
- colors:{bg:'#121824',card:'#1a2233',line:'#273148',mute:'#8b97ad',ok:'#22c55e',warn:'#f59e0b',bad:'#ef4444',acc:'#4f8cff'}}}}
+ colors:{bg:'rgb(var(--bg) / <alpha-value>)',card:'rgb(var(--card) / <alpha-value>)',line:'rgb(var(--line) / <alpha-value>)',mute:'#8b97ad',ok:'#22c55e',warn:'#f59e0b',bad:'#ef4444',acc:'rgb(var(--acc) / <alpha-value>)'}}}}
 </script>
 <style>
-:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html,body{background:#121824}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#121824;z-index:40}
+:root{--bg:18 24 36;--card:26 34 51;--line:39 49 72;--acc:79 140 255;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:rgb(var(--bg))}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:rgb(var(--bg));z-index:40}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #4f8cff;outline-offset:2px}
 @keyframes up{from{transform:translateY(50%);opacity:.5}}.up{animation:up .22s}
 .sens{transition:filter .2s}body.priv .sens{filter:blur(7px);user-select:none;pointer-events:none}
@@ -105,7 +105,7 @@ function vMembers(){
 
 function vMore(){
  if(ui.sub==='plan')return vPlan();
- const sv4={hist:vHist,month:vMonth,sup:vSup,nset:vNset}[ui.sub];if(sv4)return sv4();
+ const sv4={bd:vBd,fu:vFu,help:vHelp,srv:vSrv,wk:vWk,pts:vPts,set:vSet,hist:vHist,month:vMonth,sup:vSup,nset:vNset}[ui.sub];if(sv4)return sv4();
  if(ui.sub==='services')return `
   <div class="bg-card border border-line rounded-2xl p-3 flex gap-2"><input id="ns" placeholder="اسم مرحلة أو اجتماع جديد" class="flex-1 bg-bg border border-line rounded-xl px-3 py-2.5 placeholder:text-mute"><button id="adds" class="bg-acc text-white font-bold rounded-xl px-4 flex items-center gap-1">${ic('plus','w-4 h-4')}إضافة</button></div>
   <div class="space-y-3 mt-4">${S.services.map(s=>{const c=countOf(s.id),ms=S.members.filter(m=>m.sid===s.id),av=ms.map(pct).filter(x=>x!==null),a=av.length?Math.round(av.reduce((x,y)=>x+y,0)/av.length):null,[t]=tone(a);return `
@@ -119,7 +119,7 @@ function vMore(){
   ${moreMenu()}
   <button data-sub="plan" class="w-full bg-card border border-acc/40 rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-warn/15 text-warn grid place-items-center text-xl">🗺</div><div class="flex-1"><div class="font-bold">خطة البرنامج</div><div class="text-xs text-mute">ما تم وما سيُستكمل لاحقًا</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>
   <button data-sub="services" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 text-acc grid place-items-center">${ic('mem','w-6 h-6')}</div><div class="flex-1"><div class="font-bold">الخدمات والفصول</div><div class="text-xs text-mute">${S.services.length} خدمات · ${S.members.length} مخدوم</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>
-  ${['التقارير الأسبوعية','الإعدادات'].map(x=>`<div class="bg-card/50 border border-line rounded-2xl p-4 flex justify-between text-mute"><span>${x}</span><span class="text-xs">قريبًا</span></div>`).join('')}</div>`}
+  </div>`}
 
 /* ========== PART 2: الحضور + الافتقاد + التقارير ========== */
 let TODAY=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);const REAL=TODAY;
@@ -189,7 +189,7 @@ function vHome(){
   ab=last?last.absIds.map(id=>S.members.find(m=>m.id===id)).filter(Boolean):[],
   done=m=>(S.notes[m.id]||[]).some(n=>n.ts>new Date(last.date).getTime()),
   bds=S.members.filter(m=>m.bd&&dtb(m.bd)<=7).sort((a,b)=>dtb(a.bd)-dtb(b.bd)),r6=S.reports.slice(-6);
- return `<div class="text-sm text-mute">${arDate()}</div>
+ return `<div class="text-sm text-mute">${arDate()}</div>${homeTop(c,last)}
  <div class="rounded-2xl p-4 mt-2 bg-gradient-to-br from-[#25508f] to-acc"><div class="text-sm">صحة الفصل${r4.length?' — آخر '+r4.length+' جلسات':''}</div><div class="text-4xl font-extrabold">${h}% <span class="text-sm font-bold">${h>=80?'مستقر':h>=60?'يحتاج متابعة':'يحتاج افتقاد عاجل'}</span></div><div class="h-2 rounded-full bg-white/25 mt-2 overflow-hidden"><div class="h-full bg-white" style="width:${h}%"></div></div></div>
  <div class="${card}"><div class="flex justify-between items-center"><h2 class="font-bold">جلسة اليوم</h2><button data-t="att" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">${closedToday()?'عرض':'سجّل الحضور'}</button></div>
   <div class="grid grid-cols-4 gap-2 mt-3">${stat(S.members.length,'الإجمالي','text-slate-100')}${stat(c.p+c.l,'حاضر','text-ok')}${stat(c.a,'غايب','text-bad')}${stat(c.e,'معتذر','text-sky-400')}</div></div>
@@ -279,6 +279,7 @@ function memberForm(id){const m=id?findM(id):{};PH=(m.photo||'').startsWith('dat
  <label class="text-xs text-mute block mt-2">الصورة (رابط أو رفع)</label><input id="mpu" dir="ltr" placeholder="https://…" value="${/^https?:/i.test(m.photo||'')?esc(m.photo):''}" class="${inp}"><input id="mpf" type="file" accept="image/*" class="${inp} text-xs">
  <details class="mt-3"><summary class="text-sm text-acc cursor-pointer">بيانات إضافية</summary>${f('gname','اسم ولي الأمر')}${f('rel','صلة القرابة')}${f('ephone','تليفون الطوارئ','inputmode="tel" dir="ltr"')}${f('leader','أمين الخدمة')}${f('church','كنيسة الاعتراف')}
   <label class="text-xs text-mute block mt-2">تاريخ الميلاد</label><input type="date" data-k="bdfull" value="${m.bd?'2000-'+m.bd:''}" class="${inp}"></details>
+ <div id="dirty" class="hidden text-xs text-warn mt-3">● تغييرات غير محفوظة</div>
  <button data-a="msave" data-id="${id||''}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button>
  ${id?'':`<button data-a="msave2" class="w-full mt-2 border border-acc/50 text-acc font-bold rounded-xl py-3">حفظ وإضافة آخر</button><details class="mt-4"><summary class="text-sm text-acc cursor-pointer">لصق قائمة أسماء (اسم في كل سطر)</summary><textarea id="mbk" rows="5" placeholder="مينا عادل&#10;مريم سمير" class="${inp}"></textarea><button data-a="mbulk" class="w-full mt-2 border border-line rounded-xl py-2.5">استيراد القائمة للخدمة المختارة</button></details>`}</div>`;
  $('#sheet').classList.remove('hidden');$('#sb [data-k=name]').focus()}
@@ -296,6 +297,7 @@ function noteSheet(id){noteSheetOld(id);curM=id;const m=findM(id),h=$('#sb>div>d
  $('#sb a[href^="tel:"]')?.parentElement.remove();
  h.insertAdjacentHTML('afterend',`<div class="flex justify-end"><button data-a="medit" data-id="${id}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5 mt-2">✎ تعديل البيانات</button><button data-a="mdel" data-id="${id}" class="text-xs text-bad border border-bad/40 rounded-lg px-3 py-1.5 mt-2 ms-2">🗑 حذف</button></div>
  <div class="bg-bg border border-line rounded-2xl px-3 py-1 mt-2">${row('الخادم',m.servant)}${row('أمين الخدمة',m.leader)}${row('أب الاعتراف',(m.father||'')+(m.church?' · '+m.church:''))}${row('ولي الأمر',(m.gname||'')+(m.rel?' ('+m.rel+')':''),1)}${row('هاتف ولي الأمر',m.phone,1,1)}${row('طوارئ',m.ephone,1,1)}</div>
+ ${histBlock(S.sess,id)}
  <div class="mt-3"><label class="text-xs text-mute">رسالة واتساب جاهزة</label><select id="tp" class="${inp}">${Object.entries(TPL).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select><textarea id="tx" rows="3" class="${inp}">${esc(fillTpl('abs',m))}</textarea><button data-a="wsend" data-id="${id}" class="w-full mt-2 bg-ok text-white font-bold rounded-xl py-2.5">إرسال على واتساب</button></div>`)}
 function sendWa(id){const m=findM(id);if(!m.phone)return toast('لا يوجد رقم لولي الأمر');
  window.open(wa(m.phone)+'?text='+encodeURIComponent($('#tx').value),'_blank','noopener');
@@ -311,8 +313,8 @@ document.addEventListener('change',async e=>{const t=e.target;
 ['ed','ph','bk','pr','wt'].forEach(id=>{const i=PLAN[2][1].find(x=>x[0]===id);if(i)i[2]=1});   // علّم مهام المرحلة ٣ كمنجزة
 /* ========== المرحلة ٤: تقارير شهرية + تصدير + سجل جلسات + تعديل تواريخ سابقة + لوحة أمين الخدمة + إشعارات ========== */
 let RD=null;
-const SUBT={plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات'};
-const moreMenu=()=>[['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const SUBT={bd:'أعياد الميلاد',fu:'تقرير الافتقاد',help:'كيف أستخدم البرنامج؟',srv:'الخدام وحضورهم',wk:'التقارير الأسبوعية',pts:'نقاط الحضور',set:'الإعدادات',plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات'};
+const moreMenu=()=>[['srv','🧑‍🏫','الخدام وحضورهم','قائمة الخدام + حضورهم + الخدمة المسؤولين عنها'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['help','❓','كيف أستخدم البرنامج؟','شرح مختصر لكل شاشة'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -344,7 +346,7 @@ const gcard=(t,l)=>`<div class="${card}"><h2 class="font-bold mb-2">${t}</h2>${l
 function vSup(){return S.reports.length?gcard('مقارنة الخدمات',grp(m=>svcName(m.sid)))+gcard('مقارنة الخدام (حضور مخدوميهم)',grp(m=>m.servant)):'<p class="text-center text-mute py-10">أغلق جلسة واحدة على الأقل لتظهر المقارنات</p>'}
 
 /* --- إعدادات التنبيهات + ساعات الهدوء + إشعارات الجهاز --- */
-const pfD={pre:true,fu:true,bd:true,qf:'22:00',qt:'07:00',md:5,mt:'19:00'};
+const pfD={pre:true,fu:true,bd:true,qf:'22:00',qt:'07:00',md:5,mt:'19:00',pp:5,pl:3};
 function pf(){return{...pfD,...(S.pf||{})}}
 function inQuiet(n){const p=pf(),t=s=>+s.slice(0,2)*60+ +s.slice(3),m=n.getHours()*60+n.getMinutes(),a=t(p.qf),b=t(p.qt);return a>b?(m>=a||m<b):(m>=a&&m<b)}
 function vNset(){const p=pf(),pm='Notification' in window?Notification.permission:'unsupported',
@@ -381,6 +383,200 @@ document.addEventListener('click',e=>{if(!e.target.closest('[data-sub="wipe"]'))
  if(!confirm('سيتم حذف كل المخدومين والحضور والتقارير والملاحظات. هل أنت متأكد؟'))return;
  if(!confirm('تأكيد أخير: لا يمكن التراجع. متابعة؟'))return;
  S.members=[];S.sess={};S.reports=[];S.notes={};S.seq=1;ui.f='all';save();render();toast('تم المسح — ابدأ بإضافة مخدومين')},true);
+/* ===== الخدام + التقارير الأسبوعية + نقاط الحضور + المظهر ===== */
+S.servants=S.servants||[];S.vsess=S.vsess||{};S.seqv=S.seqv||1;
+const ROLES=['خادم','أمين خدمة','مساعد'],ptsW=()=>({p:+pf().pp,l:+pf().pl,a:0,e:0});
+const svFind=id=>S.servants.find(x=>x.id===id);
+const svPct=id=>{let a=0,t=0;Object.values(S.vsess).forEach(d=>{const v=d[id];if(v==='p'||v==='l'){a++;t++}else if(v==='a')t++});return t?Math.round(a/t*100):null};
+const ymName=ym=>new Date(ym+'-01T12:00').toLocaleDateString('ar-EG',{month:'long',year:'numeric'});
+const roleTag=x=>esc(x.role||'خادم')+' · '+(x.sid?esc(svcName(x.sid)):'بدون خدمة');
+/* نقاط الشهر: كل أسبوع مسجّل = أقصى نقاط الحاضر. map = S.sess (مخدومين) أو S.vsess (خدام) */
+function ptsOf(map,list,ym){const ds=Object.keys(map).filter(d=>d.startsWith(ym)&&Object.keys(map[d]).length).sort(),W=ptsW();
+ const rows=list.map(x=>{let pts=0,w=0;ds.forEach(d=>{const v=map[d][x.id];if(v){pts+=W[v]||0;if(v==='p'||v==='l')w++}});return{x,pts,w}})
+  .sort((a,b)=>b.pts-a.pts||a.x.name.localeCompare(b.x.name,'ar'));
+ return{ds,max:ds.length*W.p,rows}}
+
+/* --- الخدام: قائمة + حضور --- */
+function vSrv(){
+ const tab=ui.stab||'att',sf=ui.sf||'all',lst=S.servants.filter(x=>sf==='all'||x.sid===sf);
+ const head=`<div class="grid grid-cols-2 gap-2">${[['att','حضور الخدام'],['list','قائمة الخدام']].map(([k,l])=>`<button data-sv="tab" data-k="${k}" class="py-2 rounded-xl text-sm font-bold border ${tab===k?'bg-acc border-acc text-white':'border-line text-mute bg-card'}">${l}</button>`).join('')}</div>`;
+ const chips=`<div class="flex gap-2 overflow-x-auto py-3 -mx-4 px-4">${[['all','الكل',S.servants.length],...S.services.map(s=>[s.id,s.name,S.servants.filter(x=>x.sid===s.id).length])].map(([id,n,c])=>`<button data-sv="sf" data-id="${id}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${sf===id?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(n)} · ${c}</button>`).join('')}</div>`;
+ if(tab==='list'){const ym=REAL.slice(0,7);
+  return head+'<button data-sv="add" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-3">+ إضافة خادم</button>'+chips+
+  `<div class="space-y-3">${lst.map(x=>{const p=svPct(x.id),[t]=tone(p),mp=ptsOf(S.vsess,[x],ym).rows[0];
+   return `<article class="bg-card border border-line rounded-2xl p-3"><div class="flex items-center gap-3">${avatar(x)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(x.name)}</div><div class="text-xs text-mute">${roleTag(x)}</div><div class="text-xs mt-1"><span class="${t} font-bold">${p===null?'—':p+'%'}</span> حضور · <b>${mp.pts}</b> نقطة هذا الشهر</div></div>
+    <div class="flex flex-col gap-2"><a href="tel:${esc(x.phone)}" aria-label="اتصال" class="w-10 h-10 grid place-items-center rounded-xl bg-acc/15 text-acc ${x.phone?'':'opacity-30 pointer-events-none'}">${ic('call','w-5 h-5')}</a><a href="${wa(x.phone)}" target="_blank" rel="noopener" aria-label="واتساب" class="w-10 h-10 grid place-items-center rounded-xl bg-ok/15 text-ok ${x.phone?'':'opacity-30 pointer-events-none'}">${ic('chat','w-5 h-5')}</a></div></div>
+    <div class="grid grid-cols-3 gap-2 mt-2"><button data-sv="hist" data-id="${x.id}" class="border border-line rounded-xl py-2 text-sm">📅 سجل</button><button data-sv="edit" data-id="${x.id}" class="border border-line rounded-xl py-2 text-sm">✎ تعديل</button><button data-sv="del" data-id="${x.id}" class="border border-bad/40 text-bad rounded-xl py-2 text-sm">🗑 حذف</button></div></article>`}).join('')||'<p class="text-center text-mute py-10">لا يوجد خدام. اضغط "+ إضافة خادم".</p>'}</div>`}
+ const d=ui.sdate||REAL,s=S.vsess[d]||{},c={p:0,l:0,a:0,e:0},W=ptsW();lst.forEach(x=>{if(s[x.id])c[s[x.id]]++});
+ return head+`<div class="flex items-center justify-between mt-3"><label class="font-extrabold cursor-pointer relative">${arDate(new Date(d+'T12:00'))} ▾<input type="date" id="sdt" max="${REAL}" value="${d}" aria-label="التاريخ" class="absolute inset-0 opacity-0 w-full"></label><button data-sv="allp" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5">الكل حاضر</button></div>
+ <div class="grid grid-cols-4 gap-2 mt-3">${stat(lst.length,'الإجمالي','text-slate-100')}${stat(c.p+c.l,'حاضر','text-ok')}${stat(c.a,'غايب','text-bad')}${stat(c.e,'معتذر','text-sky-400')}</div>
+ <p class="text-xs text-mute mt-2">نقاط الأسبوع: حاضر ${W.p} · متأخر ${W.l} · غايب أو معتذر 0</p>`+chips+
+ `<div class="space-y-3">${lst.map(x=>`<div class="bg-card border border-line rounded-2xl p-3"><div class="flex items-center gap-3">${avatar(x)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(x.name)}</div><div class="text-xs text-mute">${roleTag(x)}</div></div></div><div class="grid grid-cols-4 gap-1.5 mt-2.5">${Object.entries(ST).map(([k,[n,cls]])=>`<button data-sv="st" data-id="${x.id}" data-v="${k}" class="py-2 rounded-xl text-xs font-bold border ${s[x.id]===k?cls:'border-line text-mute'}">${n}</button>`).join('')}</div></div>`).join('')||'<p class="text-center text-mute py-10">أضف خدامًا من «قائمة الخدام» أولًا</p>'}</div>`}
+function svSheet(id){const x=id?svFind(id):{};
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="text-lg font-extrabold">${id?'تعديل خادم':'إضافة خادم'}</h2>
+ <label class="text-xs text-mute block mt-2">الاسم *</label><input id="svn" value="${esc(x.name||'')}" class="${inp}">
+ <label class="text-xs text-mute block mt-2">التليفون</label><input id="svp" inputmode="tel" dir="ltr" value="${esc(x.phone||'')}" class="${inp}">
+ <label class="text-xs text-mute block mt-2">الدور</label><select id="svr" class="${inp}">${ROLES.map(r=>`<option ${r===(x.role||'خادم')?'selected':''}>${r}</option>`).join('')}</select>
+ <label class="text-xs text-mute block mt-2">الخدمة المسؤول عنها</label><select id="svs" class="${inp}"><option value="">غير محدد</option>${S.services.map(s=>`<option value="${s.id}" ${s.id===x.sid?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
+ <label class="text-xs text-mute block mt-2">تاريخ الميلاد (اختياري)</label><input type="date" id="svb" value="${x.bd?'2000-'+x.bd:''}" class="${inp}">
+ <div id="dirty" class="hidden text-xs text-warn mt-3">● تغييرات غير محفوظة</div>
+ <button data-sv="save" data-id="${id||''}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;
+ $('#sheet').classList.remove('hidden');$('#svn').focus()}
+function svSave(id){const n=$('#svn').value.trim();if(!n)return toast('اكتب الاسم');
+ const o={name:n,phone:$('#svp').value.trim(),role:$('#svr').value,sid:$('#svs').value,bd:($('#svb').value||'').slice(5)};
+ if(id)Object.assign(svFind(id),o);else S.servants.push({id:'SV-'+String(S.seqv++).padStart(4,'0'),...o});
+ save();$('#sheet').classList.add('hidden');render();toast('تم الحفظ')}
+function svDel(id){const x=svFind(id);if(!x||!confirm('حذف '+x.name+' نهائيًا مع سجل حضوره؟'))return;
+ S.servants=S.servants.filter(y=>y.id!==id);Object.values(S.vsess).forEach(d=>delete d[id]);save();render();toast('تم الحذف')}
+
+/* --- التقرير الأسبوعي لكل خدمة --- */
+const wkDates=()=>Object.keys(S.sess).filter(d=>Object.keys(S.sess[d]).length).sort().reverse();
+function wkData(d,sid){const mem=S.members.filter(m=>sid==='all'||m.sid===sid),s=S.sess[d]||{};let p=0,l=0,a=0,e=0;const abs=[];
+ mem.forEach(m=>{const v=s[m.id];if(v==='p')p++;else if(v==='l')l++;else if(v==='a'){a++;abs.push(m.name)}else if(v==='e')e++});
+ const den=p+l+a;return{tot:mem.length,p,l,a,e,abs,rate:den?Math.round((p+l)/den*100):0,has:den>0}}
+function wkSel(){const ds=wkDates(),sid=ui.wsid||'all',d=ds.includes(ui.wdate)?ui.wdate:ds[0];return{ds,sid,d}}
+function wkText(d,sid){const r=wkData(d,sid),sv=S.servants.filter(x=>sid==='all'||x.sid===sid),vs=S.vsess[d]||{},vp=sv.filter(x=>vs[x.id]==='p'||vs[x.id]==='l').length;
+ return `📋 تقرير أسبوعي — ${sid==='all'?'كل الخدمات':svcName(sid)}\n📅 ${arDate(new Date(d+'T12:00'))}\n✅ الحضور: ${r.p+r.l} من ${r.p+r.l+r.a} (${r.rate}%)${r.l?` — منهم ${r.l} متأخر`:''}\n❌ الغياب: ${r.a}\n🟦 معتذر: ${r.e}\n${r.abs.length?'المتغيبون: '+r.abs.join('، ')+'\n':''}${sv.length?`👥 الخدام: حاضر ${vp} من ${sv.length}\n`:''}\nكنيستي القبطية 3`}
+function vWk(){const{ds,sid,d}=wkSel();if(!ds.length)return '<p class="text-center text-mute py-10">سجّل حضور أي جلسة أولًا لتظهر التقارير الأسبوعية</p>';
+ const r=wkData(d,sid),i=ds.indexOf(d),pr=ds[i+1]?wkData(ds[i+1],sid):null,dl=pr?(r.rate>=pr.rate?'▲ ':'▼ ')+Math.abs(r.rate-pr.rate)+'% عن الأسبوع السابق':'',
+  sv=S.servants.filter(x=>sid==='all'||x.sid===sid),vs=S.vsess[d]||{},vp=sv.filter(x=>vs[x.id]==='p'||vs[x.id]==='l').length;
+ return `<div class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">${[['all','كل الخدمات'],...S.services.map(s=>[s.id,s.name])].map(([id,n])=>`<button data-sv="wsid" data-id="${id}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${sid===id?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(n)}</button>`).join('')}</div>
+ <select id="wdt" class="${inp}" aria-label="الأسبوع">${ds.map(x=>`<option value="${x}" ${x===d?'selected':''}>${arDate(new Date(x+'T12:00'))}</option>`).join('')}</select>
+ <div class="rounded-2xl p-4 mt-3 bg-gradient-to-br from-[#0c111b] to-acc/70 border border-line"><div class="text-sm text-slate-300">${sid==='all'?'كل الخدمات':esc(svcName(sid))} · ${arDate(new Date(d+'T12:00'))}</div><div class="text-5xl font-extrabold mt-1">${r.rate}%</div><div class="text-sm text-slate-300">نسبة الحضور ${dl?'· '+dl:''}</div>
+ <div class="grid grid-cols-4 gap-2 mt-3 text-center text-xs">${[['إجمالي',r.tot],['حاضر',r.p+r.l],['غايب',r.a],['معتذر',r.e]].map(([l,n])=>`<div class="bg-white/10 rounded-xl py-2"><b class="text-base">${n}</b><br>${l}</div>`).join('')}</div>
+ ${r.abs.length?`<div class="text-sm mt-3">المتغيبون: ${r.abs.map(esc).join('، ')}</div>`:''}${sv.length?`<div class="text-sm mt-1">👥 الخدام: حاضر ${vp} من ${sv.length}</div>`:''}</div>
+ ${sid==='all'&&S.services.length>1?`<div class="${card}"><h2 class="font-bold mb-2">مقارنة الخدمات</h2>${S.services.map(s=>{const q=wkData(d,s.id),[t,b]=tone(q.has?q.rate:null);return `<div class="py-2"><div class="flex justify-between text-sm"><span class="font-bold">${esc(s.name)}</span><span class="${t} font-bold">${q.has?q.rate+'%':'—'}</span></div><div class="h-1.5 rounded-full bg-line mt-1 overflow-hidden"><div class="h-full ${b}" style="width:${q.has?q.rate:0}%"></div></div></div>`}).join('')}</div>`:''}
+ <div class="grid grid-cols-2 gap-2 mt-3"><button data-sv="wkshare" class="bg-ok text-white font-bold rounded-xl py-3">مشاركة واتساب</button><button data-sv="wkcopy" class="border border-line rounded-xl py-3 text-sm font-bold">نسخ النص</button></div>`}
+
+/* --- نقاط الحضور الشهرية (خدام أو مخدومين) --- */
+function vPts(){const ym=ui.pm||REAL.slice(0,7),kind=ui.pk||'sv',list=kind==='sv'?S.servants:S.members,{ds,max,rows}=ptsOf(kind==='sv'?S.vsess:S.sess,list,ym),W=ptsW();
+ return `<input type="month" id="pmo" value="${ym}" max="${REAL.slice(0,7)}" aria-label="الشهر" class="${inp}">
+ <div class="grid grid-cols-2 gap-2 mt-3">${[['sv','الخدام'],['mem','المخدومين']].map(([k,l])=>`<button data-sv="kind" data-k="${k}" class="py-2 rounded-xl text-sm font-bold border ${kind===k?'bg-acc border-acc text-white':'border-line text-mute bg-card'}">${l}</button>`).join('')}</div>
+ <p class="text-xs text-mute mt-2">كل أسبوع: حاضر ${W.p} نقاط · متأخر ${W.l} · غايب أو معتذر 0 (تتغيّر من الإعدادات)</p>
+ <div class="grid grid-cols-2 gap-2 mt-3">${stat(ds.length,'أسابيع مسجّلة','text-slate-100')}${stat(max,'أقصى نقاط','text-warn')}</div>
+ <div class="${card}"><h2 class="font-bold mb-1">ترتيب ${ymName(ym)}</h2>${ds.length?(rows.map((r,i)=>{const pc=max?Math.round(r.pts/max*100):0;return `<div class="flex items-center gap-3 py-2 border-b border-line last:border-0"><div class="w-7 text-center font-bold">${['🥇','🥈','🥉'][i]||(i+1)}</div>${avatar(r.x)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(r.x.name)}</div><div class="h-1.5 rounded-full bg-line mt-1 overflow-hidden"><div class="h-full bg-acc" style="width:${pc}%"></div></div><div class="text-[11px] text-mute mt-0.5">حضر ${r.w} من ${ds.length} أسبوع</div></div><div class="text-end"><div class="font-extrabold text-warn">${r.pts}</div><div class="text-[11px] text-mute">/ ${max}</div></div></div>`}).join('')||'<p class="text-sm text-mute">لا توجد أسماء</p>'):'<p class="text-sm text-mute py-4">لا توجد جلسات مسجّلة في هذا الشهر</p>'}</div>
+ ${ds.length?'<button data-sv="ptsshare" class="w-full mt-3 bg-ok text-white font-bold rounded-xl py-3">مشاركة الترتيب على واتساب</button>':''}`}
+function ptsText(){const ym=ui.pm||REAL.slice(0,7),kind=ui.pk||'sv',r=ptsOf(kind==='sv'?S.vsess:S.sess,kind==='sv'?S.servants:S.members,ym);
+ return `🏅 نقاط الحضور — ${kind==='sv'?'الخدام':'المخدومين'}\n📅 ${ymName(ym)} (${r.ds.length} أسبوع، أقصى ${r.max} نقطة)\n\n`+r.rows.slice(0,15).map((q,i)=>`${['🥇','🥈','🥉'][i]||(i+1)+'.'} ${q.x.name} — ${q.pts}`).join('\n')+'\n\nكنيستي القبطية 3'}
+
+/* --- الإعدادات: حجم/نوع الخط، الألوان، النقاط، الخصوصية (تُحفظ على الجهاز) --- */
+const FONTS=[['Tajawal','تجوال (الحالي)'],['Cairo','القاهرة'],['Almarai','المراعي'],['Amiri','أميري (خط نسخ)'],['system-ui','خط الجهاز']];
+const ACCS=[['79 140 255','أزرق'],['34 197 94','أخضر'],['200 150 43','ذهبي'],['168 85 247','بنفسجي'],['244 63 94','وردي'],['6 182 212','سماوي']];
+const BGS=[['كحلي','18 24 36','26 34 51','39 49 72'],['أسود','0 0 0','17 17 17','40 40 40'],['فحمي','24 24 27','39 39 42','63 63 70'],['ليلي','10 18 40','20 30 60','40 55 95']];
+let UIP={fs:16,ff:'Tajawal',ac:0,bg:0};try{UIP={...UIP,...JSON.parse(localStorage.getItem('kenisty_ui')||'{}')}}catch(_){}
+function applyUI(){const r=document.documentElement.style,b=BGS[UIP.bg]||BGS[0];
+ r.fontSize=UIP.fs+'px';r.setProperty('--acc',(ACCS[UIP.ac]||ACCS[0])[0]);r.setProperty('--bg',b[1]);r.setProperty('--card',b[2]);r.setProperty('--line',b[3]);
+ document.body.style.fontFamily=(UIP.ff==='system-ui'?'system-ui':"'"+UIP.ff+"'")+",system-ui,sans-serif";
+ const m=document.querySelector('meta[name=theme-color]');if(m)m.content='rgb('+b[1].replace(/ /g,',')+')'}
+function saveUI(){try{localStorage.setItem('kenisty_ui',JSON.stringify(UIP))}catch(_){}applyUI()}
+function vSet(){const pv=pf();
+ return `<div class="${card}" style="margin-top:0"><h2 class="font-bold mb-3">حجم الخط</h2><div class="flex items-center gap-3"><button data-sv="fs" data-d="-1" class="w-12 h-12 rounded-xl border border-line text-lg font-bold" aria-label="تصغير الخط">A−</button><div class="flex-1 text-center"><div class="font-bold">${Math.round(UIP.fs/16*100)}%</div><div class="text-xs text-mute">${UIP.fs}px</div></div><button data-sv="fs" data-d="1" class="w-12 h-12 rounded-xl border border-line text-xl font-bold" aria-label="تكبير الخط">A+</button></div><p class="mt-3 text-sm text-mute">مثال: نسبة الحضور ونقاط الشهر</p></div>
+ <div class="${card}"><h2 class="font-bold mb-2">نوع الخط</h2>${FONTS.map(([f,n])=>`<button data-sv="ff" data-fv="${f}" class="w-full text-start py-2.5 px-3 rounded-xl border mb-2 ${UIP.ff===f?'border-acc bg-acc/15':'border-line'}" style="font-family:'${f}',system-ui,sans-serif">${n} — كنيستي القبطية</button>`).join('')}</div>
+ <div class="${card}"><h2 class="font-bold mb-3">اللون الرئيسي</h2><div class="flex flex-wrap gap-3">${ACCS.map(([c,n],i)=>`<button data-sv="ac" data-i="${i}" aria-label="${n}" class="w-11 h-11 rounded-full border-2 ${UIP.ac===i?'border-white':'border-transparent'}" style="background:rgb(${c})"></button>`).join('')}</div></div>
+ <div class="${card}"><h2 class="font-bold mb-2">لون الخلفية</h2><div class="grid grid-cols-2 gap-2">${BGS.map(([n,b],i)=>`<button data-sv="bg" data-i="${i}" class="py-3 rounded-xl border-2 text-sm font-bold ${UIP.bg===i?'border-acc':'border-line'}" style="background:rgb(${b});color:#fff">${n}</button>`).join('')}</div></div>
+ <div class="${card}"><h2 class="font-bold mb-2">نقاط الحضور (لكل أسبوع)</h2><div class="grid grid-cols-2 gap-2"><label class="text-xs text-mute">حاضر<input id="ppp" type="number" min="0" max="50" value="${pv.pp}" class="${inp}"></label><label class="text-xs text-mute">متأخر<input id="pll" type="number" min="0" max="50" value="${pv.pl}" class="${inp}"></label></div></div>
+ <div class="${card}"><div class="flex justify-between items-center gap-3"><span class="font-bold">وضع الخصوصية (إخفاء الأرقام والملاحظات)</span><button data-sv="priv" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${S.priv?'bg-acc border-acc text-white':'border-line text-mute'}">${S.priv?'مفعّل':'متوقف'}</button></div></div>
+ <button data-sv="rst" class="w-full mt-3 border border-line rounded-xl py-3 text-sm text-mute">إعادة ضبط المظهر</button>`}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-sv]');if(!b)return;const D=b.dataset,a=D.sv;
+ if(a==='tab'){ui.stab=D.k;render()}
+ else if(a==='sf'){ui.sf=D.id;render()}
+ else if(a==='add')svSheet();else if(a==='edit')svSheet(D.id);else if(a==='save')svSave(D.id);else if(a==='del')svDel(D.id);
+ else if(a==='st'){const d=ui.sdate||REAL,m=S.vsess[d]||(S.vsess[d]={});if(m[D.id]===D.v)delete m[D.id];else m[D.id]=D.v;save();render()}
+ else if(a==='allp'){const d=ui.sdate||REAL,m=S.vsess[d]||(S.vsess[d]={});S.servants.filter(x=>(ui.sf||'all')==='all'||x.sid===ui.sf).forEach(x=>{if(!m[x.id])m[x.id]='p'});save();render()}
+ else if(a==='wsid'){ui.wsid=D.id;render()}
+ else if(a==='wkshare'){const{d,sid}=wkSel();window.open('https://wa.me/?text='+encodeURIComponent(wkText(d,sid)),'_blank','noopener')}
+ else if(a==='wkcopy'){const{d,sid}=wkSel();navigator.clipboard.writeText(wkText(d,sid)).then(()=>toast('تم النسخ'),()=>toast('تعذّر النسخ'))}
+ else if(a==='kind'){ui.pk=D.k;render()}
+ else if(a==='ptsshare')window.open('https://wa.me/?text='+encodeURIComponent(ptsText()),'_blank','noopener');
+ else if(a==='fs'){UIP.fs=Math.max(13,Math.min(22,UIP.fs+ +D.d));saveUI();render()}
+ else if(a==='ff'){UIP.ff=D.fv;saveUI();render()}
+ else if(a==='ac'){UIP.ac=+D.i;saveUI();render()}
+ else if(a==='bg'){UIP.bg=+D.i;saveUI();render()}
+ else if(a==='rst'){UIP={fs:16,ff:'Tajawal',ac:0,bg:0};saveUI();render()}
+ else if(a==='priv'){S.priv=!S.priv;save();applyPriv();render()}});
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id==='sdt'){ui.sdate=t.value||REAL;render()}
+ else if(t.id==='wdt'){ui.wdate=t.value;render()}
+ else if(t.id==='pmo'){ui.pm=t.value||REAL.slice(0,7);render()}
+ else if(t.id==='ppp'||t.id==='pll'){S.pf={...pf(),[t.id==='ppp'?'pp':'pl']:Math.max(0,+t.value||0)};save();toast('تم الحفظ')}});
+applyUI();
+/* ===== تحديث: رئيسية أغنى + أعياد الميلاد بالفترة + سجل الشخص + تقرير الافتقاد + الدليل + مؤشر عدم الحفظ ===== */
+function homeTop(c,last){const n=S.members.length,al=alerts().length,
+ tile=(t,v,l,col)=>`<button data-t="${t}" class="bg-card border border-line rounded-2xl p-3 text-center"><div class="text-2xl font-extrabold ${col}">${v}</div><div class="text-[11px] text-mute">${l}</div></button>`;
+ if(!n)return `<div class="rounded-2xl p-5 mt-3 bg-gradient-to-br from-acc/80 to-[#0c111b] border border-line"><div class="font-extrabold text-lg">أهلًا بك 👋 ابدأ من هنا</div><ol class="text-sm mt-2 space-y-1 list-decimal ps-5"><li>أضف المخدومين (أو الصق قائمة أسماء)</li><li>سجّل الحضور كل أسبوع</li><li>افتقد الغايبين وتابع التقارير</li></ol><div class="grid grid-cols-2 gap-2 mt-3"><button data-t="mem" class="bg-white text-slate-900 font-bold rounded-xl py-2.5">أضف المخدومين</button><button data-go="help" class="border border-white/40 rounded-xl py-2.5 font-bold">شرح البرنامج</button></div></div>`;
+ return `<div class="grid grid-cols-4 gap-2 mt-3">${tile('mem',n,'المخدومين','text-slate-100')}${tile('att',last?last.rate+'%':'—','آخر حضور',last?tone(last.rate)[0]:'text-mute')}${tile('att',c.p+c.l,'حاضر اليوم','text-ok')}${tile('ntf',al,'تنبيهات عاجلة',al?'text-bad':'text-mute')}</div>
+ <div class="rounded-2xl p-4 mt-3 bg-gradient-to-br from-acc to-acc/60"><div class="font-extrabold text-lg text-white">بدء التحضير الأسبوعي</div><div class="text-sm text-white/90">سجّل حضور اليوم بسرعة وسهولة</div><button data-t="att" class="mt-3 bg-white text-slate-900 font-bold rounded-xl px-5 py-2.5">${closedToday()?'عرض كشف اليوم':'افتح كشف الحضور'}</button></div>`}
+
+/* --- أعياد الميلاد حسب الفترة (مخدومين + خدام) --- */
+function bdList(f,t){const out=[],add=(x,kind)=>{if(!x.bd||!/^\d\d-\d\d$/.test(x.bd))return;
+  [f.getFullYear(),f.getFullYear()+1].forEach(y=>{const d=new Date(y,+x.bd.slice(0,2)-1,+x.bd.slice(3),12);if(d>=f&&d<=t)out.push({x,d,kind})})};
+ S.members.forEach(m=>add(m,'m'));S.servants.forEach(s=>add(s,'s'));return out.sort((a,b)=>a.d-b.d)}
+function bdRange(){const p=ui.bdp||'30',t0=new Date(REAL+'T00:00'),n={'7':7,'30':30,'60':60,'90':90}[p];
+ return p==='c'?{f:new Date((ui.bdf||REAL)+'T00:00'),t:new Date((ui.bdt||ui.bdf||REAL)+'T23:59')}:{f:t0,t:new Date(t0.getTime()+n*864e5+864e5-1)}}
+const dm=d=>d.toLocaleDateString('ar-EG',{day:'numeric',month:'long'});
+function vBd(){const p=ui.bdp||'30',{f,t}=bdRange(),L=bdList(f,t);
+ return `<div class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">${[['7','أسبوع'],['30','شهر'],['60','شهرين'],['90','٣ شهور'],['c','فترة تختارها']].map(([k,l])=>`<button data-sv="bdp" data-k="${k}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${p===k?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${l}</button>`).join('')}</div>
+ ${p==='c'?`<div class="grid grid-cols-2 gap-2 mt-2"><label class="text-xs text-mute">من<input type="date" id="bdf" value="${ui.bdf||REAL}" class="${inp}"></label><label class="text-xs text-mute">إلى<input type="date" id="bdt" value="${ui.bdt||ui.bdf||REAL}" class="${inp}"></label></div>`:''}
+ <p class="text-xs text-mute mt-2">${L.length} عيد ميلاد من ${dm(f)} إلى ${dm(t)}</p>
+ <div class="${card}">${L.map(({x,d,kind})=>`<div class="flex items-center gap-3 py-2 border-b border-line last:border-0">${avatar(x)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(x.name)}</div><div class="text-xs text-mute">${d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'})} · ${kind==='s'?esc(x.role||'خادم'):esc(svcName(x.sid))}</div></div><a target="_blank" rel="noopener" href="${bdWa(x)}" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5 ${x.phone?'':'opacity-30 pointer-events-none'}">تهنئة</a></div>`).join('')||'<p class="text-sm text-mute py-4">لا توجد أعياد ميلاد في هذه الفترة. تأكد من تسجيل تاريخ الميلاد في ملف كل شخص.</p>'}</div>
+ ${L.length?'<button data-sv="bdshare" class="w-full mt-3 bg-ok text-white font-bold rounded-xl py-3">مشاركة القائمة على واتساب</button>':''}`}
+function bdShareText(){const {f,t}=bdRange(),L=bdList(f,t);
+ return '🎂 أعياد الميلاد من '+dm(f)+' إلى '+dm(t)+'\n\n'+L.map(({x,d})=>'• '+x.name+' — '+d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'})).join('\n')+'\n\nكنيستي القبطية 3'}
+
+/* --- سجل حضور كل شخص (يظهر في ملف المخدوم وزرار سجل الخادم) --- */
+const stLabel={p:['حاضر','text-ok'],l:['متأخر','text-warn'],a:['غايب','text-bad'],e:['معتذر','text-sky-400']};
+const histRows=(map,id)=>Object.keys(map).filter(d=>map[d][id]).sort().reverse().map(d=>[d,map[d][id]]);
+function histBlock(map,id){const r=histRows(map,id),n={p:0,l:0,a:0,e:0};r.forEach(([,v])=>n[v]++);const den=n.p+n.l+n.a,pc=den?Math.round((n.p+n.l)/den*100):null;
+ return `<div class="${card}"><h2 class="font-bold mb-1">سجل الحضور</h2>${r.length?`<div class="grid grid-cols-4 gap-2 mt-2 text-center text-xs">${[['حاضر',n.p,'text-ok'],['متأخر',n.l,'text-warn'],['غايب',n.a,'text-bad'],['معتذر',n.e,'text-sky-400']].map(([l,v,c])=>`<div class="bg-bg rounded-xl py-2"><b class="text-base ${c}">${v}</b><br>${l}</div>`).join('')}</div><div class="text-xs text-mute mt-2">نسبة الحضور ${pc===null?'—':pc+'%'}</div><div class="mt-2 max-h-56 overflow-y-auto">${r.map(([d,v])=>`<div class="flex justify-between py-1.5 border-b border-line last:border-0 text-sm"><span>${arDate(new Date(d+'T12:00'))}</span><span class="font-bold ${stLabel[v][1]}">${stLabel[v][0]}</span></div>`).join('')}</div>`:'<p class="text-sm text-mute">لا يوجد حضور مسجّل بعد</p>'}</div>`}
+function svHist(id){const x=svFind(id);if(!x)return;
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><div class="flex items-center gap-3">${avatar(x)}<div><div class="font-extrabold">${esc(x.name)}</div><div class="text-xs text-mute">${roleTag(x)}</div></div></div>${histBlock(S.vsess,id)}</div>`;$('#sheet').classList.remove('hidden')}
+
+/* --- تقرير الافتقاد: اتصالات وزيارات الشهر + مين محتاج افتقاد --- */
+const FUT=['اتصال','زيارة','واتساب','مقابلة','ملاحظة'];
+function fuData(ym){const tot={},per={};FUT.forEach(t=>tot[t]=0);
+ S.members.forEach(m=>(S.notes[m.id]||[]).forEach(n=>{const d=new Date(n.ts);if(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')!==ym)return;
+  tot[n.type]=(tot[n.type]||0)+1;const r=per[m.id]=per[m.id]||{m,c:0,last:0};r.c++;r.last=Math.max(r.last,n.ts)}));
+ return{tot,rows:Object.values(per).sort((a,b)=>b.c-a.c)}}
+const needFu=()=>S.members.filter(m=>streak(m)>=2).map(m=>{const ns=S.notes[m.id]||[];return{m,k:streak(m),last:ns.length?Math.max(...ns.map(n=>n.ts)):0}}).sort((a,b)=>b.k-a.k||a.last-b.last);
+function vFu(){const ym=ui.fm||REAL.slice(0,7),{tot,rows}=fuData(ym),all=FUT.reduce((a,t)=>a+tot[t],0),need=needFu();
+ return `<input type="month" id="fmo" value="${ym}" max="${REAL.slice(0,7)}" aria-label="الشهر" class="${inp}">
+ <div class="grid grid-cols-4 gap-2 mt-3">${['اتصال','زيارة','واتساب','مقابلة'].map(t=>stat(tot[t],t,'text-acc')).join('')}</div>
+ <p class="text-xs text-mute mt-2">إجمالي الافتقاد في ${ymName(ym)}: <b>${all}</b>${tot['ملاحظة']?' (منها '+tot['ملاحظة']+' ملاحظة)':''}</p>
+ <div class="${card}"><h2 class="font-bold mb-1">محتاجين افتقاد (غابوا جلستين أو أكتر)</h2>${need.map(({m,k,last})=>`<div data-m="${m.id}" class="flex items-center gap-3 py-2 border-b border-line last:border-0 cursor-pointer">${avatar(m)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(m.name)}</div><div class="text-xs text-mute">${last?'آخر افتقاد: '+dm(new Date(last)):'لم يُفتقد بعد'}</div></div><span class="text-xs px-2 py-0.5 rounded-full ${k>=3?'bg-bad/15 text-bad':'bg-warn/15 text-warn'}">غاب ${k}</span></div>`).join('')||'<p class="text-sm text-mute py-3">لا يوجد غياب متتالي حاليًا 🎉</p>'}</div>
+ <div class="${card}"><h2 class="font-bold mb-1">اللي اتفتقدوا في ${ymName(ym)}</h2>${rows.map(r=>`<div data-m="${r.m.id}" class="flex items-center gap-3 py-2 border-b border-line last:border-0 cursor-pointer">${avatar(r.m)}<div class="flex-1 font-bold truncate">${esc(r.m.name)}</div><span class="text-sm"><b>${r.c}</b> مرة</span></div>`).join('')||'<p class="text-sm text-mute py-3">لا يوجد افتقاد مسجّل في هذا الشهر. سجّله من ملف المخدوم.</p>'}</div>
+ <button data-sv="fushare" class="w-full mt-3 bg-ok text-white font-bold rounded-xl py-3">مشاركة التقرير على واتساب</button>`}
+function fuText(){const ym=ui.fm||REAL.slice(0,7),{tot}=fuData(ym),need=needFu();
+ return '🤝 تقرير الافتقاد — '+ymName(ym)+'\nاتصال: '+tot['اتصال']+' · زيارة: '+tot['زيارة']+' · واتساب: '+tot['واتساب']+' · مقابلة: '+tot['مقابلة']+'\n'+(need.length?'\nمحتاجين افتقاد:\n'+need.map(q=>'• '+q.m.name+' (غاب '+q.k+')').join('\n')+'\n':'')+'\nكنيستي القبطية 3'}
+
+/* --- دليل الاستخدام --- */
+function vHelp(){const q=(t,a)=>`<details class="${card}"><summary class="font-bold cursor-pointer">${t}</summary><div class="text-sm text-mute mt-2 leading-7">${a}</div></details>`;
+ return `<p class="text-sm text-mute">اضغط على أي سؤال علشان يفتح الشرح.</p>`+
+ q('البداية السريعة','١) من <b>المخدومين</b> اضغط + إضافة (أو الصق قايمة أسماء).<br>٢) من <b>الحضور</b> سجّل حاضر / متأخر / غايب / معتذر.<br>٣) اضغط <b>إغلاق الجلسة</b> علشان يتحدّث الحضور ويتعمل التقرير.')+
+ q('تسجيل حضور يوم قديم','في تاب الحضور اضغط على التاريخ فوق واختار اليوم. لو الجلسة مقفولة اضغط «إعادة فتح».')+
+ q('الافتقاد والملاحظات','اضغط على اسم أي مخدوم: هتلاقي ملفه، وسجل حضوره، وقوالب واتساب، وخانة لتسجيل اتصال أو زيارة. وتقرير الافتقاد في «المزيد» بيوريك مين محتاج افتقاد.')+
+ q('الخدام ونقاط الحضور','«الخدام وحضورهم»: أضف الخدام واختار الخدمة المسؤولين عنها وسجّل حضورهم. «نقاط الحضور»: ترتيب شهري (حاضر ٥ نقاط / متأخر ٣، وتتغيّر من الإعدادات).')+
+ q('أعياد الميلاد','سجّل تاريخ الميلاد في ملف المخدوم (✎ تعديل ← بيانات إضافية). «أعياد الميلاد» بيعرض أسبوع أو شهر أو شهرين أو فترة تختارها، مع تهنئة واتساب.')+
+ q('الشغل بدون إنترنت','كل حاجة بتتحفظ على موبايلك فورًا، وبتتزامن مع السيرفر لما النت يرجع. المؤشر فوق بيوضح الحالة.')+
+ q('الأكواد وطلبات الانضمام (للمالك)','«👑 لوحة المالك» في المزيد: أكواد السنة، وقبول أو رفض طلبات الخدام الجداد. الرقم السري بتختاره أول مرة.')+
+ q('نسيت الباسورد','من شاشة الدخول اكتب إيميلك واضغط «نسيت الباسورد؟». ولو بتدخل بـ Google اضغط زرار Google.')}
+
+/* --- أحداث التحديث --- */
+document.addEventListener('click',e=>{
+ const g=e.target.closest('[data-go]');if(g){TODAY=REAL;ui.tab='more';ui.sub=g.dataset.go;render();scrollTo(0,0);return}
+ const b=e.target.closest('[data-sv]');if(!b)return;const D=b.dataset,a=D.sv;
+ if(a==='bdp'){ui.bdp=D.k;render()}
+ else if(a==='bdshare')window.open('https://wa.me/?text='+encodeURIComponent(bdShareText()),'_blank','noopener');
+ else if(a==='fushare')window.open('https://wa.me/?text='+encodeURIComponent(fuText()),'_blank','noopener');
+ else if(a==='hist')svHist(D.id)});
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id==='bdf'){ui.bdf=t.value;render()}else if(t.id==='bdt'){ui.bdt=t.value;render()}else if(t.id==='fmo'){ui.fm=t.value||REAL.slice(0,7);render()}});
+
+/* --- مؤشر "تغييرات غير محفوظة" + تأكيد قبل إغلاق النموذج --- */
+let DIRTY=false;
+new MutationObserver(()=>{DIRTY=false}).observe($('#sb'),{childList:true});
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{if(!e.target.closest||!e.target.closest('#sb')||!$('#dirty'))return;DIRTY=true;$('#dirty').classList.remove('hidden')}));
+document.addEventListener('click',e=>{if(e.target.id==='sheet'&&DIRTY&&!confirm('في تغييرات غير محفوظة. تقفل من غير حفظ؟'))e.stopImmediatePropagation()},true);
 applyPriv();updSync();render();notifyDue();
 </script>
 
@@ -427,8 +623,9 @@ const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCa
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
 
 /* نقسّم الحالة لمستندات صغيرة في users/{uid}/c (مساحة خاصة بكل مستخدم): meta / p / s_التاريخ / r_التاريخ / n_كود المخدوم */
-const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members},p:{pf:s.pf||{},plan:s.plan||{}}};
+const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{}}};
  Object.entries(s.sess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['s_'+d]=v});
+ Object.entries(s.vsess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['v_'+d]=v});
  (s.reports||[]).forEach(r=>o['r_'+r.date]=r);
  Object.entries(s.notes||{}).forEach(([m,v])=>{if(v.length)o['n_'+m]=v});return o};
 
@@ -440,15 +637,16 @@ FB.push=async snap=>{const ch=pack(snap),ops=[];
 
 function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j]));
  if(!docs.length){                                   // قاعدة البيانات فاضية: أول تشغيل
-  if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1}
+  if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1;S.servants=[];S.vsess={};S.seqv=1}
    S.dirty=true;first=false;sync()}return}
  if(S.dirty&&!first)return;                          // عندي تعديلات لسه ما اترفعتش
- const n={seq:S.seq,services:S.services,members:S.members,sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan};
+ const n={seq:S.seq,services:S.services,members:S.members,servants:[],seqv:1,vsess:{},sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan};
  docs.forEach(([id,j])=>{const v=JSON.parse(j);last[id]=j;
-  if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members}
+  if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members;n.servants=v.servants||[];n.seqv=v.seqv||1}
   else if(id==='p'){n.pf=v.pf;n.plan=v.plan}
   else if(id.startsWith('s_'))n.sess[id.slice(2)]=v;
   else if(id.startsWith('r_'))n.reports.push(v);
+  else if(id.startsWith('v_'))n.vsess[id.slice(2)]=v;
   else if(id.startsWith('n_'))n.notes[id.slice(2)]=v});
  n.reports.sort((a,b)=>a.date.localeCompare(b.date));Object.assign(S,n);S.dirty=false;
  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}
@@ -505,7 +703,7 @@ const mlabel=(ym,n)=>{const [y,m]=ym.split('-').map(Number);return new Date(y,m-
 const ob='w-full bg-bg border border-line rounded-xl px-3 py-3 text-center tracking-widest',cd='bg-card border border-line rounded-2xl p-4 mt-3';
 let otab='codes',odata={};const O=()=>Q('#own');
 function closeOwner(){const o=O();if(o){o.classList.add('hidden');o.innerHTML=''}}
-function shell(inner){O().classList.remove('hidden');O().innerHTML=`<div class="max-w-md mx-auto p-4 pb-16"><div class="flex items-center gap-3 mb-3"><button data-oa="close" class="w-10 h-10 rounded-xl bg-card border border-line" aria-label="إغلاق">✕</button><h1 class="text-xl font-extrabold">👑 لوحة المالك</h1></div>${inner}</div>`}
+function shell(inner){O().classList.remove('hidden');O().innerHTML=`<div class="max-w-md mx-auto p-4 pb-16"><div class="flex items-center gap-3 mb-3"><button data-oa="close" class="w-10 h-10 rounded-xl bg-card border border-line" aria-label="إغلاق">✕</button><h1 class="text-xl font-extrabold">👑 لوحة المالك</h1><button data-oa="refresh" class="ms-auto w-10 h-10 rounded-xl bg-card border border-line" aria-label="تحديث">↻</button></div>${inner}</div>`}
 function openOwner(){const u=auth.currentUser;if(!u)return;localStorage.getItem(pinKey(u.uid))?ownerLock():ownerSet()}
 function ownerSet(m=''){shell(`<div class="${cd}"><h2 class="font-bold mb-1">اختر رقمك السري</h2><p class="text-xs text-mute mb-3">٦ أرقام مميزة. بلاش تاريخ ميلادك ولا ١٢٣٤٥٦.</p><input id="p1" type="password" inputmode="numeric" maxlength="6" placeholder="••••••" class="${ob}"><input id="p2" type="password" inputmode="numeric" maxlength="6" placeholder="أعد كتابته" class="${ob} mt-2"><div class="text-bad text-sm mt-2 min-h-[1.25rem]">${m}</div><button data-oa="setpin" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`)}
 function ownerLock(m=''){shell(`<div class="${cd}"><h2 class="font-bold mb-3">اكتب الرقم السري</h2><input id="p1" type="password" inputmode="numeric" maxlength="6" class="${ob}"><div class="text-bad text-sm mt-2 min-h-[1.25rem]">${m}</div><button data-oa="unlock" class="w-full mt-2 bg-acc text-white font-bold rounded-xl py-3">فتح</button><p class="text-[11px] text-mute mt-3">نسيت الرقم؟ امسح بيانات الموقع من إعدادات المتصفح وسجّل دخول تاني، وتختار رقم جديد.</p></div>`)}
@@ -525,12 +723,13 @@ function ownerView(){const inv=odata.inv||{},cs=inv.codes||[],ix=inv.idx??0,rq=o
   body=(inv.code?`<div class="${cd} text-center"><div class="text-xs text-mute">الكود الحالي</div><div class="text-3xl font-extrabold font-mono tracking-widest my-2" dir="ltr">${esc(inv.code)}</div><div class="grid grid-cols-2 gap-2"><button data-oa="copy" class="border border-line rounded-xl py-2.5 text-sm font-bold">نسخ</button><button data-oa="wa" class="bg-ok text-white rounded-xl py-2.5 text-sm font-bold">إرسال واتساب</button></div></div>`:`<div class="${cd} text-sm text-mute">لا توجد أكواد بعد. اضغط "أنشئ أكواد السنة".</div>`)
   +(cs.length?`<div class="${cd}"><h2 class="font-bold mb-1">أكواد السنة</h2>${cs.map((c,i)=>`<div class="flex items-center gap-3 py-2 border-b border-line last:border-0"><div class="flex-1"><div class="text-xs text-mute">${mlabel(inv.since||ymNow(),i*2)}</div><div class="font-mono font-bold" dir="ltr">${esc(c)}</div></div>${i===ix?'<span class="text-xs text-ok font-bold">الحالي ✓</span>':`<button data-oa="act" data-i="${i}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">تفعيل</button>`}</div>`).join('')}<button data-oa="next" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-2.5 ${ix>=cs.length-1?'opacity-40':''}">فعّل الكود التالي</button></div>`:'')
   +`<button data-oa="gen" class="w-full mt-3 border border-line rounded-xl py-3 text-sm font-bold">${cs.length?'أنشئ أكواد جديدة (تستبدل الحالية)':'أنشئ أكواد السنة'}</button><p class="text-[11px] text-mute mt-2">تغيير الكود يمنع الدخول بالكود القديم للخدام الجداد فقط. الخدام الحاليين لا يتأثرون.</p>`}
- else body=rq.length?rq.map(r=>`<div class="${cd}"><div class="font-bold">${esc(r.name||'بدون اسم')}</div><div class="text-xs text-mute" dir="ltr">${esc(r.email)}</div><div class="grid grid-cols-2 gap-2 mt-3"><button data-oa="ok" data-u="${r.id}" class="bg-ok text-white rounded-xl py-2.5 font-bold">قبول</button><button data-oa="no" data-u="${r.id}" class="border border-bad/50 text-bad rounded-xl py-2.5 font-bold">رفض</button></div></div>`).join(''):`<p class="text-center text-mute py-10">لا توجد طلبات انضمام</p>`;
+ else body=rq.length?rq.map(r=>`<div class="${cd}"><div class="font-bold">${esc(r.name||'بدون اسم')}</div><div class="text-xs text-mute" dir="ltr">${esc(r.email)}</div><div class="grid grid-cols-2 gap-2 mt-3"><button data-oa="ok" data-u="${r.id}" class="bg-ok text-white rounded-xl py-2.5 font-bold">قبول</button><button data-oa="no" data-u="${r.id}" class="border border-bad/50 text-bad rounded-xl py-2.5 font-bold">رفض</button></div></div>`).join(''):`<p class="text-center text-mute py-10">لا توجد طلبات انضمام<br><span class="text-xs">الطلب بيظهر لما خادم جديد يضغط «أرسل طلب انضمام» من شاشة الكود. اضغط ↻ للتحديث.</span></p>`;
  shell(`<div class="grid grid-cols-2 gap-2">${tb('codes','الأكواد')}${tb('req','الطلبات'+(rq.length?' ('+rq.length+')':''))}</div>${body}`)}
 async function saveInv(o){await setDoc(doc(db,'config','invite'),{...o,t:serverTimestamp()},{merge:true});odata.inv={...odata.inv,...o};ownerView()}
 O().addEventListener('click',async e=>{const b=e.target.closest('[data-oa]');if(!b)return;const a=b.dataset.oa,u=auth.currentUser,inv=odata.inv||{},cs=inv.codes||[];
  try{
  if(a==='close')closeOwner();
+ else if(a==='refresh')ownerMain();
  else if(a==='setpin'){const p=Q('#p1').value.trim(),q=Q('#p2').value.trim();
   if(!/^\d{6}$/.test(p))return ownerSet('لازم ٦ أرقام');if(weak(p))return ownerSet('الرقم سهل التخمين، اختار رقم مميز');if(p!==q)return ownerSet('الرقمين مش متطابقين');
   localStorage.setItem(pinKey(u.uid),await sha(u.uid+':'+p));ownerMain()}
@@ -556,7 +755,7 @@ Q('#lreset').onclick=async()=>{const m=Q('#le').value.trim();if(!m)return msg('�
  try{await sendPasswordResetEmail(auth,m);msg('تم إرسال رابط تغيير الباسورد لإيميلك',1)}catch(_){msg('تعذّر الإرسال، راجع الإيميل')}};
 Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q('#lp').value;pendingCode=Q('#lcode').value.trim();msg('');
  try{signup?await createUserWithEmailAndPassword(auth,m,p):await signInWithEmailAndPassword(auth,m,p)}
- catch(x){const c=x.code;msg(c==='auth/network-request-failed'?'لا يوجد إنترنت':c==='auth/email-already-in-use'?'الإيميل مسجّل بالفعل، سجّل الدخول':c==='auth/weak-password'?'الباسورد ضعيف (٦ أحرف على الأقل)':c==='auth/invalid-email'?'الإيميل غير صحيح':c==='auth/operation-not-allowed'?'إنشاء الحسابات غير مفعّل':signup?'تعذّر إنشاء الحساب':'الإيميل أو الباسورد غير صحيح')}};
+ catch(x){const c=x.code;msg(c==='auth/network-request-failed'?'لا يوجد إنترنت':c==='auth/email-already-in-use'?'الإيميل مسجّل بالفعل، سجّل الدخول':c==='auth/weak-password'?'الباسورد ضعيف (٦ أحرف على الأقل)':c==='auth/invalid-email'?'الإيميل غير صحيح':(c==='auth/operation-not-allowed'||c==='auth/admin-restricted-operation')?'إنشاء الحسابات الجديدة مقفول من إعدادات Firebase':c==='auth/operation-not-supported-in-this-environment'?'افتح البرنامج من متصفح الموبايل (الرابط)، هذا التطبيق لا يدعم الدخول':c==='auth/too-many-requests'?'محاولات كتير، جرّب بعد شوية':(!signup&&(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-login-credentials'))?'الإيميل أو الباسورد غير صحيح (لو حسابك Google اضغط زرار Google)':(signup?'تعذّر إنشاء الحساب':'تعذّر الدخول')+' ['+(c||'?')+']')}};
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-sub="out"]'))return;e.stopImmediatePropagation();
  if(confirm('تسجيل الخروج من هذا الجهاز؟')){await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()}},true);
 </script>

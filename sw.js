@@ -1,13 +1,13 @@
 /* Kenisty - offline-first service worker.
    Bump VERSION on every deploy so users get the new files. */
-const VERSION = 'kenisty-v7';
+const VERSION = 'kenisty-v10';
 const SHELL = VERSION + '-shell';   // our own files
 const LIBS  = VERSION + '-libs';    // CDN scripts, fonts, Firebase SDK
 
 const SHELL_FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 const CDN_PRECACHE = [              // best effort: install never fails because of these
   'https://cdn.tailwindcss.com/3.4.17',
-  'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700&family=Almarai:wght@400;700;800&family=Amiri:wght@400;700&display=swap',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
