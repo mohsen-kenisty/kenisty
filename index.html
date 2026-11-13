@@ -21,7 +21,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #4f8cff;outline-offset:2px}
 @keyframes up{from{transform:translateY(50%);opacity:.5}}.up{animation:up .22s}
 .sens{transition:filter .2s}body.priv .sens{filter:blur(7px);user-select:none;pointer-events:none}
-@media print{header,nav,#sync,#toast,#sheet,.np{display:none!important}html,body{background:#fff!important}*{color:#000!important;background:transparent!important;border-color:#999!important}main{padding-bottom:0!important}}
+@media print{header,nav,#sync,#toast,#sheet,.np{display:none!important}html,body{background:#fff!important}*{color:#000!important;background:transparent!important;border-color:#999!important}main{padding-bottom:0!important}}#pz{display:none}body.ro [data-st],body.ro [data-a="allp"],body.ro [data-a="close"],body.ro [data-a="reopen"],body.ro [data-a="mdel"],body.ro [data-a="medit"]{display:none!important}
+html.light{color-scheme:light}html.light body{color:#0f172a}html.light .text-slate-100{color:#0f172a}html.light .text-slate-200,html.light .text-slate-300{color:#334155}html.light [class*=bg-gradient],html.light [class*=bg-gradient] *{color:#fff}html.light .bg-black\/60,html.light .bg-black\/70{background:rgba(15,23,42,.45)}@media print{body.pz-on>*:not(#pz){display:none!important}body.pz-on #pz{display:block!important}}
 @media (prefers-reduced-motion:reduce){.up{animation:none}}
 </style>
 </head>
@@ -55,8 +56,8 @@ let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(_){}S=S||seed();
    FB.push: وصّل هنا Firestore الحقيقي (خارج هذه المعاينة):
    FB.push = snap => setDoc(doc(db,'orgs','main'), snap)   // لاحقًا: مستند لكل مجموعة (members / sessions / notes / reports) */
 const FB={push:null};
-const save=()=>{S.dirty=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}updSync();sync()};
-async function sync(){if(!navigator.onLine||!S.dirty||!FB.push||sync.b)return;sync.b=1;
+const save=()=>{if(window.RO){toast('وضع العرض فقط — لا يمكن التعديل');setTimeout(()=>location.reload(),900);return}S.dirty=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}updSync();sync()};
+async function sync(){if(window.RO||!navigator.onLine||!S.dirty||!FB.push||sync.b)return;sync.b=1;
  try{await FB.push(JSON.parse(JSON.stringify(S)));S.dirty=false;localStorage.setItem(KEY,JSON.stringify(S));toast('تمت المزامنة')}catch(_){}sync.b=0;updSync()}
 function updSync(){const e=$('#sync');if(!e)return;const on=navigator.onLine;
  e.className='max-w-md mx-auto px-4 pt-2 text-[11px] flex items-center justify-between';
@@ -105,7 +106,7 @@ function vMembers(){
 
 function vMore(){
  if(ui.sub==='plan')return vPlan();
- const sv4={bd:vBd,fu:vFu,help:vHelp,srv:vSrv,wk:vWk,pts:vPts,set:vSet,hist:vHist,month:vMonth,sup:vSup,nset:vNset}[ui.sub];if(sv4)return sv4();
+ const sv4={bd:vBd,fu:vFu,help:vHelp,srv:vSrv,wk:vWk,pts:vPts,set:vSet,hist:vHist,month:vMonth,sup:vSup,nset:vNset,bak:vBak,lect:vLect,print:vPrint,team:vTeam,qr:vQR,year:vYear,fplan:vFplan,cal:vCal}[ui.sub];if(sv4)return sv4();
  if(ui.sub==='services')return `
   <div class="bg-card border border-line rounded-2xl p-3 flex gap-2"><input id="ns" placeholder="اسم مرحلة أو اجتماع جديد" class="flex-1 bg-bg border border-line rounded-xl px-3 py-2.5 placeholder:text-mute"><button id="adds" class="bg-acc text-white font-bold rounded-xl px-4 flex items-center gap-1">${ic('plus','w-4 h-4')}إضافة</button></div>
   <div class="space-y-3 mt-4">${S.services.map(s=>{const c=countOf(s.id),ms=S.members.filter(m=>m.sid===s.id),av=ms.map(pct).filter(x=>x!==null),a=av.length?Math.round(av.reduce((x,y)=>x+y,0)/av.length):null,[t]=tone(a);return `
@@ -193,9 +194,11 @@ function vHome(){
  <div class="rounded-2xl p-4 mt-2 bg-gradient-to-br from-[#25508f] to-acc"><div class="text-sm">صحة الفصل${r4.length?' — آخر '+r4.length+' جلسات':''}</div><div class="text-4xl font-extrabold">${h}% <span class="text-sm font-bold">${h>=80?'مستقر':h>=60?'يحتاج متابعة':'يحتاج افتقاد عاجل'}</span></div><div class="h-2 rounded-full bg-white/25 mt-2 overflow-hidden"><div class="h-full bg-white" style="width:${h}%"></div></div></div>
  <div class="${card}"><div class="flex justify-between items-center"><h2 class="font-bold">جلسة اليوم</h2><button data-t="att" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">${closedToday()?'عرض':'سجّل الحضور'}</button></div>
   <div class="grid grid-cols-4 gap-2 mt-3">${stat(S.members.length,'الإجمالي','text-slate-100')}${stat(c.p+c.l,'حاضر','text-ok')}${stat(c.a,'غايب','text-bad')}${stat(c.e,'معتذر','text-sky-400')}</div></div>
- <div class="${card}"><h2 class="font-bold mb-2">مهام الافتقاد${last?' — غابوا '+arDate(new Date(last.date+'T12:00')).split(' ').slice(-2).join(' '):''}</h2>${ab.map(m=>`<div data-m="${m.id}" class="flex items-center gap-3 py-2 cursor-pointer">${avatar(m)}<div class="flex-1 font-bold">${esc(m.name)}</div><span class="text-xs px-2 py-0.5 rounded-full ${done(m)?'bg-ok/15 text-ok':'bg-bad/15 text-bad'}">${done(m)?'تم ✓':'افتقد'}</span></div>`).join('')||'<p class="text-sm text-mute">لا يوجد غياب مسجل</p>'}</div>
+ <button data-go="srv" class="w-full bg-card border border-line rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🧑‍🏫</div><div class="flex-1"><div class="font-bold">الخدام وحضورهم</div><div class="text-xs text-mute">قائمة الخدام + حضورهم + الخدمة المسؤولين عنها</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>
+ ${lectToday()}${notifBanner()}${bakDue()?`<button data-go="bak" class="w-full bg-warn/10 border border-warn/40 rounded-2xl p-3 mt-3 flex items-center gap-3 text-start"><span class="text-xl">💾</span><div class="flex-1 text-sm"><div class="font-bold text-warn">نزّل نسخة احتياطية</div><div class="text-xs text-mute">${localStorage.getItem('kenisty_lastbak')?'مرّ أكثر من ١٤ يوم على آخر نسخة':'لم تنزّل نسخة احتياطية بعد'}</div></div></button>`:''}
+ <div class="${card}"><h2 class="font-bold mb-2">مهام الافتقاد${last?' — غابوا '+arDate(new Date(last.date+'T12:00')).split(' ').slice(-2).join(' '):''}</h2>${ab.length?`<button data-a="absmsg" class="w-full mb-2 bg-ok/15 text-ok font-bold rounded-xl py-2.5 text-sm">📨 رسالة «افتقدناك» لكل الغايبين (${ab.length})</button>`:''}${ab.map(m=>`<div data-m="${m.id}" class="flex items-center gap-3 py-2 cursor-pointer">${avatar(m)}<div class="flex-1 font-bold">${esc(m.name)}</div><span class="text-xs px-2 py-0.5 rounded-full ${done(m)?'bg-ok/15 text-ok':'bg-bad/15 text-bad'}">${done(m)?'تم ✓':'افتقد'}</span></div>`).join('')||'<p class="text-sm text-mute">لا يوجد غياب مسجل</p>'}</div>
  <div class="${card}"><h2 class="font-bold mb-2">أعياد الميلاد القادمة 🎂</h2>${bds.map(m=>`<div class="flex items-center gap-3 py-2">${avatar(m)}<div class="flex-1"><div class="font-bold">${esc(m.name)}</div><div class="text-xs text-mute">${bdText(dtb(m.bd))}</div></div><a target="_blank" rel="noopener" href="${bdWa(m)}" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5">تهنئة</a></div>`).join('')||'<p class="text-sm text-mute">لا يوجد هذا الأسبوع</p>'}</div>
- ${r6.length?`<div class="${card}"><h2 class="font-bold">إحصائيات الجلسات</h2><div class="flex items-end gap-2 h-24 mt-3">${r6.map(r=>`<div class="flex-1 rounded-t-lg ${tone(r.rate)[1]}" style="height:${Math.max(r.rate,4)}%" title="${r.rate}%"></div>`).join('')}</div><div class="text-xs text-mute mt-2">متوسط ${Math.round(r6.reduce((a,r)=>a+r.rate,0)/r6.length)}% · أعلى ${Math.max(...r6.map(r=>r.rate))}% · أقل ${Math.min(...r6.map(r=>r.rate))}%</div></div>`:''}`}
+ ${topStreaks()}<div class="${card}"><h2 class="font-bold">إحصائيات الجلسات</h2>${r6.length?`<div class="flex items-end gap-2 mt-3" style="height:150px">${r6.map(r=>{const t=tone(r.rate),dt=new Date(r.date+'T12:00').toLocaleDateString('ar-EG',{day:'numeric',month:'numeric'});return `<div class="flex-1 h-full flex flex-col justify-end items-stretch gap-1" title="${r.rate}%"><div class="text-center text-xs font-bold ${t[0]}">${r.rate}%</div><div class="rounded-t-lg ${t[1]}" style="height:${Math.max(r.rate,6)}%;min-height:8px"></div><div class="text-center text-[10px] text-mute">${dt}</div></div>`}).join('')}</div><div class="text-xs text-mute mt-3">متوسط ${Math.round(r6.reduce((a,r)=>a+r.rate,0)/r6.length)}% · أعلى ${Math.max(...r6.map(r=>r.rate))}% · أقل ${Math.min(...r6.map(r=>r.rate))}%</div><div class="flex gap-3 text-[10px] text-mute mt-1"><span><b class="text-ok">●</b> ٧٥٪ فأكثر</span><span><b class="text-warn">●</b> ٥٠–٧٤٪</span><span><b class="text-bad">●</b> أقل من ٥٠٪</span></div>`:'<p class="text-sm text-mute mt-2">لا توجد جلسات مغلقة بعد — أغلق جلسة لتظهر الإحصائيات</p>'}</div>`}
 function vNtf(){const a=alerts();return `<div class="space-y-3">${a.map(({m,t,k,n})=>`<div data-m="${m.id}" class="bg-card border ${t==='abs'&&k>=3?'border-bad/60':'border-line'} rounded-2xl p-3 flex items-center gap-3 cursor-pointer">${avatar(m)}<div class="flex-1 min-w-0"><div class="font-bold truncate">${t==='abs'?'افتقد '+esc(m.name.split(' ')[0]):'عيد ميلاد '+esc(m.name.split(' ')[0])}</div><div class="text-xs ${t==='abs'?'text-bad':'text-mute'}">${t==='abs'?'غاب '+k+' اجتماعات متتالية'+(k>=3?' — منقطع':''):bdText(n)}</div></div>${t==='bd'?`<a target="_blank" rel="noopener" href="${bdWa(m)}" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5">تهنئة</a>`:''}</div>`).join('')||'<p class="text-center text-mute py-10">لا توجد تنبيهات</p>'}</div>`}
 
 /* --- أحداث الجزء الثاني (تعمل بجانب مستمع الجزء الأول) --- */
@@ -294,10 +297,11 @@ function bulkAdd(){const sid=$('#sb [data-k=sid]').value,ns=$('#mbk').value.spli
 /* ملف المخدوم: يغلّف نافذة الافتقاد بالتفاصيل وقوالب واتساب */
 function noteSheet(id){noteSheetOld(id);curM=id;const m=findM(id),h=$('#sb>div>div');if(!h)return;
  const row=(l,v,s,ph)=>v?`<div class="flex justify-between items-center gap-2 py-1.5 border-b border-line last:border-0 text-sm"><span class="text-mute shrink-0">${l}</span><span class="flex items-center gap-2 ${s?'sens':''}"><span ${ph?'dir="ltr"':''}>${esc(v)}</span>${ph?`<a href="tel:${esc(v)}" aria-label="اتصال" class="w-7 h-7 grid place-items-center rounded-full bg-acc text-white text-xs">📞</a><a target="_blank" rel="noopener" href="${wa(v)}" aria-label="واتساب" class="w-7 h-7 grid place-items-center rounded-full bg-ok text-white text-xs">✆</a>`:''}</span></div>`:'';
- $('#sb a[href^="tel:"]')?.parentElement.remove();
+ $('#sb a[href^="tel:"]')?.parentElement.remove();$('#nx')?.insertAdjacentHTML('afterend','<button type="button" data-a="mic" class="w-full mt-2 border border-line rounded-xl py-2 text-sm">🎤 إملاء صوتي</button>');
  h.insertAdjacentHTML('afterend',`<div class="flex justify-end"><button data-a="medit" data-id="${id}" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5 mt-2">✎ تعديل البيانات</button><button data-a="mdel" data-id="${id}" class="text-xs text-bad border border-bad/40 rounded-lg px-3 py-1.5 mt-2 ms-2">🗑 حذف</button></div>
  <div class="bg-bg border border-line rounded-2xl px-3 py-1 mt-2">${row('الخادم',m.servant)}${row('أمين الخدمة',m.leader)}${row('أب الاعتراف',(m.father||'')+(m.church?' · '+m.church:''))}${row('ولي الأمر',(m.gname||'')+(m.rel?' ('+m.rel+')':''),1)}${row('هاتف ولي الأمر',m.phone,1,1)}${row('طوارئ',m.ephone,1,1)}</div>
- ${histBlock(S.sess,id)}
+ ${histBlock(S.sess,id)}${memChart(id)}
+ <div class="mt-3"><label class="text-xs text-mute">نقل لخدمة أخرى</label><select id="mvs" class="${inp}">${S.services.map(x=>`<option value="${x.id}" ${x.id===m.sid?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button data-a="mvs" data-id="${id}" class="w-full mt-2 border border-acc/50 text-acc font-bold rounded-xl py-2.5">نقل</button></div>
  <div class="mt-3"><label class="text-xs text-mute">رسالة واتساب جاهزة</label><select id="tp" class="${inp}">${Object.entries(TPL).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select><textarea id="tx" rows="3" class="${inp}">${esc(fillTpl('abs',m))}</textarea><button data-a="wsend" data-id="${id}" class="w-full mt-2 bg-ok text-white font-bold rounded-xl py-2.5">إرسال على واتساب</button></div>`)}
 function sendWa(id){const m=findM(id);if(!m.phone)return toast('لا يوجد رقم لولي الأمر');
  window.open(wa(m.phone)+'?text='+encodeURIComponent($('#tx').value),'_blank','noopener');
@@ -313,8 +317,251 @@ document.addEventListener('change',async e=>{const t=e.target;
 ['ed','ph','bk','pr','wt'].forEach(id=>{const i=PLAN[2][1].find(x=>x[0]===id);if(i)i[2]=1});   // علّم مهام المرحلة ٣ كمنجزة
 /* ========== المرحلة ٤: تقارير شهرية + تصدير + سجل جلسات + تعديل تواريخ سابقة + لوحة أمين الخدمة + إشعارات ========== */
 let RD=null;
-const SUBT={bd:'أعياد الميلاد',fu:'تقرير الافتقاد',help:'كيف أستخدم البرنامج؟',srv:'الخدام وحضورهم',wk:'التقارير الأسبوعية',pts:'نقاط الحضور',set:'الإعدادات',plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات'};
-const moreMenu=()=>[['srv','🧑‍🏫','الخدام وحضورهم','قائمة الخدام + حضورهم + الخدمة المسؤولين عنها'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['help','❓','كيف أستخدم البرنامج؟','شرح مختصر لكل شاشة'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const SUBT={bd:'أعياد الميلاد',fu:'تقرير الافتقاد',help:'الشروحات',srv:'الخدام وحضورهم',wk:'التقارير الأسبوعية',pts:'نقاط الحضور',set:'الإعدادات',plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات',bak:'نسخة احتياطية',lect:'المحاضرات',print:'ورقة الحضور للطباعة',team:'فريق الخدمة',qr:'كروت الحضور QR',year:'التقرير السنوي',fplan:'خطة الافتقاد الأسبوعية',cal:'تقويم الكنيسة'};
+/* ===== النسخ الاحتياطي الشخصي (لكل جهاز/حساب) ===== */
+function bakDue(){if(!S.members.length)return false;const t=+localStorage.getItem('kenisty_lastbak')||0;return Date.now()-t>14*864e5}
+function bakFile(){const o={app:'kenisty',v:1,date:new Date().toISOString(),data:S};try{o.ui=UIP}catch(_){}
+ return new File([JSON.stringify(o)],'kenisty-backup-'+new Date().toISOString().slice(0,10)+'.json',{type:'application/json'})}
+function bakDownload(){try{const f=bakFile(),a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();
+ localStorage.setItem('kenisty_lastbak',Date.now());toast('تم تنزيل النسخة — احفظها في مكان آمن')}catch(_){toast('تعذّر التنزيل — جرّب زرار المشاركة')}
+ if(ui.tab==='more'&&ui.sub==='bak')render()}
+async function bakShare(){try{const f=bakFile();if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'نسخة كنيستي'});localStorage.setItem('kenisty_lastbak',Date.now());render()}else bakDownload()}catch(_){}}
+function vBak(){const lb=+localStorage.getItem('kenisty_lastbak'),ld=lb?new Date(lb).toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'}):'لم تُنزَّل بعد';
+ return `<div class="space-y-3"><div class="${card}"><h2 class="font-bold">نسخة احتياطية من بياناتك</h2><p class="text-sm text-mute mt-1">ملف واحد فيه المخدومين والجلسات والملاحظات والخدام والإعدادات. احفظه في مكان آمن (واتساب لنفسك، درايف، أو ملفات الموبايل).</p><div class="text-xs text-mute mt-2">عدد المخدومين: ${S.members.length} · آخر نسخة: ${ld}</div>
+ <div class="grid gap-2 mt-3"><button data-a="bakdl" class="bg-acc text-white font-bold rounded-xl py-3">تنزيل نسخة احتياطية</button><button data-a="baksh" class="border border-line bg-bg rounded-xl py-3 font-bold text-sm">مشاركة الملف (واتساب / درايف)</button></div></div>
+ <div class="${card}"><h2 class="font-bold">استعادة من ملف</h2><p class="text-sm text-mute mt-1">هيستبدل كل بياناتك الحالية بمحتوى الملف.</p><label class="block mt-3 text-center border border-dashed border-line rounded-xl py-3 text-sm font-bold cursor-pointer">اختر ملف النسخة<input id="bakf" type="file" accept=".json,application/json" class="hidden"></label></div></div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a="bakdl"],[data-a="baksh"]');if(!b)return;b.dataset.a==='bakdl'?bakDownload():bakShare()});
+document.addEventListener('change',async e=>{if(e.target.id!=='bakf')return;const f=e.target.files[0];if(!f)return;let o;
+ try{o=JSON.parse(await f.text())}catch(_){e.target.value='';return toast('الملف غير صالح')}
+ if(!o||o.app!=='kenisty'||!o.data||!Array.isArray(o.data.members)||!Array.isArray(o.data.services)){e.target.value='';return toast('ده مش ملف نسخة احتياطية للتطبيق')}
+ const d=new Date(o.date||0).toLocaleDateString('ar-EG');
+ if(!confirm('هتستبدل بياناتك الحالية بنسخة بتاريخ '+d+' فيها '+o.data.members.length+' مخدوم. متأكد؟')){e.target.value='';return}
+ Object.keys(S).forEach(k=>delete S[k]);Object.assign(S,o.data);S.servants=S.servants||[];S.vsess=S.vsess||{};S.seqv=S.seqv||1;
+ if(o.ui){try{Object.assign(UIP,o.ui);saveUI()}catch(_){}}
+ S.dirty=true;save();ui.sub=null;render();toast('تمت الاستعادة')});
+/* ===== v13: المحاضرات + الإملاء الصوتي + رسائل الغايبين + رسم الحضور + الشارات + الطباعة ===== */
+const DAYN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],DORD=[6,0,1,2,3,4,5];
+function fmtT(t){if(!t)return '';const[h,m]=t.split(':').map(Number);return (h%12||12)+':'+String(m).padStart(2,'0')+(h<12?' ص':' م')}
+function lPeople(){return[...S.members.map(m=>({id:m.id,name:m.name,sid:m.sid,k:'م'})),...(S.servants||[]).map(x=>({id:x.id,name:x.name,sid:x.sid,k:'خ'}))]}
+function lP(id){return lPeople().find(p=>p.id===id)}
+function lDaysOf(id){return[...new Set((S.lect||[]).filter(l=>l.ids.includes(id)).map(l=>l.day))].sort((a,b)=>DORD.indexOf(a)-DORD.indexOf(b))}
+function lectText(l){const ps=l.ids.map(lP).filter(Boolean),sv=ps.filter(p=>p.k==='خ'),mm=ps.filter(p=>p.k==='م');
+ return '🎓 '+l.name+'\n📅 '+DAYN[l.day]+(l.time?' — '+fmtT(l.time):'')+(sv.length?'\n\nالخدام:\n'+sv.map(p=>'• '+p.name).join('\n'):'')+(mm.length?'\n\nالمخدومين:\n'+mm.map(p=>'• '+p.name).join('\n'):'')+'\n\nكنيستي القبطية 3'}
+function lectToday(){const t=(S.lect||[]).filter(l=>l.day===new Date().getDay()).sort((a,b)=>(a.time||'').localeCompare(b.time||''));if(!t.length)return '';
+ return `<button data-go="lect" class="w-full bg-card border border-line rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🎓</div><div class="flex-1 min-w-0"><div class="font-bold">محاضرات اليوم</div><div class="text-xs text-mute">${t.map(l=>esc(l.name)+(l.time?' — '+fmtT(l.time):'')+' ('+l.ids.length+')').join(' · ')}</div></div></button>`}
+function vLect(){S.lect=S.lect||[];const tab=ui.ltab||'day',td=new Date().getDay(),dsel=ui.ld===undefined?td:ui.ld;
+ const head=`<div class="grid grid-cols-2 gap-2">${[['day','حسب اليوم'],['per','حسب الشخص']].map(([k,l])=>`<button data-lc="tab" data-k="${k}" class="py-2 rounded-xl text-sm font-bold border ${tab===k?'bg-acc border-acc text-white':'border-line text-mute bg-card'}">${l}</button>`).join('')}</div><button data-lc="add" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-3">+ إضافة محاضرة</button>`;
+ if(tab==='per'){return head+`<input id="lqs" placeholder="ابحث بالاسم…" class="${inp}"><div class="${card}">${lPeople().map(p=>{const ds=lDaysOf(p.id);return `<div data-lc="pick" data-id="${p.id}" data-n="${esc(p.name)}" class="flex items-center gap-3 py-2.5 border-b border-line last:border-0 cursor-pointer"><div class="flex-1 min-w-0"><div class="font-bold truncate">${esc(p.name)} <span class="text-[10px] text-mute">${p.k==='خ'?'خادم':'مخدوم'}</span></div><div class="text-xs ${ds.length?'text-acc':'text-mute'}">${ds.length?ds.map(d=>DAYN[d]).join(' · '):'غير مسجّل في محاضرة'}</div></div><span class="text-xs text-mute">تعديل</span></div>`}).join('')||'<p class="text-sm text-mute">لا يوجد أشخاص</p>'}</div>`}
+ const chips=`<div class="flex gap-2 overflow-x-auto py-3 -mx-4 px-4">${DORD.map(d=>{const c=S.lect.filter(l=>l.day===d).length;return `<button data-lc="day" data-d="${d}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${dsel===d?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${DAYN[d]}${d===td?' •':''} · ${c}</button>`}).join('')}</div>`;
+ const ls=S.lect.filter(l=>l.day===dsel).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+ return head+chips+`<div class="space-y-3">${ls.map(l=>{const ps=l.ids.map(lP).filter(Boolean),sv=ps.filter(p=>p.k==='خ'),mm=ps.filter(p=>p.k==='م');
+  return `<article class="bg-card border border-line rounded-2xl p-3"><div class="flex items-center gap-2"><div class="flex-1 min-w-0"><div class="font-bold">${esc(l.name)}</div><div class="text-xs text-mute">${DAYN[l.day]}${l.time?' · '+fmtT(l.time):''} · ${sv.length} خادم · ${mm.length} مخدوم</div></div><button data-lc="share" data-id="${l.id}" class="text-xs text-ok border border-ok/40 rounded-lg px-2.5 py-1.5">مشاركة</button></div>${ps.length?`<div class="mt-2 text-sm leading-7 sens">${sv.length?`<div><b class="text-acc">الخدام:</b> ${sv.map(p=>esc(p.name)).join('، ')}</div>`:''}${mm.length?`<div><b class="text-ok">المخدومين:</b> ${mm.map(p=>esc(p.name)).join('، ')}</div>`:''}</div>`:'<p class="text-xs text-mute mt-2">لم يُسجَّل أحد بعد</p>'}<div class="grid grid-cols-3 gap-2 mt-3"><button data-lc="who" data-id="${l.id}" class="border border-line rounded-xl py-2 text-sm">👥 الحضور</button><button data-lc="edit" data-id="${l.id}" class="border border-line rounded-xl py-2 text-sm">✎ تعديل</button><button data-lc="del" data-id="${l.id}" class="border border-bad/40 text-bad rounded-xl py-2 text-sm">🗑 حذف</button></div></article>`}).join('')||'<p class="text-center text-mute py-10">لا توجد محاضرات يوم '+DAYN[dsel]+'</p>'}</div>`}
+function lectForm(id){const l=id?S.lect.find(x=>x.id===id):{day:new Date().getDay()};
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="text-lg font-extrabold">${id?'تعديل محاضرة':'محاضرة جديدة'}</h2><label class="text-xs text-mute block mt-3">اسم المحاضرة</label><input id="lcn" value="${esc(l.name||'')}" placeholder="مثال: محاضرة الكتاب المقدس" class="${inp}"><label class="text-xs text-mute block mt-2">اليوم</label><select id="lcd" class="${inp}">${DORD.map(d=>`<option value="${d}" ${d===l.day?'selected':''}>${DAYN[d]}</option>`).join('')}</select><label class="text-xs text-mute block mt-2">الميعاد (اختياري — يظهر تنبيه قبلها بساعة)</label><input id="lct" type="time" value="${l.time||''}" class="${inp}"><button data-lc="save" data-id="${id||''}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden');$('#lcn').focus()}
+function lectWho(id){const l=S.lect.find(x=>x.id===id),ps=lPeople();
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">${esc(l.name)} — ${DAYN[l.day]}</h2><input id="lws" placeholder="ابحث…" class="${inp}"><div class="flex gap-2 mt-2 text-xs"><button data-lc="selall" class="border border-line rounded-lg px-3 py-1.5">تحديد الظاهر</button><button data-lc="selnone" class="border border-line rounded-lg px-3 py-1.5">إلغاء الكل</button></div><div id="lwl">${['خ','م'].map(k=>`<div class="text-xs text-mute mt-3">${k==='خ'?'الخدام':'المخدومين'}</div>`+ps.filter(p=>p.k===k).map(p=>`<label data-n="${esc(p.name)}" class="flex items-center gap-3 py-2 border-b border-line"><input type="checkbox" class="lwc w-5 h-5" value="${p.id}" ${l.ids.includes(p.id)?'checked':''}><span class="flex-1 truncate">${esc(p.name)}</span><span class="text-[10px] text-mute">${esc(svcName(p.sid))}</span></label>`).join('')).join('')}</div><button data-lc="savewho" data-id="${id}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ (<span id="lwn">${l.ids.length}</span>)</button></div>`;$('#sheet').classList.remove('hidden')}
+function lectPick(pid){const p=lP(pid);if(!p)return;
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">${esc(p.name)}</h2><p class="text-xs text-mute">اختر المحاضرات اللي بيحضرها</p>${S.lect.map(l=>`<label class="flex items-center gap-3 py-2.5 border-b border-line"><input type="checkbox" class="lpc w-5 h-5" value="${l.id}" ${l.ids.includes(pid)?'checked':''}><span class="flex-1">${esc(l.name)}</span><span class="text-xs text-mute">${DAYN[l.day]}</span></label>`).join('')||'<p class="text-sm text-mute py-4">أضف محاضرة أولاً</p>'}<button data-lc="savepick" data-id="${pid}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-lc]');if(!b)return;const D=b.dataset,a=D.lc,hide=()=>$('#sheet').classList.add('hidden');S.lect=S.lect||[];
+ if(a==='tab'){ui.ltab=D.k;render()}
+ else if(a==='day'){ui.ld=+D.d;render()}
+ else if(a==='add')lectForm();
+ else if(a==='edit')lectForm(D.id);
+ else if(a==='who')lectWho(D.id);
+ else if(a==='pick')lectPick(D.id);
+ else if(a==='del'){if(confirm('حذف المحاضرة؟')){S.lect=S.lect.filter(x=>x.id!==D.id);save();render()}}
+ else if(a==='save'){const n=$('#lcn').value.trim();if(!n)return toast('اكتب اسم المحاضرة');const o={name:n,day:+$('#lcd').value,time:$('#lct').value};
+  if(D.id)Object.assign(S.lect.find(x=>x.id===D.id),o);else S.lect.push({id:'L'+Date.now().toString(36),...o,ids:[]});
+  save();ui.ld=o.day;ui.ltab='day';hide();render();if(!D.id)toast('تمت الإضافة — اضغط 👥 الحضور لتسجيل الأشخاص')}
+ else if(a==='selall')document.querySelectorAll('#lwl label').forEach(l=>{if(l.style.display!=='none')l.querySelector('.lwc').checked=true});
+ else if(a==='selnone')document.querySelectorAll('.lwc').forEach(c=>c.checked=false);
+ else if(a==='savewho'){S.lect.find(x=>x.id===D.id).ids=[...document.querySelectorAll('.lwc:checked')].map(c=>c.value);save();hide();render();toast('تم الحفظ')}
+ else if(a==='savepick'){const on=new Set([...document.querySelectorAll('.lpc:checked')].map(c=>c.value));S.lect.forEach(l=>{l.ids=l.ids.filter(i=>i!==D.id);if(on.has(l.id))l.ids.push(D.id)});save();hide();render();toast('تم الحفظ')}
+ else if(a==='share'){window.open('https://wa.me/?text='+encodeURIComponent(lectText(S.lect.find(x=>x.id===D.id))),'_blank','noopener')}});
+document.addEventListener('input',e=>{const t=e.target;if(t.id!=='lqs'&&t.id!=='lws')return;const q=t.value.trim();
+ document.querySelectorAll(t.id==='lqs'?'[data-lc="pick"]':'#lwl label').forEach(r=>r.style.display=(!q||(r.dataset.n||'').includes(q))?'':'none')});
+document.addEventListener('change',e=>{if(e.target.classList&&e.target.classList.contains('lwc'))$('#lwn').textContent=document.querySelectorAll('.lwc:checked').length});
+function lectNotify(){try{if(!pf().pre||!('Notification' in window)||Notification.permission!=='granted'||inQuiet(new Date()))return;const n=new Date(),k=n.toISOString().slice(0,10);
+ (S.lect||[]).forEach(l=>{if(l.day!==n.getDay()||!l.time)return;const[h,m]=l.time.split(':').map(Number),mt=new Date(n);mt.setHours(h,m,0,0);const df=mt-n,key='kln_'+k+l.id;
+  if(df>0&&df<36e5&&!localStorage.getItem(key)){notify('محاضرة قريبة','محاضرة «'+l.name+'» بعد '+Math.round(df/6e4)+' دقيقة','lect'+l.id);localStorage.setItem(key,'1')}})}catch(_){}}
+setInterval(lectNotify,6e4);
+
+/* --- الإملاء الصوتي في الافتقاد --- */
+let REC=null;
+function micToggle(btn){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return toast('الإملاء الصوتي مش مدعوم هنا — استخدم 🎤 كيبورد الموبايل');
+ if(REC){REC.stop();return}
+ const r=REC=new SR(),t=$('#nx');r.lang='ar-EG';r.interimResults=false;r.continuous=true;
+ r.onresult=ev=>{for(let i=ev.resultIndex;i<ev.results.length;i++)if(ev.results[i].isFinal)t.value=(t.value?t.value+' ':'')+ev.results[i][0].transcript.trim()};
+ r.onend=()=>{REC=null;btn.textContent='🎤 إملاء صوتي';btn.classList.remove('border-bad','text-bad')};
+ r.onerror=ev=>toast(ev.error==='not-allowed'?'اسمح للميكروفون من إعدادات المتصفح':'تعذّر الإملاء الصوتي');
+ try{r.start();btn.textContent='⏹ إيقاف الإملاء';btn.classList.add('border-bad','text-bad')}catch(_){REC=null}}
+
+/* --- رسالة «افتقدناك» لكل الغايبين --- */
+function absSheet(){const r=lastR();if(!r)return toast('لا يوجد تقرير بعد');const ab=(r.absIds||[]).map(findM).filter(Boolean),ts=new Date(r.date+'T00:00').getTime(),
+ sent=m=>(S.notes[m.id]||[]).some(n=>n.type==='واتساب'&&n.ts>=ts);
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">رسالة «افتقدناك»</h2><p class="text-xs text-mute">كل ضغطة بتفتح واتساب برسالة جاهزة بالاسم، وبتتسجل في ملاحظات المخدوم</p><button data-a="absnext" class="w-full mt-3 bg-ok text-white font-bold rounded-xl py-3">▶ إرسال للتالي (${ab.filter(m=>!sent(m)&&m.phone).length})</button><div class="mt-3">${ab.map(m=>`<div class="flex items-center gap-3 py-2 border-b border-line"><div class="flex-1 min-w-0"><div class="font-bold truncate">${esc(m.name)}</div><div class="text-xs ${m.phone?'text-mute':'text-bad'}">${m.phone?esc(svcName(m.sid)):'لا يوجد رقم'}</div></div>${sent(m)?'<span class="text-xs text-ok">أُرسلت ✓</span>':m.phone?`<button data-a="abssend" data-id="${m.id}" class="text-xs bg-ok text-white font-bold rounded-lg px-3 py-1.5">إرسال</button>`:''}</div>`).join('')||'<p class="text-sm text-mute py-4">لا يوجد غايبين</p>'}</div></div>`;$('#sheet').classList.remove('hidden')}
+function absSend(id){const m=findM(id);if(!m||!m.phone)return;window.open(wa(m.phone)+'?text='+encodeURIComponent(fillTpl('abs',m)),'_blank','noopener');
+ (S.notes[id]=S.notes[id]||[]).push({ts:Date.now(),type:'واتساب',text:'رسالة افتقدناك'});save();render();absSheet()}
+function absNext(){const r=lastR(),ts=new Date(r.date+'T00:00').getTime(),m=(r.absIds||[]).map(findM).filter(Boolean).find(m=>m.phone&&!(S.notes[m.id]||[]).some(n=>n.type==='واتساب'&&n.ts>=ts));m?absSend(m.id):toast('تم الإرسال للجميع ✓')}
+
+/* --- رسم حضور المخدوم + الشارات --- */
+function pStreak(m){let c=0;for(let i=m.att.length-1;i>=0&&m.att[i];i--)c++;return c}
+function badgesOf(m){const b=[],ps=pStreak(m),tot=m.att.reduce((a,x)=>a+x,0);
+ if(ps>=4)b.push(['🔥','مواظب','حضور '+ps+' جلسات متتالية']);
+ if(m.att.length>=4&&tot===m.att.length)b.push(['🌟','حضور كامل','لم يغب أبدًا']);
+ if(tot>=25)b.push(['🏆','٢٥ جلسة','']);else if(tot>=10)b.push(['🎖️','١٠ جلسات','']);
+ return b.length?`<div class="${card}"><h2 class="font-bold">🏅 الشارات</h2><div class="flex flex-wrap gap-2 mt-2">${b.map(([i,t,x])=>`<div class="bg-bg border border-line rounded-xl px-3 py-2 text-center"><div class="text-2xl">${i}</div><div class="text-xs font-bold">${t}</div>${x?`<div class="text-[10px] text-mute">${x}</div>`:''}</div>`).join('')}</div></div>`:''}
+function memChart(id){const m=findM(id);if(!m)return '';const mo={};
+ histRows(S.sess,id).forEach(([d,v])=>{if(v==='e')return;const k=d.slice(0,7),o=mo[k]=mo[k]||{p:0,t:0};o.t++;if(v!=='a')o.p++});
+ const ks=Object.keys(mo).sort().slice(-6);
+ return `<div class="${card}"><h2 class="font-bold">📈 حضوره شهرًا بشهر</h2>${ks.length?`<div class="flex items-end gap-2 mt-3" style="height:110px">${ks.map(k=>{const p=Math.round(mo[k].p/mo[k].t*100),t=tone(p),nm=new Date(k+'-15T12:00').toLocaleDateString('ar-EG',{month:'short'});return `<div class="flex-1 h-full flex flex-col justify-end gap-1"><div class="text-center text-[10px] font-bold ${t[0]}">${p}%</div><div class="rounded-t ${t[1]}" style="height:${Math.max(p,6)}%;min-height:6px"></div><div class="text-center text-[10px] text-mute">${nm}</div></div>`}).join('')}</div>`:'<p class="text-xs text-mute mt-2">لا توجد جلسات كفاية</p>'}</div>${badgesOf(m)}`}
+function topStreaks(){const t=S.members.map(m=>({m,k:pStreak(m)})).filter(x=>x.k>=4).sort((a,b)=>b.k-a.k).slice(0,3);if(!t.length)return '';
+ return `<div class="${card}"><h2 class="font-bold mb-2">🔥 المواظبون على الحضور</h2>${t.map(({m,k})=>`<div data-m="${m.id}" class="flex items-center gap-3 py-2 cursor-pointer">${avatar(m)}<div class="flex-1 font-bold">${esc(m.name)}</div><span class="text-xs px-2 py-0.5 rounded-full bg-ok/15 text-ok">${k} جلسات متتالية</span></div>`).join('')}</div>`}
+
+/* --- ورقة الحضور للطباعة --- */
+function vPrint(){const sf=ui.psf||(S.services[0]&&S.services[0].id),w=+(ui.pw||4),ml=S.members.filter(m=>m.sid===sf);
+ return `<div class="space-y-3"><div class="flex gap-2 overflow-x-auto py-1 -mx-4 px-4">${S.services.map(x=>`<button data-pr="sf" data-id="${x.id}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${sf===x.id?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(x.name)}</button>`).join('')}</div>
+ <div class="grid grid-cols-3 gap-2">${[4,6,8].map(n=>`<button data-pr="w" data-k="${n}" class="py-2 rounded-xl text-sm border ${w===n?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${n} أسابيع</button>`).join('')}</div>
+ <button data-pr="ph" class="w-full py-2 rounded-xl text-sm border ${ui.pph?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">📷 ${ui.pph?'مع الصور ✓':'بدون صور (اضغط لإضافتها)'}</button>
+ <div class="${card}"><div class="font-bold">كشف «${esc(svcName(sf))}» — ${ml.length} مخدوم</div><div class="text-xs text-mute mt-1">أعمدة التواريخ تبدأ من أقرب ${DAYN[+pf().md]} قادم. لو الطباعة مش شغالة داخل APK افتح البرنامج من متصفح الموبايل.</div><button data-a="prt" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-3">🖨️ طباعة / حفظ PDF</button></div></div>`}
+function printHtml(sf,w){const ph=!!ui.pph;const d0=new Date();d0.setHours(12,0,0,0);while(d0.getDay()!==+pf().md)d0.setDate(d0.getDate()+1);
+ const ds=[...Array(w)].map((_,i)=>{const d=new Date(d0);d.setDate(d.getDate()+7*i);return d.toLocaleDateString('ar-EG',{day:'numeric',month:'numeric'})}),ml=S.members.filter(m=>m.sid===sf),b='border:1px solid #999;padding:4px';
+ return `<div dir="rtl" style="padding:8px"><h2 style="font-size:20px;font-weight:800;margin:0 0 4px">كشف حضور — ${esc(svcName(sf))}</h2><div style="font-size:12px;margin-bottom:8px">كنيستي القبطية 3 · ${ml.length} مخدوم</div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="${b};width:28px">م</th>${ph?`<th style="${b};width:44px">صورة</th>`:''}<th style="${b};text-align:right">الاسم</th><th style="${b}">تليفون</th>${ds.map(d=>`<th style="${b};width:52px">${d}</th>`).join('')}</tr></thead><tbody>${ml.map((m,i)=>`<tr><td style="${b};text-align:center">${i+1}</td>${ph?`<td style="${b};text-align:center">${phImg(m)}</td>`:''}<td style="${b}">${esc(m.name)}</td><td style="${b}" dir="ltr">${esc(m.phone||'')}</td>${ds.map(()=>`<td style="${b};height:26px"></td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function doPrint(){const sf=ui.psf||(S.services[0]&&S.services[0].id),z=document.createElement('div');z.id='pz';z.innerHTML=printHtml(sf,+(ui.pw||4));document.body.appendChild(z);document.body.classList.add('pz-on');
+ const done=()=>{z.remove();document.body.classList.remove('pz-on');removeEventListener('afterprint',done)};addEventListener('afterprint',done);setTimeout(()=>window.print(),60)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pr]');if(!b)return;if(b.dataset.pr==='sf')ui.psf=b.dataset.id;else if(b.dataset.pr==='ph')ui.pph=!ui.pph;else ui.pw=+b.dataset.k;render()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a="absmsg"],[data-a="abssend"],[data-a="absnext"],[data-a="mic"],[data-a="prt"],[data-a="mvs"]');if(!b)return;const a=b.dataset.a;
+ if(a==='absmsg')absSheet();else if(a==='abssend')absSend(b.dataset.id);else if(a==='absnext')absNext();else if(a==='mic')micToggle(b);else if(a==='prt')doPrint();
+ else if(a==='mvs'){const m=findM(b.dataset.id);m.sid=$('#mvs').value;save();render();noteSheet(m.id);toast('تم النقل إلى '+svcName(m.sid))}});
+
+/* ===== v14: فريق الخدمة + QR + التقرير السنوي + خطة الافتقاد + تقويم الكنيسة ===== */
+function pzPrint(html){const z=document.createElement('div');z.id='pz';z.innerHTML=html;document.body.appendChild(z);document.body.classList.add('pz-on');
+ const done=()=>{z.remove();document.body.classList.remove('pz-on');removeEventListener('afterprint',done)};addEventListener('afterprint',done);setTimeout(()=>window.print(),60)}
+function phImg(m){const p=m.photo||'';return /^(data:image\/|https?:)/i.test(p)?`<img src="${p.replace(/"/g,'')}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">`:`<div style="width:34px;height:34px;border-radius:50%;border:1px solid #999;display:inline-block;line-height:34px;font-weight:800">${esc((m.name||'')[0]||'')}</div>`}
+
+/* ---------- تقويم الكنيسة ---------- */
+const CMN=['توت','بابه','هاتور','كيهك','طوبه','أمشير','برمهات','برمودة','بشنس','بؤونة','أبيب','مسرى','النسيء'];
+function copOf(dt){const N=Math.floor(Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate())/864e5)+2440588-1825030,st=y=>365*(y-1)+Math.floor(y/4);
+ let y=Math.floor(N/365.25)+1;while(st(y+1)<=N)y++;while(st(y)>N)y--;const r=N-st(y);return{y,m:Math.floor(r/30)+1,d:r%30+1}}
+function easterOf(y){const a=y%4,b=y%7,c=y%19,d=(19*c+15)%30,e=(2*a+4*b-d+34)%7,m=Math.floor((d+e+114)/31),dd=(d+e+114)%31+1;return new Date(y,m-1,dd+13,12)}
+const FEASTS=[[1,1,'🌿 النيروز — رأس السنة القبطية'],[1,17,'✝️ عيد الصليب'],[4,29,'⭐ عيد الميلاد المجيد'],[5,6,'عيد ختان السيد المسيح'],[5,11,'💧 عيد الغطاس'],[6,8,'عيد دخول السيد المسيح الهيكل'],[7,29,'🕊️ عيد البشارة'],[9,24,'عيد دخول السيد المسيح أرض مصر'],[11,5,'عيد الرسل'],[12,13,'⛰️ عيد التجلي'],[12,16,'👑 عيد صعود جسد السيدة العذراء']];
+const FASTS=[[3,16,4,28,'🥣 صوم الميلاد'],[12,1,12,15,'🥣 صوم السيدة العذراء']];
+function calEvents(from,to){const ev=[],cs=[],ext=new Date(to);ext.setDate(ext.getDate()+60);
+ for(let t=new Date(from);t<=ext;t.setDate(t.getDate()+1)){const c=new Date(t);c.setHours(12,0,0,0);cs.push([c,copOf(c)])}
+ const find=(m,d,after)=>cs.find(([dt,c])=>c.m===m&&c.d===d&&dt>after);
+ cs.forEach(([dt,c])=>{FEASTS.forEach(([m,d,n])=>{if(c.m===m&&c.d===d)ev.push({dt,n,k:'feast'})});
+  FASTS.forEach(([m1,d1,m2,d2,n])=>{if(c.m===m1&&c.d===d1){const e=find(m2,d2,dt);ev.push({dt,n,k:'fast',end:e?e[0]:null})}})});
+ for(let y=from.getFullYear();y<=to.getFullYear()+1;y++){const E=easterOf(y),add=(o,n,k,len)=>{const dt=new Date(E);dt.setDate(dt.getDate()+o);const e=len?new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()+len-1,12):null;ev.push({dt,n,k,end:e})};
+  add(-69,'🥣 صوم نينوى','fast',3);add(-55,'🥣 الصوم الكبير','fast',55);add(-7,'🌴 أحد الشعانين','feast');add(-2,'✝️ الجمعة العظيمة','feast');add(0,'🌅 عيد القيامة المجيد','feast');add(39,'☁️ عيد الصعود','feast');add(49,'🔥 عيد العنصرة','feast');
+  const st=new Date(E);st.setDate(st.getDate()+50);ev.push({dt:st,n:'🥣 صوم الرسل',k:'fast',end:new Date(st.getFullYear(),6,11,12)})}
+ (S.cal||[]).forEach(x=>{const y0=from.getFullYear();for(let y=y0;y<=to.getFullYear()+1;y++){const dt=new Date(x.yearly?y+x.date.slice(4):x.date+'T12:00');dt.setHours(12,0,0,0);ev.push({dt,n:'📌 '+x.title,k:'mine',id:x.id});if(!x.yearly)break}});
+ return ev.filter(e=>e.dt<=to&&(e.dt>=from||(e.end&&e.end>=from))).sort((a,b)=>a-b||0).sort((a,b)=>a.dt-b.dt)}
+const arD=d=>d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+function leftTxt(dt,now){const n=Math.round((dt-now)/864e5);return n<=0?'اليوم':n===1?'غدًا':'بعد '+n+' يوم'}
+function vCal(){const now=new Date();now.setHours(12,0,0,0);const to=new Date(now);to.setDate(to.getDate()+365);const from=new Date(now);from.setDate(from.getDate()-70),
+ all=calEvents(from,to),c=copOf(now),cur=all.filter(e=>e.end&&e.dt<=now&&e.end>=now),up=all.filter(e=>e.dt>now||(e.dt.getTime()===now.getTime())).slice(0,16),wd=now.getDay()===3||now.getDay()===5;
+ return `<div class="space-y-3"><div class="rounded-2xl p-4 bg-gradient-to-br from-[#0c111b] to-[#25508f] border border-line text-white"><div class="text-sm">${arD(now)}</div><div class="text-2xl font-extrabold mt-1">${c.d.toLocaleString('ar-EG')} ${CMN[c.m-1]} ${c.y.toLocaleString('ar-EG',{useGrouping:false})}</div>${cur.length?`<div class="text-sm mt-2">الآن: ${cur.map(e=>e.n+' (حتى '+e.end.toLocaleDateString('ar-EG',{day:'numeric',month:'long'})+')').join(' · ')}</div>`:''}${wd&&!cur.length?'<div class="text-sm mt-2">اليوم صيام الأربعاء والجمعة</div>':''}</div>
+ <button data-cal="add" class="w-full bg-acc text-white font-bold rounded-xl py-3">+ أضف مناسبة خاصة بخدمتك</button>
+ <div class="${card}"><h2 class="font-bold mb-1">القادم</h2>${up.map(e=>`<div class="flex items-center gap-3 py-2.5 border-b border-line last:border-0"><div class="flex-1 min-w-0"><div class="font-bold">${esc(e.n)}</div><div class="text-xs text-mute">${arD(e.dt)}${e.end?' → '+e.end.toLocaleDateString('ar-EG',{day:'numeric',month:'long'}):''}</div></div><span class="text-xs ${e.k==='fast'?'text-warn':e.k==='mine'?'text-acc':'text-ok'}">${leftTxt(e.dt,now)}</span>${e.k==='mine'?`<button data-cal="del" data-id="${e.id}" class="text-bad text-xs">🗑</button>`:''}</div>`).join('')||'<p class="text-sm text-mute">لا توجد مناسبات</p>'}</div>
+ <button data-cal="share" class="w-full border border-ok/40 text-ok font-bold rounded-xl py-2.5 text-sm">مشاركة المناسبات القادمة على واتساب</button></div>`}
+function calForm(){$('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">مناسبة جديدة</h2><label class="text-xs text-mute block mt-3">العنوان</label><input id="cat" class="${inp}" placeholder="مثال: رحلة الخدمة"><label class="text-xs text-mute block mt-2">التاريخ</label><input id="cad" type="date" class="${inp}"><label class="flex items-center gap-3 mt-3"><input id="cay" type="checkbox" class="w-5 h-5"><span class="text-sm">تتكرر كل سنة</span></label><button data-cal="save" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-cal]');if(!b)return;const a=b.dataset.cal;S.cal=S.cal||[];
+ if(a==='add')calForm();
+ else if(a==='save'){const t=$('#cat').value.trim(),d=$('#cad').value;if(!t||!d)return toast('اكتب العنوان والتاريخ');S.cal.push({id:'C'+Date.now().toString(36),title:t,date:d,yearly:$('#cay').checked});save();$('#sheet').classList.add('hidden');render();toast('تمت الإضافة')}
+ else if(a==='del'){if(confirm('حذف المناسبة؟')){S.cal=S.cal.filter(x=>x.id!==b.dataset.id);save();render()}}
+ else if(a==='share'){const now=new Date();now.setHours(12,0,0,0);const to=new Date(now);to.setDate(to.getDate()+120);const up=calEvents(now,to).filter(e=>e.dt>=now).slice(0,6);
+  window.open('https://wa.me/?text='+encodeURIComponent('📅 المناسبات القادمة\n\n'+up.map(e=>'• '+e.n+' — '+arD(e.dt)).join('\n')+'\n\nكنيستي القبطية 3'),'_blank','noopener')}});
+
+/* ---------- التقرير السنوي ---------- */
+const sYear=d=>{const y=+d.slice(0,4);return +d.slice(5,7)>=9?y:y-1};
+function yearInfo(sy){const a=sy+'-09-01',b=(sy+1)+'-08-31',rs=S.reports.filter(r=>r.date>=a&&r.date<=b).sort((x,y)=>x.date.localeCompare(y.date));
+ const mo=[9,10,11,12,1,2,3,4,5,6,7,8].map(m=>{const y=m>=9?sy:sy+1,k=y+'-'+String(m).padStart(2,'0'),l=rs.filter(r=>r.date.slice(0,7)===k);return{m,y,rate:l.length?Math.round(l.reduce((s,r)=>s+r.rate,0)/l.length):null}});
+ const per={};S.members.forEach(m=>per[m.id]={m,p:0,a:0});
+ rs.forEach(r=>{const s=S.sess[r.date]||{};S.members.forEach(m=>{const v=s[m.id];if(v==='p'||v==='l')per[m.id].p++;else if(v==='a')per[m.id].a++})});
+ const pl=Object.values(per).filter(o=>o.p+o.a>=3).map(o=>({...o,r:Math.round(o.p/(o.p+o.a)*100)}));
+ const top=[...pl].sort((x,y)=>y.r-x.r||y.p-x.p).slice(0,5),ab=[...pl].filter(o=>o.a>0).sort((x,y)=>y.a-x.a).slice(0,5);
+ const sv=S.services.map(s=>{let p=0,a=0;Object.values(per).forEach(o=>{if(o.m.sid===s.id){p+=o.p;a+=o.a}});return{s,n:S.members.filter(m=>m.sid===s.id).length,r:p+a?Math.round(p/(p+a)*100):null}});
+ return{sy,rs,mo,top,ab,sv,avg:rs.length?Math.round(rs.reduce((s,r)=>s+r.rate,0)/rs.length):null,max:rs.length?Math.max(...rs.map(r=>r.rate)):null,min:rs.length?Math.min(...rs.map(r=>r.rate)):null}}
+const monN=(y,m)=>new Date(y,m-1,15).toLocaleDateString('ar-EG',{month:'short'});
+function yearText(i){return '📆 التقرير السنوي — السنة الخدمية '+i.sy+'/'+(i.sy+1)+'\n\n• عدد الجلسات: '+i.rs.length+'\n• متوسط الحضور: '+(i.avg===null?'—':i.avg+'%')+'\n• أعلى جلسة: '+(i.max===null?'—':i.max+'%')+' · أقل جلسة: '+(i.min===null?'—':i.min+'%')+'\n\nحسب الخدمة:\n'+i.sv.map(x=>'• '+x.s.name+' ('+x.n+'): '+(x.r===null?'—':x.r+'%')).join('\n')+(i.top.length?'\n\n🏆 الأكثر مواظبة:\n'+i.top.map(o=>'• '+o.m.name+' — '+o.r+'%').join('\n'):'')+'\n\nكنيستي القبطية 3'}
+function yearHtml(i){const b='border:1px solid #999;padding:5px';return `<div dir="rtl" style="padding:10px"><h2 style="font-size:22px;font-weight:800;margin:0">التقرير السنوي — ${i.sy}/${i.sy+1}</h2><div style="font-size:13px;margin:6px 0 12px">عدد الجلسات: ${i.rs.length} · متوسط الحضور: ${i.avg===null?'—':i.avg+'%'} · أعلى: ${i.max===null?'—':i.max+'%'} · أقل: ${i.min===null?'—':i.min+'%'}</div>
+ <h3 style="margin:8px 0">متوسط الحضور شهريًا</h3><table style="border-collapse:collapse;width:100%;font-size:13px"><tr>${i.mo.map(x=>`<th style="${b}">${monN(x.y,x.m)}</th>`).join('')}</tr><tr>${i.mo.map(x=>`<td style="${b};text-align:center">${x.rate===null?'—':x.rate+'%'}</td>`).join('')}</tr></table>
+ <h3 style="margin:12px 0 4px">حسب الخدمة</h3><table style="border-collapse:collapse;width:100%;font-size:13px"><tr><th style="${b}">الخدمة</th><th style="${b}">المخدومين</th><th style="${b}">الحضور</th></tr>${i.sv.map(x=>`<tr><td style="${b}">${esc(x.s.name)}</td><td style="${b};text-align:center">${x.n}</td><td style="${b};text-align:center">${x.r===null?'—':x.r+'%'}</td></tr>`).join('')}</table>
+ <h3 style="margin:12px 0 4px">الأكثر مواظبة</h3>${i.top.map(o=>`<div style="font-size:13px">• ${esc(o.m.name)} — ${o.r}%</div>`).join('')||'—'}<h3 style="margin:12px 0 4px">الأكثر غيابًا</h3>${i.ab.map(o=>`<div style="font-size:13px">• ${esc(o.m.name)} — غاب ${o.a} مرة</div>`).join('')||'—'}<div style="font-size:11px;margin-top:14px">كنيستي القبطية 3</div></div>`}
+function vYear(){const cur=sYear(new Date().toISOString().slice(0,10)),ys=[...new Set([cur,...S.reports.map(r=>sYear(r.date))])].sort((a,b)=>b-a),sy=ui.yy||cur,i=yearInfo(sy);
+ return `<div class="space-y-3"><div class="flex gap-2 overflow-x-auto py-1 -mx-4 px-4">${ys.map(y=>`<button data-yr="y" data-k="${y}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${sy===y?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${y}/${y+1}</button>`).join('')}</div>
+ <div class="rounded-2xl p-4 bg-gradient-to-br from-[#0c111b] to-[#25508f] border border-line text-white"><div class="text-sm">السنة الخدمية ${sy}/${sy+1}</div><div class="text-5xl font-extrabold mt-1">${i.avg===null?'—':i.avg+'%'}</div><div class="text-sm">متوسط الحضور · ${i.rs.length} جلسة${i.max!==null?' · أعلى '+i.max+'% · أقل '+i.min+'%':''}</div></div>
+ <div class="${card}"><h2 class="font-bold">الحضور شهريًا</h2><div class="flex items-end gap-1.5 mt-3" style="height:130px">${i.mo.map(x=>{const t=tone(x.rate);return `<div class="flex-1 h-full flex flex-col justify-end gap-1"><div class="text-center text-[9px] font-bold ${t[0]}">${x.rate===null?'':x.rate+'%'}</div><div class="rounded-t ${t[1]}" style="height:${x.rate===null?4:Math.max(x.rate,6)}%;min-height:4px"></div><div class="text-center text-[9px] text-mute">${monN(x.y,x.m)}</div></div>`}).join('')}</div></div>
+ <div class="${card}"><h2 class="font-bold mb-1">حسب الخدمة</h2>${i.sv.map(x=>{const t=tone(x.r);return `<div class="py-2 border-b border-line last:border-0"><div class="flex justify-between text-sm"><span class="font-bold">${esc(x.s.name)} <span class="text-xs text-mute">${x.n} مخدوم</span></span><span class="${t[0]} font-bold">${x.r===null?'—':x.r+'%'}</span></div><div class="h-1.5 rounded-full bg-line mt-1.5 overflow-hidden"><div class="h-full ${t[1]}" style="width:${x.r||0}%"></div></div></div>`}).join('')}</div>
+ ${i.top.length?`<div class="${card}"><h2 class="font-bold mb-1">🏆 الأكثر مواظبة</h2>${i.top.map(o=>`<div data-m="${o.m.id}" class="flex justify-between py-2 cursor-pointer"><span class="sens">${esc(o.m.name)}</span><span class="text-ok font-bold">${o.r}%</span></div>`).join('')}</div>`:''}
+ ${i.ab.length?`<div class="${card}"><h2 class="font-bold mb-1">الأكثر غيابًا</h2>${i.ab.map(o=>`<div data-m="${o.m.id}" class="flex justify-between py-2 cursor-pointer"><span class="sens">${esc(o.m.name)}</span><span class="text-bad font-bold">${o.a} مرة</span></div>`).join('')}</div>`:''}
+ <div class="grid grid-cols-2 gap-2"><button data-yr="share" class="border border-ok/40 text-ok font-bold rounded-xl py-2.5 text-sm">مشاركة واتساب</button><button data-yr="print" class="bg-acc text-white font-bold rounded-xl py-2.5 text-sm">🖨️ طباعة / PDF</button></div>${i.rs.length?'':'<p class="text-xs text-mute text-center">لا توجد جلسات مغلقة في هذه السنة بعد</p>'}</div>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-yr]');if(!b)return;const a=b.dataset.yr,i=yearInfo(ui.yy||sYear(new Date().toISOString().slice(0,10)));
+ if(a==='y'){ui.yy=+b.dataset.k;render()}else if(a==='share')window.open('https://wa.me/?text='+encodeURIComponent(yearText(i)),'_blank','noopener');else if(a==='print')pzPrint(yearHtml(i))});
+
+/* ---------- خطة الافتقاد الأسبوعية ---------- */
+function fpData(){const r=lastR(),ids=new Set([...(r?r.absIds||[]:[]),...needFu().map(x=>x.m.id)]),ms=[...ids].map(findM).filter(Boolean).sort((a,b)=>streak(b)-streak(a)),sv=S.servants||[],load={},out={},un=[];
+ sv.forEach(x=>{load[x.id]=0;out[x.id]=[]});
+ ms.forEach(m=>{let c=sv.filter(x=>x.name&&m.servant&&(x.name.includes(m.servant)||m.servant.includes(x.name)));if(!c.length)c=sv.filter(x=>x.sid===m.sid);if(!c.length){un.push(m);return}
+  c.sort((a,b)=>load[a.id]-load[b.id]);out[c[0].id].push(m);load[c[0].id]++});
+ return{ms,out,un,sv,r}}
+function fpText(x,list){return 'سلام ونعمة يا '+x.name.split(' ')[0]+' 🙏\nخطة الافتقاد الأسبوع ده:\n'+list.map(m=>'• '+m.name+(m.phone?' — '+m.phone:'')).join('\n')+'\n\nكنيستي القبطية 3'}
+function vFplan(){const{ms,out,un,sv,r}=fpData(),ts=r?new Date(r.date+'T00:00').getTime():0,done=m=>(S.notes[m.id]||[]).some(n=>n.ts>=ts);
+ if(!ms.length)return `<div class="${card}"><p class="text-center text-mute py-6">لا يوجد مخدومين محتاجين افتقاد حاليًا 🎉</p></div>`;
+ const row=m=>`<div class="flex items-center gap-2 py-2 border-b border-line last:border-0"><div data-m="${m.id}" class="flex-1 min-w-0 cursor-pointer"><div class="font-bold truncate sens">${esc(m.name)}</div><div class="text-xs text-mute">${esc(svcName(m.sid))}${streak(m)>=2?' · غاب '+streak(m)+' متتالي':''}</div></div>${done(m)?'<span class="text-xs text-ok">تم ✓</span>':''}<a href="tel:${esc(m.phone)}" class="w-9 h-9 grid place-items-center rounded-xl bg-acc/15 text-acc ${m.phone?'':'opacity-30 pointer-events-none'}">${ic('call','w-4 h-4')}</a><a target="_blank" rel="noopener" href="${wa(m.phone)}?text=${encodeURIComponent(fillTpl('abs',m))}" class="w-9 h-9 grid place-items-center rounded-xl bg-ok/15 text-ok ${m.phone?'':'opacity-30 pointer-events-none'}">${ic('chat','w-4 h-4')}</a></div>`;
+ return `<div class="${card} !mt-0"><div class="font-bold">${ms.length} مخدوم محتاجين افتقاد</div><div class="text-xs text-mute mt-1">موزعين على ${sv.filter(x=>out[x.id].length).length} خادم: بالخادم المكتوب في ملف المخدوم، وإلا بخدمته، ويتوزعوا بالتساوي</div><button data-fp="all" class="w-full mt-3 bg-ok text-white font-bold rounded-xl py-2.5">مشاركة الخطة كاملة على واتساب</button></div>
+ ${sv.filter(x=>out[x.id].length).map(x=>`<div class="${card}"><div class="flex items-center gap-2"><div class="flex-1 min-w-0"><div class="font-bold">${esc(x.name)}</div><div class="text-xs text-mute">${out[x.id].length} مخدوم · ${esc(svcName(x.sid))}</div></div>${x.phone?`<button data-fp="send" data-id="${x.id}" class="text-xs text-ok border border-ok/40 rounded-lg px-2.5 py-1.5">إرسال للخادم</button>`:''}</div><div class="mt-1">${out[x.id].map(row).join('')}</div></div>`).join('')}
+ ${un.length?`<div class="${card}"><div class="font-bold">بدون خادم مسؤول (${un.length})</div><p class="text-xs text-mute">أضف خادمًا لنفس الخدمة أو اكتب اسم الخادم في ملف المخدوم</p><div class="mt-1">${un.map(row).join('')}</div></div>`:''}`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-fp]');if(!b)return;const{out,sv,un}=fpData();
+ if(b.dataset.fp==='send'){const x=sv.find(s=>s.id===b.dataset.id);window.open(wa(x.phone)+'?text='+encodeURIComponent(fpText(x,out[x.id])),'_blank','noopener')}
+ else window.open('https://wa.me/?text='+encodeURIComponent('🗓️ خطة الافتقاد الأسبوعية\n\n'+sv.filter(x=>out[x.id].length).map(x=>x.name+':\n'+out[x.id].map(m=>'• '+m.name).join('\n')).join('\n\n')+(un.length?'\n\nبدون خادم:\n'+un.map(m=>'• '+m.name).join('\n'):'')+'\n\nكنيستي القبطية 3'),'_blank','noopener')});
+
+/* ---------- كروت الحضور QR ---------- */
+let QS=null;
+function loadQR(cb){if(window.qrcode)return cb();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';s.onload=cb;s.onerror=()=>toast('محتاج إنترنت مرة واحدة لتوليد الأكواد');document.head.appendChild(s)}
+function qrImg(t){const q=qrcode(0,'M');q.addData(t);q.make();return q.createDataURL(6,0)}
+function vQR(){const sf=ui.qsf||'all',n=S.members.filter(m=>sf==='all'||m.sid===sf).length;
+ return `<div class="space-y-3"><div class="${card} !mt-0"><h2 class="font-bold">كارت QR لكل مخدوم</h2><p class="text-sm text-mute mt-1">اطبع الكروت مرة واحدة، وكل مخدوم يعدّي بكارته على كاميرا الخادم فيتسجل حاضر في جلسة النهارده.</p></div>
+ <div class="flex gap-2 overflow-x-auto py-1 -mx-4 px-4">${[['all','الكل'],...S.services.map(s=>[s.id,s.name])].map(([id,nm])=>`<button data-qr="sf" data-id="${id}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${sf===id?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(nm)}</button>`).join('')}</div>
+ <button data-qr="print" class="w-full bg-acc text-white font-bold rounded-xl py-3">🖨️ طباعة كروت (${n} كارت)</button>
+ <button data-qr="scan" class="w-full bg-ok text-white font-bold rounded-xl py-3">📷 مسح للتحضير</button>
+ <p class="text-xs text-mute">المسح بالكاميرا بيشتغل في متصفح كروم على أندرويد. لو مش مدعوم عندك، استخدم كتابة الكود يدويًا من شاشة المسح.</p></div>`}
+function scanSheet(){$('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">📷 مسح للتحضير</h2><p class="text-xs text-mute">وجّه الكاميرا على كارت المخدوم — بيتسجل حاضر في جلسة النهارده</p><video id="qrv" playsinline muted class="w-full rounded-2xl mt-3 bg-black" style="max-height:260px"></video><div id="qrs" class="text-sm mt-2 text-mute">جاري تشغيل الكاميرا…</div><div class="flex gap-2 mt-3"><input id="qrm" dir="ltr" placeholder="أو اكتب الكود MN-0001" class="${inp} flex-1"><button data-qr="manual" class="mt-1 bg-acc text-white font-bold rounded-xl px-4">تسجيل</button></div><div id="qrl" class="mt-3 text-sm space-y-1"></div></div>`;$('#sheet').classList.remove('hidden');qrStart()}
+async function qrStart(){const st=$('#qrs');if(!('BarcodeDetector' in window)){st.textContent='الكاميرا مش بتدعم قراءة الكود هنا — اكتب الكود يدويًا أو افتح من كروم';return}
+ try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}),v=$('#qrv');v.srcObject=stream;await v.play();QS={stream,last:'',t:0};st.textContent='جاهز — وجّه الكاميرا';const det=new BarcodeDetector({formats:['qr_code']});
+  QS.iv=setInterval(async()=>{try{const r=await det.detect(v);if(r[0]){const c=r[0].rawValue.trim();if(c!==QS.last||Date.now()-QS.t>3000){QS.last=c;QS.t=Date.now();qrMark(c)}}}catch(_){}},350)}
+ catch(_){st.textContent='تعذّر تشغيل الكاميرا — اسمح بالكاميرا من إعدادات المتصفح'}}
+function qrStop(){if(QS){clearInterval(QS.iv);QS.stream.getTracks().forEach(t=>t.stop());QS=null}}
+function qrMark(c){const m=findM(c);if(!m)return toast('كود غير معروف');if(closedToday())return toast('الجلسة مقفولة النهارده');const d=day(),was=d[m.id];d[m.id]='p';save();render();try{navigator.vibrate(80)}catch(_){}
+ const l=$('#qrl');if(l)l.insertAdjacentHTML('afterbegin',`<div class="text-ok">✓ ${esc(m.name)}${was==='p'?' (كان حاضر)':''}</div>`)}
+(function(){const go=()=>{const s=$('#sheet');if(s)new MutationObserver(()=>{if(s.classList.contains('hidden'))qrStop()}).observe(s,{attributes:true,attributeFilter:['class']})};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',go):go()})();
+document.addEventListener('click',e=>{const b=e.target.closest('[data-qr]');if(!b)return;const a=b.dataset.qr;
+ if(a==='sf'){ui.qsf=b.dataset.id;render()}
+ else if(a==='scan')scanSheet();
+ else if(a==='manual')qrMark(($('#qrm').value||'').trim().toUpperCase());
+ else if(a==='print'){const sf=ui.qsf||'all',ml=S.members.filter(m=>sf==='all'||m.sid===sf);if(!ml.length)return toast('لا يوجد مخدومين');
+  loadQR(()=>pzPrint(`<div dir="rtl" style="padding:8px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${ml.map(m=>`<div style="border:1px solid #999;border-radius:8px;padding:8px;text-align:center;break-inside:avoid"><div style="font-weight:800;font-size:13px">${esc(m.name)}</div><div style="font-size:11px">${esc(svcName(m.sid))}</div><img src="${qrImg(m.id)}" style="width:110px;height:110px"><div dir="ltr" style="font-size:10px">${m.id}</div></div>`).join('')}</div></div>`))}});
+
+/* ---------- فريق الخدمة (عرض فقط — المرحلة الأولى) ---------- */
+function roFilter(n){const T=window.TSIDS;if(!T||!T.length)return;const ok=sid=>T.includes(sid);
+ n.members=n.members.filter(m=>ok(m.sid));const ids=new Set(n.members.map(m=>m.id));n.servants=(n.servants||[]).filter(x=>ok(x.sid));const sv=new Set(n.servants.map(x=>x.id));
+ Object.keys(n.sess).forEach(d=>{const o={};Object.keys(n.sess[d]).forEach(k=>{if(ids.has(k))o[k]=n.sess[d][k]});n.sess[d]=o});
+ Object.keys(n.notes).forEach(k=>{if(!ids.has(k))delete n.notes[k]});
+ Object.keys(n.vsess||{}).forEach(d=>{const o={};Object.keys(n.vsess[d]).forEach(k=>{if(sv.has(k))o[k]=n.vsess[d][k]});n.vsess[d]=o});
+ n.services=n.services.filter(s=>ok(s.id));n.reports=[];n.lect=(n.lect||[]).map(l=>({...l,ids:l.ids.filter(i=>ids.has(i)||sv.has(i))}))}
+function uidCard(){const u=window.FBX&&FBX.uid();return `<div class="${card}"><h2 class="font-bold">كود حسابك</h2><p class="text-xs text-mute mt-1">لو انت خادم وعايز أمين الخدمة يضيفك، ابعتله الكود ده</p><div dir="ltr" class="font-mono text-xs break-all bg-bg border border-line rounded-xl p-2 mt-2">${u||'سجّل الدخول أولاً'}</div><button data-tm="cp" class="w-full mt-2 border border-line rounded-xl py-2 text-sm">نسخ الكود</button></div>`}
+function vTeam(){const hb='<button data-hlp="team" class="w-full mb-3 border border-acc/40 text-acc rounded-xl py-2.5 text-sm font-bold">❓ كيف تشتغل ميزة الفريق؟</button>';if(window.RO)return hb+`<div class="${card} !mt-0"><h2 class="font-bold">أنت عضو في فريق خدمة 👁</h2><p class="text-sm text-mute mt-1">صلاحيتك: عرض فقط ${window.TSIDS&&window.TSIDS.length?'لخدمات محددة':'لكل الخدمات'}. تقدر تشوف المخدومين وتتصل بيهم، والتعديل وتسجيل الحضور عند أمين الخدمة.</p></div>`+uidCard();
+ if(ui.team===undefined&&window.FBX){ui.team=null;FBX.list().then(l=>{ui.team=l;render()}).catch(()=>{ui.team=[];ui.terr=1;render()})}
+ return `<div class="space-y-3">${hb}${uidCard()}<div class="${card}"><div class="flex items-center justify-between"><h2 class="font-bold">فريق الخدمة</h2><button data-tm="add" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">+ إضافة خادم</button></div><p class="text-xs text-mute mt-1">الخادم المضاف بيشوف مخدومين خدماته بس (عرض فقط). التعديل وتسجيل الحضور عندك انت.</p>${ui.terr?'<p class="text-xs text-warn mt-2">تعذّر التحميل — لازم تضيف قواعد Firebase الجديدة (الملف المرفق).</p>':''}<div class="mt-2">${ui.team===null?'<p class="text-sm text-mute">جاري التحميل…</p>':(ui.team||[]).map(t=>`<div class="flex items-center gap-2 py-2 border-b border-line last:border-0"><div class="flex-1 min-w-0"><div class="font-bold">${esc(t.name||'خادم')}</div><div class="text-xs text-mute">${(t.sids&&t.sids.length)?t.sids.map(svcName).join('، '):'كل الخدمات'} · عرض فقط</div></div><button data-tm="del" data-id="${t.id}" class="text-bad text-xs border border-bad/40 rounded-lg px-2.5 py-1.5">إزالة</button></div>`).join('')||'<p class="text-sm text-mute">لم تضف أحدًا بعد</p>'}</div></div></div>`}
+function teamForm(){$('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">إضافة خادم للفريق</h2><label class="text-xs text-mute block mt-3">كود حساب الخادم</label><input id="tmu" dir="ltr" class="${inp}" placeholder="الصق الكود هنا"><label class="text-xs text-mute block mt-2">الاسم</label><input id="tmn" class="${inp}"><div class="text-xs text-mute mt-3">الخدمات اللي يشوفها (بدون اختيار = كل الخدمات)</div>${S.services.map(s=>`<label class="flex items-center gap-3 py-2 border-b border-line"><input type="checkbox" class="tms w-5 h-5" value="${s.id}"><span>${esc(s.name)}</span></label>`).join('')}<button data-tm="save" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tm]');if(!b)return;const a=b.dataset.tm,err=x=>toast(x&&x.code==='permission-denied'?'فعّل قواعد Firebase الجديدة (الملف المرفق)':'تعذّر الحفظ — تأكد من النت');
+ if(a==='add')teamForm();
+ else if(a==='cp'){const u=window.FBX&&FBX.uid();if(u)navigator.clipboard.writeText(u).then(()=>toast('تم نسخ الكود'),()=>toast('تعذر النسخ'))}
+ else if(a==='save'){const u=$('#tmu').value.trim();if(u.length<20)return toast('الصق كود الحساب كامل');
+  FBX.add(u,{name:$('#tmn').value.trim(),role:'view',sids:[...document.querySelectorAll('.tms:checked')].map(c=>c.value)}).then(()=>{$('#sheet').classList.add('hidden');ui.team=undefined;render();toast('تمت الإضافة')}).catch(err)}
+ else if(a==='del'){if(confirm('إزالة الخادم من الفريق؟'))FBX.del(b.dataset.id).then(()=>{ui.team=undefined;render()}).catch(err)}});
+
+const moreMenu=()=>[['help','📖','الشروحات','شرح مبسط لكل ميزة في البرنامج'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها من ملف'],['lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],['print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة بتواريخ الأسابيع القادمة'],['team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],['qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا'],['year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],['fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],['cal','✝️','تقويم الكنيسة','الأعياد والأصوام ومناسباتك'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -354,19 +601,65 @@ function vNset(){const p=pf(),pm='Notification' in window?Notification.permissio
  return `<div class="${card}" style="margin-top:0">${sw('pre','تذكير قبل الاجتماع')}${sw('fu','تنبيه افتقاد الغايبين')}${sw('bd','عيد الميلاد (قبلها بيوم)')}</div>
  <div class="${card}"><h2 class="font-bold">موعد الاجتماع</h2><div class="grid grid-cols-2 gap-2"><select data-pf="md" class="${inp}">${['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'].map((d,i)=>`<option value="${i}" ${+p.md===i?'selected':''}>${d}</option>`).join('')}</select><input type="time" data-pf="mt" value="${p.mt}" class="${inp}"></div></div>
  <div class="${card}"><h2 class="font-bold">ساعات الهدوء</h2><div class="grid grid-cols-2 gap-2"><label class="text-xs text-mute">من<input type="time" data-pf="qf" value="${p.qf}" class="${inp}"></label><label class="text-xs text-mute">إلى<input type="time" data-pf="qt" value="${p.qt}" class="${inp}"></label></div></div>
- <div class="${card}"><h2 class="font-bold">إشعارات الجهاز</h2><p class="text-xs text-mute mt-1">الحالة: ${pm==='granted'?'مفعّلة ✓':pm==='denied'?'محظورة من إعدادات المتصفح':pm==='unsupported'?'غير مدعومة':'غير مفعّلة'}</p>${pm==='default'?'<button data-a="nperm" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-2.5">تفعيل إشعارات الجهاز</button>':''}<p class="text-xs text-mute mt-2">الإشعار يظهر وقت فتح التطبيق ويحترم ساعات الهدوء. الإشعار والتطبيق مغلق يحتاج FCM + خادم (مرحلة ٢).</p></div>`}
+ <div class="${card}"><h2 class="font-bold">إشعارات الجهاز</h2><p class="text-xs text-mute mt-1">الحالة: ${pm==='granted'?'مفعّلة ✓':pm==='denied'?'محظورة من إعدادات المتصفح':pm==='unsupported'?'غير مدعومة':'غير مفعّلة'}</p>${pm==='default'?'<button data-a="nperm" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-2.5">تفعيل إشعارات الجهاز</button>':''}<p class="text-xs text-mute mt-2">الإشعار بيظهر لما تفتح التطبيق وأثناء فتحه ويحترم ساعات الهدوء. للتذكير والتطبيق مقفول استخدم تذكيرات تقويم الموبايل تحت.</p>${pm==='granted'?'<button data-rm="test" class="w-full mt-3 border border-line rounded-xl py-2 text-sm">🔔 جرّب إشعار الآن</button>':''}</div>${calRemCard()}`}
 function notifyDue(){try{if(!('Notification' in window)||Notification.permission!=='granted'||inQuiet(new Date()))return;
  const p=pf(),n=new Date(),mt=new Date(n),[h,mi]=p.mt.split(':');mt.setHours(+h,+mi,0,0);
- if(p.pre&&n.getDay()===+p.md&&mt-n>0&&mt-n<108e5&&S.lastPre!==REAL){new Notification('كنيستي القبطية 3',{body:'الاجتماع بعد '+Math.round((mt-n)/6e4)+' دقيقة — جهّز كشف الحضور'});S.lastPre=REAL;save()}
- const a=alerts();if(a.length&&S.lastN!==REAL){new Notification('كنيستي القبطية 3',{body:a.slice(0,4).map(x=>x.t==='abs'?'افتقد '+x.m.name.split(' ')[0]:'عيد ميلاد '+x.m.name.split(' ')[0]+' '+bdText(x.n)).join(' · ')});S.lastN=REAL;save()}}catch(_){}}
+ if(p.pre&&n.getDay()===+p.md&&mt-n>0&&mt-n<108e5&&S.lastPre!==REAL){notify('الاجتماع قرّب','الاجتماع بعد '+Math.round((mt-n)/6e4)+' دقيقة — جهّز كشف الحضور','meet');S.lastPre=REAL;save()}
+ if(S.lastN!==REAL){const a=alerts(),lt=(S.lect||[]).filter(l=>l.day===n.getDay()),parts=[...a.slice(0,4).map(x=>x.t==='abs'?'افتقد '+x.m.name.split(' ')[0]:'عيد ميلاد '+x.m.name.split(' ')[0]+' '+bdText(x.n)),...lt.slice(0,2).map(l=>'محاضرة «'+l.name+'»'+(l.time?' '+fmtT(l.time):''))];
+  if(parts.length){notify('عندك '+(a.length+lt.length)+' تنبيه اليوم',parts.join(' · '),'digest');S.lastN=REAL;save()}}}catch(_){}}
 setInterval(notifyDue,6e4);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-hlp]');if(!b)return;ui.tab='more';ui.sub='help';ui.hopen=b.dataset.hlp;render();scrollTo(0,0)});
+/* ===== v15: إشعارات الجهاز (تعمل على أندرويد) + تذكيرات تقويم الموبايل ===== */
+async function notify(title,body,tag){const o={body,icon:'icon-192.png',badge:'icon-192.png',tag:tag||'kenisty',dir:'rtl',lang:'ar',vibrate:[120,60,120]};
+ try{const reg=('serviceWorker' in navigator)?await navigator.serviceWorker.getRegistration():null;if(reg&&reg.showNotification)await reg.showNotification(title,o);else new Notification(title,o)}
+ catch(_){try{new Notification(title,{body})}catch(__){}}}
+const BYD=['SU','MO','TU','WE','TH','FR','SA'];
+const icsEsc=t=>String(t).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+const p2=n=>String(n).padStart(2,'0');
+const icsDT=d=>d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+'T'+p2(d.getHours())+p2(d.getMinutes())+'00';
+const icsD=d=>d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate());
+function nextDow(dow,h,m){const d=new Date();d.setHours(h,m,0,0);while(d.getDay()!==dow||d<new Date())d.setDate(d.getDate()+1);return d}
+function icsEv(o){const L=['BEGIN:VEVENT','UID:'+o.uid+'@kenisty','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z','SUMMARY:'+icsEsc(o.title)];
+ if(o.allday){L.push('DTSTART;VALUE=DATE:'+icsD(o.start))}else{const e=new Date(o.start);e.setMinutes(e.getMinutes()+(o.mins||60));L.push('DTSTART:'+icsDT(o.start),'DTEND:'+icsDT(e))}
+ if(o.rrule)L.push('RRULE:'+o.rrule);if(o.desc)L.push('DESCRIPTION:'+icsEsc(o.desc));
+ (o.alarms||[]).forEach(a=>L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(o.title),'TRIGGER:'+a,'END:VALARM'));
+ L.push('END:VEVENT');return L.join('\r\n')}
+function buildIcs(opt){const p=pf(),[h,m]=p.mt.split(':').map(Number),ev=[],md=+p.md;
+ if(opt.mt)ev.push(icsEv({uid:'meeting',title:'الاجتماع الأسبوعي — كنيستي القبطية 3',start:nextDow(md,h,m),mins:90,rrule:'FREQ=WEEKLY;BYDAY='+BYD[md],desc:'جهّز كشف الحضور',alarms:['-PT60M','-PT15M']}));
+ if(opt.fu)ev.push(icsEv({uid:'followup',title:'افتقاد الغايبين',start:nextDow((md+1)%7,16,0),mins:30,rrule:'FREQ=WEEKLY;BYDAY='+BYD[(md+1)%7],desc:'افتح كنيستي القبطية 3 وشوف خطة الافتقاد الأسبوعية',alarms:['PT0M']}));
+ let lc=0;if(opt.lc)(S.lect||[]).forEach(l=>{if(!l.time)return;const[lh,lm]=l.time.split(':').map(Number);lc++;ev.push(icsEv({uid:'lect-'+l.id,title:'محاضرة: '+l.name,start:nextDow(l.day,lh,lm),mins:60,rrule:'FREQ=WEEKLY;BYDAY='+BYD[l.day],alarms:['-PT60M']}))});
+ let bc=0;if(opt.bd)S.members.forEach(x=>{if(!x.bd||x.bd.length<5)return;const mo=+x.bd.slice(0,2),dy=+x.bd.slice(3,5);if(!mo||!dy)return;const n=new Date();n.setHours(0,0,0,0);let d=new Date(n.getFullYear(),mo-1,dy);if(d<n)d=new Date(n.getFullYear()+1,mo-1,dy);bc++;ev.push(icsEv({uid:'bd-'+x.id,title:'عيد ميلاد '+x.name,start:d,allday:1,rrule:'FREQ=YEARLY',alarms:['PT9H']}))});
+ return{text:['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Kenisty//AR','CALSCALE:GREGORIAN','X-WR-CALNAME:كنيستي القبطية 3',...ev,'END:VCALENDAR'].join('\r\n'),n:ev.length,lc,bc}}
+function remOpts(){const g=id=>{const e=document.getElementById(id);return e?e.checked:false};return{mt:g('rm_mt'),fu:g('rm_fu'),lc:g('rm_lc'),bd:g('rm_bd')}}
+function calRemCard(){const lc=(S.lect||[]).filter(l=>l.time).length;
+ return `<div class="${card}"><h2 class="font-bold">📅 تذكيرات تعمل والتطبيق مقفول</h2><p class="text-xs text-mute mt-1">بتنزّل ملف تفتحه في تقويم الموبايل، والتقويم هو اللي بينبّهك في وقتها حتى لو التطبيق مقفول.</p>
+ <label class="flex items-center gap-3 py-2 border-b border-line"><input id="rm_mt" type="checkbox" checked class="w-5 h-5"><span class="text-sm">الاجتماع الأسبوعي (قبله بساعة وربع ساعة)</span></label>
+ <label class="flex items-center gap-3 py-2 border-b border-line"><input id="rm_fu" type="checkbox" checked class="w-5 h-5"><span class="text-sm">افتقاد الغايبين (اليوم التالي للاجتماع)</span></label>
+ <label class="flex items-center gap-3 py-2 border-b border-line"><input id="rm_lc" type="checkbox" checked class="w-5 h-5"><span class="text-sm">المحاضرات (${lc} لها ميعاد) — قبلها بساعة</span></label>
+ <label class="flex items-center gap-3 py-2"><input id="rm_bd" type="checkbox" class="w-5 h-5"><span class="text-sm">أعياد الميلاد (بتحط أسماء المخدومين في تقويمك)</span></label>
+ <button data-rm="ics" class="w-full mt-3 bg-acc text-white font-bold rounded-xl py-3">تنزيل ملف التذكيرات</button>
+ <button data-rm="gcal" class="w-full mt-2 border border-line rounded-xl py-2.5 text-sm">أو: أضف الاجتماع فقط لتقويم جوجل</button>
+ <p class="text-xs text-mute mt-2">لو غيّرت ميعاد الاجتماع أو المحاضرات، نزّل الملف تاني وافتحه — الأحداث بتتحدث بدل ما تتكرر.</p></div>`}
+function notifBanner(){const ok='Notification' in window,ps=ok?Notification.permission:'x';let o='';
+ if(ps==='default'&&!localStorage.getItem('kenisty_nbn'))o+=`<div class="bg-card border border-line rounded-2xl p-3 mt-3 flex items-center gap-3"><span class="text-xl">🔔</span><div class="flex-1 text-sm"><div class="font-bold">فعّل إشعارات الجهاز</div><div class="text-xs text-mute">عشان توصلك تنبيهات الافتقاد والاجتماعات</div></div><button data-a="nperm" class="bg-acc text-white text-xs font-bold rounded-lg px-3 py-2">تفعيل</button><button data-rm="hint" data-k="kenisty_nbn" class="text-mute text-lg px-1">✕</button></div>`;
+ if(!localStorage.getItem('kenisty_calhint'))o+=`<div class="bg-card border border-line rounded-2xl p-3 mt-3 flex items-center gap-3"><span class="text-xl">📅</span><button data-go="nset" class="flex-1 text-start text-sm"><div class="font-bold">تذكير والتطبيق مقفول</div><div class="text-xs text-mute">ضيف الاجتماعات والمحاضرات لتقويم الموبايل</div></button><button data-rm="hint" data-k="kenisty_calhint" class="text-mute text-lg px-1">✕</button></div>`;
+ return o}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;const a=b.dataset.rm;
+ if(a==='hint'){localStorage.setItem(b.dataset.k,'1');render()}
+ else if(a==='test'){notify('تجربة الإشعارات','الإشعارات شغالة ✓','test')}
+ else if(a==='ics'){const o=remOpts();if(!o.mt&&!o.fu&&!o.lc&&!o.bd)return toast('اختار تذكير واحد على الأقل');const r=buildIcs(o);if(!r.n)return toast('مفيش أحداث — المحاضرات محتاجة ميعاد');
+  const f=new File([r.text],'kenisty-reminders.ics',{type:'text/calendar'});
+  try{const u=URL.createObjectURL(f),a2=document.createElement('a');a2.href=u;a2.download=f.name;document.body.appendChild(a2);a2.click();a2.remove();toast('تم التنزيل ('+r.n+' حدث) — افتح الملف واختار التقويم')}catch(_){toast('تعذّر التنزيل — افتح البرنامج من كروم')}}
+ else if(a==='gcal'){const p=pf(),[h,m]=p.mt.split(':').map(Number),s=nextDow(+p.md,h,m),en=new Date(s);en.setMinutes(en.getMinutes()+90);
+  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('الاجتماع الأسبوعي — كنيستي القبطية 3')+'&dates='+icsDT(s)+'/'+icsDT(en)+'&recur='+encodeURIComponent('RRULE:FREQ=WEEKLY;BYDAY='+BYD[+p.md]),'_blank','noopener')}});
+
 
 /* --- أحداث المرحلة ٤ --- */
 document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t){TODAY=REAL;RD=null}
  const a=e.target.closest('[data-a]')?.dataset;if(a&&(a.a==='close'||a.a==='report'))RD=null},true);   // capture: يرجّع التاريخ لليوم قبل الرسم
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const D=b.dataset,a=D.a,ym=ui.ym||REAL.slice(0,7);
  if(a==='hrow'){RD=D.date;showReport()}else if(['xcsv','xpdf','xcopy','xwa'].includes(a))xport(a,ym);
- else if(a==='nperm'&&'Notification' in window)Notification.requestPermission().then(()=>{render();notifyDue()})});
+ else if(a==='nperm'&&'Notification' in window)Notification.requestPermission().then(()=>{render();notifyDue();if(Notification.permission==='granted')notify('تم التفعيل ✓','هتوصلك تنبيهات الافتقاد والاجتماعات','ok')})});
 document.addEventListener('change',e=>{const t=e.target;
  if(t.id==='adt'){TODAY=t.value||REAL;render()}
  else if(t.id==='mym'){ui.ym=t.value;render()}
@@ -380,9 +673,10 @@ function delMember(id){const m=findM(id);if(!m||!confirm('حذف '+m.name+' نه
  save();$('#sheet').classList.add('hidden');render();toast('تم الحذف')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a="mdel"]');if(b)delMember(b.dataset.id)});
 document.addEventListener('click',e=>{if(!e.target.closest('[data-sub="wipe"]'))return;e.stopImmediatePropagation();
+ if(confirm('قبل المسح: تحب تنزّل نسخة احتياطية الأول؟'))bakDownload();
  if(!confirm('سيتم حذف كل المخدومين والحضور والتقارير والملاحظات. هل أنت متأكد؟'))return;
  if(!confirm('تأكيد أخير: لا يمكن التراجع. متابعة؟'))return;
- S.members=[];S.sess={};S.reports=[];S.notes={};S.seq=1;ui.f='all';save();render();toast('تم المسح — ابدأ بإضافة مخدومين')},true);
+ S.members=[];S.sess={};S.reports=[];S.notes={};S.seq=1;(S.lect||[]).forEach(l=>l.ids=l.ids.filter(i=>!i.startsWith('MN-')));ui.f='all';save();render();toast('تم المسح — ابدأ بإضافة مخدومين')},true);
 /* ===== الخدام + التقارير الأسبوعية + نقاط الحضور + المظهر ===== */
 S.servants=S.servants||[];S.vsess=S.vsess||{};S.seqv=S.seqv||1;
 const ROLES=['خادم','أمين خدمة','مساعد'],ptsW=()=>({p:+pf().pp,l:+pf().pl,a:0,e:0});
@@ -462,10 +756,10 @@ function ptsText(){const ym=ui.pm||REAL.slice(0,7),kind=ui.pk||'sv',r=ptsOf(kind
 /* --- الإعدادات: حجم/نوع الخط، الألوان، النقاط، الخصوصية (تُحفظ على الجهاز) --- */
 const FONTS=[['Tajawal','تجوال (الحالي)'],['Cairo','القاهرة'],['Almarai','المراعي'],['Amiri','أميري (خط نسخ)'],['system-ui','خط الجهاز']];
 const ACCS=[['79 140 255','أزرق'],['34 197 94','أخضر'],['200 150 43','ذهبي'],['168 85 247','بنفسجي'],['244 63 94','وردي'],['6 182 212','سماوي']];
-const BGS=[['كحلي','18 24 36','26 34 51','39 49 72'],['أسود','0 0 0','17 17 17','40 40 40'],['فحمي','24 24 27','39 39 42','63 63 70'],['ليلي','10 18 40','20 30 60','40 55 95']];
+const BGS=[['كحلي','18 24 36','26 34 51','39 49 72'],['أسود','0 0 0','17 17 17','40 40 40'],['فحمي','24 24 27','39 39 42','63 63 70'],['ليلي','10 18 40','20 30 60','40 55 95'],['فاتح ☀️','244 246 250','255 255 255','214 220 232']];
 let UIP={fs:16,ff:'Tajawal',ac:0,bg:0};try{UIP={...UIP,...JSON.parse(localStorage.getItem('kenisty_ui')||'{}')}}catch(_){}
 function applyUI(){const r=document.documentElement.style,b=BGS[UIP.bg]||BGS[0];
- r.fontSize=UIP.fs+'px';r.setProperty('--acc',(ACCS[UIP.ac]||ACCS[0])[0]);r.setProperty('--bg',b[1]);r.setProperty('--card',b[2]);r.setProperty('--line',b[3]);
+ document.documentElement.classList.toggle('light',b[0].indexOf('فاتح')===0);r.fontSize=UIP.fs+'px';r.setProperty('--acc',(ACCS[UIP.ac]||ACCS[0])[0]);r.setProperty('--bg',b[1]);r.setProperty('--card',b[2]);r.setProperty('--line',b[3]);
  document.body.style.fontFamily=(UIP.ff==='system-ui'?'system-ui':"'"+UIP.ff+"'")+",system-ui,sans-serif";
  const m=document.querySelector('meta[name=theme-color]');if(m)m.content='rgb('+b[1].replace(/ /g,',')+')'}
 function saveUI(){try{localStorage.setItem('kenisty_ui',JSON.stringify(UIP))}catch(_){}applyUI()}
@@ -473,7 +767,7 @@ function vSet(){const pv=pf();
  return `<div class="${card}" style="margin-top:0"><h2 class="font-bold mb-3">حجم الخط</h2><div class="flex items-center gap-3"><button data-sv="fs" data-d="-1" class="w-12 h-12 rounded-xl border border-line text-lg font-bold" aria-label="تصغير الخط">A−</button><div class="flex-1 text-center"><div class="font-bold">${Math.round(UIP.fs/16*100)}%</div><div class="text-xs text-mute">${UIP.fs}px</div></div><button data-sv="fs" data-d="1" class="w-12 h-12 rounded-xl border border-line text-xl font-bold" aria-label="تكبير الخط">A+</button></div><p class="mt-3 text-sm text-mute">مثال: نسبة الحضور ونقاط الشهر</p></div>
  <div class="${card}"><h2 class="font-bold mb-2">نوع الخط</h2>${FONTS.map(([f,n])=>`<button data-sv="ff" data-fv="${f}" class="w-full text-start py-2.5 px-3 rounded-xl border mb-2 ${UIP.ff===f?'border-acc bg-acc/15':'border-line'}" style="font-family:'${f}',system-ui,sans-serif">${n} — كنيستي القبطية</button>`).join('')}</div>
  <div class="${card}"><h2 class="font-bold mb-3">اللون الرئيسي</h2><div class="flex flex-wrap gap-3">${ACCS.map(([c,n],i)=>`<button data-sv="ac" data-i="${i}" aria-label="${n}" class="w-11 h-11 rounded-full border-2 ${UIP.ac===i?'border-white':'border-transparent'}" style="background:rgb(${c})"></button>`).join('')}</div></div>
- <div class="${card}"><h2 class="font-bold mb-2">لون الخلفية</h2><div class="grid grid-cols-2 gap-2">${BGS.map(([n,b],i)=>`<button data-sv="bg" data-i="${i}" class="py-3 rounded-xl border-2 text-sm font-bold ${UIP.bg===i?'border-acc':'border-line'}" style="background:rgb(${b});color:#fff">${n}</button>`).join('')}</div></div>
+ <div class="${card}"><h2 class="font-bold mb-2">لون الخلفية</h2><div class="grid grid-cols-2 gap-2">${BGS.map(([n,b],i)=>`<button data-sv="bg" data-i="${i}" class="py-3 rounded-xl border-2 text-sm font-bold ${UIP.bg===i?'border-acc':'border-line'}" style="background:rgb(${b});color:${n.indexOf('فاتح')===0?'#0f172a':'#fff'}">${n}</button>`).join('')}</div></div>
  <div class="${card}"><h2 class="font-bold mb-2">نقاط الحضور (لكل أسبوع)</h2><div class="grid grid-cols-2 gap-2"><label class="text-xs text-mute">حاضر<input id="ppp" type="number" min="0" max="50" value="${pv.pp}" class="${inp}"></label><label class="text-xs text-mute">متأخر<input id="pll" type="number" min="0" max="50" value="${pv.pl}" class="${inp}"></label></div></div>
  <div class="${card}"><div class="flex justify-between items-center gap-3"><span class="font-bold">وضع الخصوصية (إخفاء الأرقام والملاحظات)</span><button data-sv="priv" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${S.priv?'bg-acc border-acc text-white':'border-line text-mute'}">${S.priv?'مفعّل':'متوقف'}</button></div></div>
  <button data-sv="rst" class="w-full mt-3 border border-line rounded-xl py-3 text-sm text-mute">إعادة ضبط المظهر</button>`}
@@ -550,15 +844,26 @@ function fuText(){const ym=ui.fm||REAL.slice(0,7),{tot}=fuData(ym),need=needFu()
  return '🤝 تقرير الافتقاد — '+ymName(ym)+'\nاتصال: '+tot['اتصال']+' · زيارة: '+tot['زيارة']+' · واتساب: '+tot['واتساب']+' · مقابلة: '+tot['مقابلة']+'\n'+(need.length?'\nمحتاجين افتقاد:\n'+need.map(q=>'• '+q.m.name+' (غاب '+q.k+')').join('\n')+'\n':'')+'\nكنيستي القبطية 3'}
 
 /* --- دليل الاستخدام --- */
-function vHelp(){const q=(t,a)=>`<details class="${card}"><summary class="font-bold cursor-pointer">${t}</summary><div class="text-sm text-mute mt-2 leading-7">${a}</div></details>`;
+function vHelp(){const ho=ui.hopen;ui.hopen=null;const q=(t,a,k)=>`<details class="${card}" ${k&&ho===k?'open':''}><summary class="font-bold cursor-pointer">${t}</summary><div class="text-sm text-mute mt-2 leading-7">${a}</div></details>`;
  return `<p class="text-sm text-mute">اضغط على أي سؤال علشان يفتح الشرح.</p>`+
  q('البداية السريعة','١) من <b>المخدومين</b> اضغط + إضافة (أو الصق قايمة أسماء).<br>٢) من <b>الحضور</b> سجّل حاضر / متأخر / غايب / معتذر.<br>٣) اضغط <b>إغلاق الجلسة</b> علشان يتحدّث الحضور ويتعمل التقرير.')+
  q('تسجيل حضور يوم قديم','في تاب الحضور اضغط على التاريخ فوق واختار اليوم. لو الجلسة مقفولة اضغط «إعادة فتح».')+
  q('الافتقاد والملاحظات','اضغط على اسم أي مخدوم: هتلاقي ملفه، وسجل حضوره، وقوالب واتساب، وخانة لتسجيل اتصال أو زيارة. وتقرير الافتقاد في «المزيد» بيوريك مين محتاج افتقاد.')+
- q('الخدام ونقاط الحضور','«الخدام وحضورهم»: أضف الخدام واختار الخدمة المسؤولين عنها وسجّل حضورهم. «نقاط الحضور»: ترتيب شهري (حاضر ٥ نقاط / متأخر ٣، وتتغيّر من الإعدادات).')+
+ q('الخدام ونقاط الحضور','كارت «الخدام وحضورهم» في شاشة اليوم: أضف الخدام واختار الخدمة المسؤولين عنها وسجّل حضورهم. «نقاط الحضور»: ترتيب شهري (حاضر ٥ نقاط / متأخر ٣، وتتغيّر من الإعدادات).')+
  q('أعياد الميلاد','سجّل تاريخ الميلاد في ملف المخدوم (✎ تعديل ← بيانات إضافية). «أعياد الميلاد» بيعرض أسبوع أو شهر أو شهرين أو فترة تختارها، مع تهنئة واتساب.')+
  q('الشغل بدون إنترنت','كل حاجة بتتحفظ على موبايلك فورًا، وبتتزامن مع السيرفر لما النت يرجع. المؤشر فوق بيوضح الحالة.')+
  q('الأكواد وطلبات الانضمام (للمالك)','«👑 لوحة المالك» في المزيد: أكواد السنة، وقبول أو رفض طلبات الخدام الجداد. الرقم السري بتختاره أول مرة.')+
+ q('👥 فريق الخدمة: خدام يشوفوا مخدوميهم','<b>الفكرة:</b> بتضيف خادم معاك، فيشوف مخدومين خدماته بس ويتصل بيهم، من غير ما يقدر يعدّل أو يمسح حاجة.<br><br><b>الخادم يعمل إيه؟</b><br>١) يعمل حساب ويدخل بكود الدعوة.<br>٢) يفتح «المزيد ← فريق الخدمة».<br>٣) يضغط «نسخ الكود» ويبعته لأمين الخدمة على واتساب.<br><br><b>أمين الخدمة يعمل إيه؟</b><br>١) يفتح «المزيد ← فريق الخدمة» ويضغط «+ إضافة خادم».<br>٢) يلصق الكود ويكتب اسم الخادم.<br>٣) يختار الخدمات اللي الخادم يشوفها (لو ما اختارش يشوف الكل) ويضغط حفظ.<br>٤) الخادم يقفل التطبيق ويفتحه تاني، فيظهر له شريط أزرق مكتوب فيه «وضع العرض فقط».<br><br><b>الخادم بيقدر:</b> يشوف مخدومين خدماته، ويتصل أو يبعت واتساب، ويشوف أعياد الميلاد والمحاضرات.<br><b>الخادم مش بيقدر:</b> يسجل حضور أو يعدّل أو يمسح. الحضور بيتسجل عند أمين الخدمة.<br><br><b>لإزالة خادم:</b> من نفس الشاشة اضغط «إزالة» جنب اسمه.<br><br><b>مرة واحدة بس (لصاحب التطبيق):</b> لو ظهرت رسالة «فعّل القواعد»، لازم تتضاف إعدادات في Firebase من ملف القواعد اللي اتسلّم معاك.','team')+
+ q('🎓 المحاضرات','١) افتح «المزيد ← المحاضرات» واضغط «+ إضافة محاضرة» (الاسم واليوم والميعاد).<br>٢) اضغط «👥 الحضور» واختار الخدام والمخدومين اللي بيحضروها.<br>٣) تبويب «حسب الشخص» بيوريك كل واحد بيحضر أنهي أيام.<br>٤) لو كتبت ميعاد، بيجيلك تنبيه قبلها بساعة. وزرار «مشاركة» بيبعت القايمة على واتساب.','lect')+
+ q('📷 كروت الحضور QR','١) افتح «المزيد ← كروت الحضور QR» واختار الخدمة واضغط «طباعة كروت» (محتاج نت مرة واحدة).<br>٢) كل مخدوم ياخد كارته.<br>٣) وقت الحضور اضغط «مسح للتحضير» ووجّه الكاميرا على الكارت، فيتسجل حاضر في جلسة النهارده.<br>بيشتغل في كروم على أندرويد، ولو الكاميرا مش شغالة اكتب الكود يدويًا.','qr')+
+ q('🔔 الإشعارات والتذكيرات','<b>إشعارات الجهاز:</b> «المزيد ← إعدادات التنبيهات ← تفعيل إشعارات الجهاز»، وجرّب زرار «جرّب إشعار الآن». بتظهر لما تفتح التطبيق وأثناء فتحه.<br><b>تذكير والتطبيق مقفول:</b> من نفس الصفحة اختار التذكيرات ونزّل الملف وافتحه في تقويم الموبايل، والتقويم هو اللي بينبّهك في وقتها.','notif')+
+ q('🗓️ خطة الافتقاد الأسبوعية','بتوزع المخدومين الغايبين على الخدام تلقائيًا: على الخادم المكتوب في ملف المخدوم، وإلا خادم نفس الخدمة، بالتساوي. كل مخدوم عليه زرار اتصال وواتساب، وتقدر تبعت لكل خادم قايمته على واتساب. ومن شاشة اليوم زرار «📨 رسالة افتقدناك» بيبعت لكل الغايبين رسالة جاهزة بالاسم.','fplan')+
+ q('📆 التقرير السنوي','السنة الخدمية من سبتمبر لأغسطس. بيعرض متوسط الحضور وكل شهر وكل خدمة والأكثر مواظبة والأكثر غيابًا. تشاركه على واتساب أو تطبعه PDF. بيعتمد على الجلسات اللي اتقفلت.','year')+
+ q('🖨️ ورقة الحضور المطبوعة','اختار الخدمة وعدد الأسابيع (٤ أو ٦ أو ٨) والتواريخ بتتكتب لوحدها، وممكن تضيف صور المخدومين. بعدها «طباعة / حفظ PDF». لو الطباعة مش شغالة داخل الـ APK افتح البرنامج من كروم.','print')+
+ q('💾 النسخة الاحتياطية','«المزيد ← نسخة احتياطية»: نزّل ملف فيه كل بياناتك واحتفظ بيه (واتساب أو درايف). للاستعادة اختار الملف. نزّل نسخة كل أسبوعين على الأقل، وقبل أي مسح أو تسجيل خروج.','bak')+
+ q('✝️ تقويم الكنيسة','بيعرض التاريخ القبطي والأعياد والأصوام الجاية (الثابتة والمتغيرة زي القيامة والصوم الكبير)، وتقدر تضيف مناسبات خدمتك. راجع التواريخ مع روزنامة كنيستك.','cal')+
+ q('🏅 الشارات ورسم الحضور','في ملف المخدوم: 🔥 مواظب (٤ جلسات حضور متتالية)، 🌟 حضور كامل، 🎖️ ١٠ جلسات، 🏆 ٢٥ جلسة. وفيه رسم بياني بنسبة حضوره شهريًا. وفي ملفه كمان زرار 🎤 للإملاء الصوتي بدل الكتابة، وقايمة لنقله لخدمة تانية.','badges')+
+ q('☀️ الوضع الفاتح','«المزيد ← الإعدادات ← لون الخلفية ← فاتح». وتقدر ترجع لأي لون في أي وقت.','light')+
  q('نسيت الباسورد','من شاشة الدخول اكتب إيميلك واضغط «نسيت الباسورد؟». ولو بتدخل بـ Google اضغط زرار Google.')}
 
 /* --- أحداث التحديث --- */
@@ -623,7 +928,7 @@ const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCa
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
 
 /* نقسّم الحالة لمستندات صغيرة في users/{uid}/c (مساحة خاصة بكل مستخدم): meta / p / s_التاريخ / r_التاريخ / n_كود المخدوم */
-const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{}}};
+const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[]}};
  Object.entries(s.sess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['s_'+d]=v});
  Object.entries(s.vsess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['v_'+d]=v});
  (s.reports||[]).forEach(r=>o['r_'+r.date]=r);
@@ -631,24 +936,33 @@ const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,se
 
 /* يرفع المستندات اللي اتغيرت بس، ويحذف اللي اتشالت */
 FB.push=async snap=>{const ch=pack(snap),ops=[];
- for(const [id,v] of Object.entries(ch)){const j=JSON.stringify(v);if(last[id]!==j){last[id]=j;ops.push(setDoc(doc(db,'users',auth.currentUser.uid,'c',id),{j,t:serverTimestamp()}))}}
- for(const id of Object.keys(last))if(!(id in ch)){delete last[id];ops.push(deleteDoc(doc(db,'users',auth.currentUser.uid,'c',id)))}
+ for(const [id,v] of Object.entries(ch)){const j=JSON.stringify(v);if(last[id]!==j){last[id]=j;ops.push(setDoc(doc(db,'users',window.WSID||auth.currentUser.uid,'c',id),{j,t:serverTimestamp()}))}}
+ for(const id of Object.keys(last))if(!(id in ch)){delete last[id];ops.push(deleteDoc(doc(db,'users',window.WSID||auth.currentUser.uid,'c',id)))}
  await Promise.all(ops)};
 
+async function resolveWS(u){const ck='kenisty_ws_'+u.uid;let w=null;
+ try{const l=await getDoc(doc(db,'links',u.uid));if(l.exists()&&l.data().owner&&l.data().owner!==u.uid){const o=l.data().owner,t=await getDoc(doc(db,'users',o,'team',u.uid));if(t.exists())w={o,s:t.data().sids||[],n:t.data().name||''}}localStorage.setItem(ck,JSON.stringify(w))}
+ catch(_){try{w=JSON.parse(localStorage.getItem(ck)||'null')}catch(__){w=null}}
+ window.WSID=w?w.o:u.uid;window.RO=!!w;window.TSIDS=w?w.s:null;document.body.classList.toggle('ro',!!w);
+ let bar=document.getElementById('robar');if(w){if(!bar){bar=document.createElement('div');bar.id='robar';bar.className='np';bar.style.cssText='position:sticky;top:0;z-index:35;background:#0ea5e9;color:#fff;font-size:12px;text-align:center;padding:3px';document.body.prepend(bar)}bar.textContent='👁 وضع العرض فقط'+(w.n?' — '+w.n:'')}else if(bar)bar.remove()}
+window.FBX={uid:()=>auth.currentUser&&auth.currentUser.uid,
+ async list(){const q=await getDocs(collection(db,'users',auth.currentUser.uid,'team'));return q.docs.map(d=>({id:d.id,...d.data()}))},
+ async add(uid,o){const me=auth.currentUser.uid;await setDoc(doc(db,'users',me,'team',uid),o);await setDoc(doc(db,'links',uid),{owner:me})},
+ async del(uid){const me=auth.currentUser.uid;await deleteDoc(doc(db,'users',me,'team',uid));try{await deleteDoc(doc(db,'links',uid))}catch(_){}}};
 function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j]));
  if(!docs.length){                                   // قاعدة البيانات فاضية: أول تشغيل
-  if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1;S.servants=[];S.vsess={};S.seqv=1}
+  if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1;S.servants=[];S.vsess={};S.seqv=1;S.lect=S.lect||[]}
    S.dirty=true;first=false;sync()}return}
  if(S.dirty&&!first)return;                          // عندي تعديلات لسه ما اترفعتش
- const n={seq:S.seq,services:S.services,members:S.members,servants:[],seqv:1,vsess:{},sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan};
+ const n={seq:S.seq,services:S.services,members:S.members,servants:[],seqv:1,vsess:{},sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan,lect:S.lect||[],cal:S.cal||[]};
  docs.forEach(([id,j])=>{const v=JSON.parse(j);last[id]=j;
   if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members;n.servants=v.servants||[];n.seqv=v.seqv||1}
-  else if(id==='p'){n.pf=v.pf;n.plan=v.plan}
+  else if(id==='p'){n.pf=v.pf;n.plan=v.plan;n.lect=v.lect||[];n.cal=v.cal||[]}
   else if(id.startsWith('s_'))n.sess[id.slice(2)]=v;
   else if(id.startsWith('r_'))n.reports.push(v);
   else if(id.startsWith('v_'))n.vsess[id.slice(2)]=v;
   else if(id.startsWith('n_'))n.notes[id.slice(2)]=v});
- n.reports.sort((a,b)=>a.date.localeCompare(b.date));Object.assign(S,n);S.dirty=false;
+ n.reports.sort((a,b)=>a.date.localeCompare(b.date));if(window.RO)roFilter(n);Object.assign(S,n);S.dirty=false;
  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}
  first=false;updSync();render()}
 
@@ -666,7 +980,7 @@ async function checkMember(u,code){
 async function enter(u,code){
  const adm=await checkAdmin(u);const r=adm?true:await checkMember(u,code);
  if(r===true){unsubM?.();unsubR?.();H('#login',0);H('#gate',0);first=true;last={};unsub?.();
-  unsub=onSnapshot(collection(db,'users',u.uid,'c'),load,()=>toast('تعذّر الاتصال بالسيرفر'));return}
+  await resolveWS(u);unsub=onSnapshot(collection(db,'users',window.WSID||u.uid,'c'),load,()=>toast('تعذّر الاتصال بالسيرفر'));return}
  if(r==='offline'){H('#login',0);H('#gate',0);toast('بدون إنترنت - بيانات الموبايل فقط');return}   // لا نمنع الاستخدام أوفلاين
  H('#login',0);H('#gate',1);
  Q('#gerr').textContent=r==='bad'?'الكود غير صحيح أو انتهت صلاحيته':'';
@@ -757,7 +1071,7 @@ Q('#lf').onsubmit=async e=>{e.preventDefault();const m=Q('#le').value.trim(),p=Q
  try{signup?await createUserWithEmailAndPassword(auth,m,p):await signInWithEmailAndPassword(auth,m,p)}
  catch(x){const c=x.code;msg(c==='auth/network-request-failed'?'لا يوجد إنترنت':c==='auth/email-already-in-use'?'الإيميل مسجّل بالفعل، سجّل الدخول':c==='auth/weak-password'?'الباسورد ضعيف (٦ أحرف على الأقل)':c==='auth/invalid-email'?'الإيميل غير صحيح':(c==='auth/operation-not-allowed'||c==='auth/admin-restricted-operation')?'إنشاء الحسابات الجديدة مقفول من إعدادات Firebase':c==='auth/operation-not-supported-in-this-environment'?'افتح البرنامج من متصفح الموبايل (الرابط)، هذا التطبيق لا يدعم الدخول':c==='auth/too-many-requests'?'محاولات كتير، جرّب بعد شوية':(!signup&&(c==='auth/invalid-credential'||c==='auth/wrong-password'||c==='auth/user-not-found'||c==='auth/invalid-login-credentials'))?'الإيميل أو الباسورد غير صحيح (لو حسابك Google اضغط زرار Google)':(signup?'تعذّر إنشاء الحساب':'تعذّر الدخول')+' ['+(c||'?')+']')}};
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-sub="out"]'))return;e.stopImmediatePropagation();
- if(confirm('تسجيل الخروج من هذا الجهاز؟')){await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()}},true);
+ if(confirm('تسجيل الخروج من هذا الجهاز؟')){if(confirm('تحب تنزّل نسخة احتياطية قبل الخروج؟'))bakDownload();await signOut(auth);try{localStorage.removeItem(KEY)}catch(_){}location.reload()}},true);
 </script>
 <script>
 /* Service worker registration + offline helpers */

@@ -1,6 +1,6 @@
 /* Kenisty - offline-first service worker.
    Bump VERSION on every deploy so users get the new files. */
-const VERSION = 'kenisty-v10';
+const VERSION = 'kenisty-v16';
 const SHELL = VERSION + '-shell';   // our own files
 const LIBS  = VERSION + '-libs';    // CDN scripts, fonts, Firebase SDK
 
@@ -13,7 +13,7 @@ const CDN_PRECACHE = [              // best effort: install never fails because 
   'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
 ];
 // Only these hosts are ever cached. Firestore, Auth and Google APIs go straight to the network.
-const CDN_HOSTS = ['cdn.tailwindcss.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
+const CDN_HOSTS = ['cdn.tailwindcss.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com', 'cdnjs.cloudflare.com'];
 const cacheable = u => u.origin === self.location.origin || CDN_HOSTS.includes(u.hostname);
 
 async function grab(cache, url) {            // download one URL into a cache (never throws)
@@ -83,5 +83,15 @@ self.addEventListener('message', e => {
     const shell = await caches.open(SHELL), libs = await caches.open(LIBS);
     const urls = [...new Set(e.data.urls || [])].filter(u => { try { return cacheable(new URL(u)); } catch (_) { return false; } });
     await Promise.all(urls.map(u => grab(new URL(u).origin === self.location.origin ? shell : libs, u)));
+  })());
+});
+
+// Tapping a notification opens (or focuses) the app.
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil((async () => {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of list) { if ('focus' in c) return c.focus(); }
+    return self.clients.openWindow('./');
   })());
 });
