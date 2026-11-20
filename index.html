@@ -21,7 +21,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #4f8cff;outline-offset:2px}
 @keyframes up{from{transform:translateY(50%);opacity:.5}}.up{animation:up .22s}
 .sens{transition:filter .2s}body.priv .sens{filter:blur(7px);user-select:none;pointer-events:none}
-@media print{header,nav,#sync,#toast,#sheet,.np{display:none!important}html,body{background:#fff!important}*{color:#000!important;background:transparent!important;border-color:#999!important}main{padding-bottom:0!important}}#pz{display:none}body.ro:not(.ratt) [data-st],body.ro:not(.ratt) [data-a="allp"],body.ro [data-a="close"],body.ro [data-a="reopen"],body.ro [data-a="mdel"],body.ro [data-a="medit"],body.ro [data-lc="add"],body.ro [data-lc="edit"],body.ro [data-lc="del"],body.ro [data-lc="who"]{display:none!important}
+@media print{header,nav,#sync,#toast,#sheet,.np{display:none!important}html,body{background:#fff!important}*{color:#000!important;background:transparent!important;border-color:#999!important}main{padding-bottom:0!important}}#pz{display:none}.lc2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}body.ro:not(.ratt) [data-ba],body.ro:not(.ratt) [data-st],body.ro:not(.ratt) [data-a="allp"],body.ro [data-a="close"],body.ro [data-a="reopen"],body.ro [data-a="mdel"],body.ro [data-a="medit"],body.ro [data-lc="add"],body.ro [data-lc="edit"],body.ro [data-lc="del"],body.ro [data-lc="who"]{display:none!important}
 html.light{color-scheme:light}html.light body{color:#0f172a}html.light .text-slate-100{color:#0f172a}html.light .text-slate-200,html.light .text-slate-300{color:#334155}html.light [class*=bg-gradient],html.light [class*=bg-gradient] *{color:#fff}html.light .bg-black\/60,html.light .bg-black\/70{background:rgba(15,23,42,.45)}@media print{body.pz-on>*:not(#pz){display:none!important}body.pz-on #pz{display:block!important}}
 @media (prefers-reduced-motion:reduce){.up{animation:none}}
 </style>
@@ -107,7 +107,7 @@ function vMembers(){
 
 function vMore(){
  if(ui.sub==='plan')return vPlan();
- const sv4={bd:vBd,fu:vFu,help:vHelp,srv:vSrv,wk:vWk,pts:vPts,set:vSet,hist:vHist,month:vMonth,sup:vSup,nset:vNset,bak:vBak,lect:vLect,print:vPrint,team:vTeam,qr:vQR,year:vYear,fplan:vFplan,cal:vCal,visits:vVisits,imp:vImp,promo:vPromo,renew:vRenew,svc:vSvc,adm:vAdm,early:vEarly,guests:vGuests,trips:vTrips,contest:vContest,smeet:vSmeet,log:vLog,brand:vBrand,mpdf:vMpdf,sermon:vSermon}[ui.sub];if(sv4)return sv4();
+ const sv4={bd:vBd,fu:vFu,help:vHelp,srv:vSrv,wk:vWk,pts:vPts,set:vSet,hist:vHist,month:vMonth,sup:vSup,nset:vNset,bak:vBak,lect:vLect,print:vPrint,team:vTeam,qr:vQR,year:vYear,fplan:vFplan,cal:vCal,visits:vVisits,imp:vImp,promo:vPromo,renew:vRenew,svc:vSvc,adm:vAdm,early:vEarly,guests:vGuests,trips:vTrips,contest:vContest,smeet:vSmeet,log:vLog,brand:vBrand,mpdf:vMpdf,sermon:vSermon,gwa:vGwa,word:vWord}[ui.sub];if(sv4)return sv4();
  if(ui.sub==='services')return `
   <div class="bg-card border border-line rounded-2xl p-3 flex gap-2"><input id="ns" placeholder="اسم مرحلة أو اجتماع جديد" class="flex-1 bg-bg border border-line rounded-xl px-3 py-2.5 placeholder:text-mute"><button id="adds" class="bg-acc text-white font-bold rounded-xl px-4 flex items-center gap-1">${ic('plus','w-4 h-4')}إضافة</button></div>
   <div class="space-y-3 mt-4">${S.services.map(s=>{const c=countOf(s.id),ms=S.members.filter(m=>m.sid===s.id),av=ms.map(pct).filter(x=>x!==null),a=av.length?Math.round(av.reduce((x,y)=>x+y,0)/av.length):null,[t]=tone(a);return `
@@ -142,7 +142,7 @@ const card='bg-card border border-line rounded-2xl p-4 mt-3';
 /* --- حضور اليوم --- */
 function vAtt(){
  const d=day(),c=counts(),cl=closedToday(),f=ui.f,l=S.members.filter(m=>f==='all'||m.sid===f);
- return `<div class="flex items-center justify-between"><div><label class="font-extrabold cursor-pointer relative">${arDate(new Date(TODAY+'T12:00'))} ▾<input type="date" id="adt" max="${REAL}" value="${TODAY}" aria-label="تاريخ الجلسة" class="absolute inset-0 opacity-0 w-full"></label><div class="text-xs ${cl?'text-ok':'text-mute'}">${cl?'الجلسة مغلقة ✓':'جلسة مفتوحة'}</div></div>${cl?'':'<button data-a="allp" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5">الكل حاضر</button>'}</div>
+ return `<div class="flex items-center justify-between"><div><label class="font-extrabold cursor-pointer relative">${arDate(new Date(TODAY+'T12:00'))} ▾<input type="date" id="adt" max="${REAL}" value="${TODAY}" aria-label="تاريخ الجلسة" class="absolute inset-0 opacity-0 w-full"></label><div class="text-xs ${cl?'text-ok':'text-mute'}">${cl?'الجلسة مغلقة ✓':'جلسة مفتوحة'}</div></div>${cl?'':'<div class="flex gap-2"><button data-ba="open" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">☑ تسجيل جماعي</button><button data-a="allp" class="text-xs text-ok border border-ok/40 rounded-lg px-3 py-1.5">الكل حاضر</button></div>'}</div>
  <div class="grid grid-cols-4 gap-2 mt-3">${stat(S.members.length,'الإجمالي','text-slate-100')}${stat(c.p+c.l,'حاضر','text-ok')}${stat(c.a,'غايب','text-bad')}${stat(c.e,'معتذر','text-sky-400')}</div>
  ${c.l?`<p class="text-xs text-warn mt-1.5">منهم ${c.l} متأخر</p>`:''}
  <div class="flex gap-2 overflow-x-auto py-3 -mx-4 px-4">${[['all','الكل',S.members.length],...S.services.map(s=>[s.id,s.name,countOf(s.id)])].map(([id,n,k])=>`<button data-f="${id}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${f===id?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(n)} · ${k}</button>`).join('')}</div>
@@ -278,6 +278,7 @@ function memberSheet(){memberForm()}
 function memberForm(id){const m=id?findM(id):{};PH=(m.photo||'').startsWith('data:')?m.photo:'';
  const f=(k,l,x='')=>`<label class="text-xs text-mute block mt-2">${l}</label><input data-k="${k}" value="${esc(m[k]||'')}" ${x} class="${inp}">`,sel=m.sid||ui.lastSid||(ui.f!=='all'?ui.f:S.services[0]?.id);
  $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="text-lg font-extrabold">${id?'تعديل بيانات '+esc(m.name):'إضافة مخدوم'}</h2>
+ <div class="space-y-2 mt-3">${ctBtn('member','للمخدوم')}${ctBtn('guardian','لولي الأمر')}</div>
  ${f('name','الاسم *')}${f('phone','تليفون ولي الأمر','inputmode="tel" dir="ltr"')}${f('servant','الخادم المسؤول')}${f('father','أب الاعتراف')}
  <label class="text-xs text-mute block mt-2">الخدمة</label><select data-k="sid" class="${inp}">${S.services.map(s=>`<option value="${s.id}" ${s.id===sel?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
  <label class="text-xs text-mute block mt-2">الصورة (رابط أو رفع)</label><input id="mpu" dir="ltr" placeholder="https://…" value="${/^https?:/i.test(m.photo||'')?esc(m.photo):''}" class="${inp}"><input id="mpf" type="file" accept="image/*" class="${inp} text-xs">
@@ -319,7 +320,7 @@ document.addEventListener('change',async e=>{const t=e.target;
 ['ed','ph','bk','pr','wt'].forEach(id=>{const i=PLAN[2][1].find(x=>x[0]===id);if(i)i[2]=1});   // علّم مهام المرحلة ٣ كمنجزة
 /* ========== المرحلة ٤: تقارير شهرية + تصدير + سجل جلسات + تعديل تواريخ سابقة + لوحة أمين الخدمة + إشعارات ========== */
 let RD=null;
-const SUBT={bd:'أعياد الميلاد',fu:'تقرير الافتقاد',help:'الشروحات',srv:'الخدام وحضورهم',wk:'التقارير الأسبوعية',pts:'نقاط الحضور',set:'الإعدادات',plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات',bak:'نسخة احتياطية',lect:'المحاضرات',print:'ورقة الحضور للطباعة',team:'فريق الخدمة',qr:'كروت الحضور QR',year:'التقرير السنوي',fplan:'خطة الافتقاد الأسبوعية',cal:'تقويم الكنيسة',visits:'الزيارات المجدولة',imp:'استيراد المخدومين',promo:'ترقية السنة الخدمية',renew:'تجديد الوصول',svc:'أنشطة الخدمة',adm:'أدوات الإدارة',early:'إنذار مبكر',guests:'الزوّار الجدد',trips:'الرحلات والمؤتمرات',contest:'المسابقات وحفظ الآيات',smeet:'اجتماع الخدام',log:'سجل التعديلات',brand:'الشعار واسم الخدمة',mpdf:'التقرير الشهري الرسمي',sermon:'الوعظات'};
+const SUBT={bd:'أعياد الميلاد',fu:'تقرير الافتقاد',help:'الشروحات',srv:'الخدام وحضورهم',wk:'التقارير الأسبوعية',pts:'نقاط الحضور',set:'الإعدادات',plan:'خطة البرنامج',hist:'سجل الجلسات',month:'التقرير الشهري',sup:'لوحة أمين الخدمة',nset:'إعدادات التنبيهات',bak:'نسخة احتياطية',lect:'المحاضرات',print:'ورقة الحضور للطباعة',team:'فريق الخدمة',qr:'كروت الحضور QR',year:'التقرير السنوي',fplan:'خطة الافتقاد الأسبوعية',cal:'تقويم الكنيسة',visits:'الزيارات المجدولة',imp:'إضافة أشخاص بالجملة',promo:'ترقية السنة الخدمية',renew:'تجديد الوصول',svc:'أنشطة الخدمة',adm:'أدوات الإدارة',early:'إنذار مبكر',guests:'الزوّار الجدد',trips:'الرحلات والمؤتمرات',contest:'المسابقات وحفظ الآيات',smeet:'اجتماع الخدام',log:'سجل التعديلات',brand:'الشعار واسم الخدمة',mpdf:'التقرير الشهري الرسمي',sermon:'الوعظات',gwa:'الواتساب الجماعي',word:'الكلمة اليومية'};
 /* ===== النسخ الاحتياطي الشخصي (لكل جهاز/حساب) ===== */
 function bakDue(){if(!S.members.length)return false;const t=+localStorage.getItem('kenisty_lastbak')||0;return Date.now()-t>14*864e5}
 function bakFile(){const o={app:'kenisty',v:1,date:new Date().toISOString(),data:S};try{o.ui=UIP}catch(_){}
@@ -627,7 +628,7 @@ function impRecords(rows){if(!rows.length)return[];const hd=rows[0].map(x=>nName
  let ni=fi(NAMEH),pi=fi(PHONEH),bi=fi(BDH),body=rows;
  if(ni>=0||pi>=0||bi>=0){body=rows.slice(1);if(ni<0)ni=0}else{ni=0;pi=rows[0].length>1?1:-1;bi=rows[0].length>2?2:-1}
  return body.map(r=>({name:String(r[ni]||'').replace(/\s+/g,' ').trim(),phone:pi>=0?nPhone(r[pi]):'',bd:bi>=0?nBd(r[bi]):''})).filter(x=>x.name.length>=2&&!/^[\d\s+]+$/.test(x.name))}
-function impSet(rec){const ph=new Set(S.members.map(m=>nPhone(m.phone)).filter(Boolean)),nm=new Set(S.members.map(m=>nName(m.name))),sp=new Set(),sn=new Set();
+function impSet(rec){const ph=new Set(impBase().map(m=>nPhone(m.phone)).filter(Boolean)),nm=new Set(impBase().map(m=>nName(m.name))),sp=new Set(),sn=new Set();
  ui.imp={rows:rec.map(r=>{let dup='';const n=nName(r.name);
   if((r.phone&&ph.has(r.phone))||nm.has(n))dup='موجود';else if((r.phone&&sp.has(r.phone))||sn.has(n))dup='مكرر في الملف';
   if(r.phone)sp.add(r.phone);sn.add(n);return{...r,dup,on:!dup}})};render()}
@@ -638,27 +639,29 @@ async function impFile(f){const nm=f.name.toLowerCase();let rows;
   else{let t=await f.text();if(t.includes('\uFFFD'))t=new TextDecoder('windows-1256').decode(await f.arrayBuffer());rows=impRows(t)}}
  catch(_){return toast('تعذّر قراءة الملف — جرّب CSV أو الصق القائمة')}
  const rec=impRecords(rows);if(!rec.length)return toast('ما لقيتش أسماء في الملف');impSet(rec)}
-function vImp(){const im=ui.imp,sid=ui.isid||(S.services[0]&&S.services[0].id),hasC='contacts' in navigator&&'ContactsManager' in window,
+function vImp(){const im=ui.imp,sid=ui.isid||(S.services[0]&&S.services[0].id),hasC=ctOK(),
  sel=`<label class="text-xs text-mute block">الخدمة اللي هيتضافوا ليها</label><select id="isid" class="${inp}">${S.services.map(s=>`<option value="${s.id}" ${s.id===sid?'selected':''}>${esc(s.name)}</option>`).join('')}</select>`;
  if(im){const n=im.rows.filter(r=>r.on).length;
-  return `<div class="space-y-3"><div class="${card} !mt-0">${sel}<div class="text-sm mt-3">تم قراءة <b>${im.rows.length}</b> اسم — اللي هيتضاف <b id="imn">${n}</b></div><p class="text-xs text-mute mt-1">الأسماء الموجودة أو المكررة متشالة التحديد تلقائيًا.</p><div class="grid grid-cols-2 gap-2 mt-3"><button data-im="go" class="bg-acc text-white font-bold rounded-xl py-3">استيراد المحدد</button><button data-im="cancel" class="border border-line rounded-xl py-3 text-sm">إلغاء</button></div></div>
+  return `<div class="space-y-3"><div class="${card} !mt-0">${itypSel()}${sel}<div class="text-sm mt-3">تم قراءة <b>${im.rows.length}</b> اسم — اللي هيتضاف <b id="imn">${n}</b></div><p class="text-xs text-mute mt-1">الأسماء الموجودة أو المكررة متشالة التحديد تلقائيًا.</p><div class="grid grid-cols-2 gap-2 mt-3"><button data-im="go" class="bg-acc text-white font-bold rounded-xl py-3">استيراد المحدد</button><button data-im="cancel" class="border border-line rounded-xl py-3 text-sm">إلغاء</button></div></div>
   <div class="${card}">${im.rows.map((r,i)=>`<label class="flex items-center gap-3 py-2 border-b border-line last:border-0"><input type="checkbox" data-im="tg" data-i="${i}" ${r.on?'checked':''} class="w-5 h-5"><div class="flex-1 min-w-0"><div class="font-bold truncate sens">${esc(r.name)}</div><div class="text-xs text-mute" dir="ltr">${esc(r.phone||'—')}${r.bd?' · '+r.bd:''}</div></div>${r.dup?`<span class="text-[10px] text-warn border border-warn/40 rounded px-1.5 py-0.5">${r.dup}</span>`:''}</label>`).join('')}</div></div>`}
- return `<div class="space-y-3"><div class="${card} !mt-0">${sel}</div>
+ return `<div class="space-y-3"><div class="${card} !mt-0">${itypSel()}${sel}</div>
  <label class="block text-center bg-acc text-white font-bold rounded-xl py-3 cursor-pointer">📄 اختيار ملف Excel أو CSV<input id="impf" type="file" accept=".xlsx,.xls,.csv,.txt,.tsv" class="hidden"></label>
- ${hasC?'<button data-im="contacts" class="w-full border border-line rounded-xl py-3 font-bold">📇 من جهات الاتصال</button>':'<p class="text-[11px] text-mute">اختيار من جهات الاتصال متاح في كروم على أندرويد فقط.</p>'}
+ ${hasC?'<button data-im="contacts" class="w-full border border-line rounded-xl py-3 font-bold">📇 من جهات الاتصال</button>':'<p class="text-[11px] text-mute">اختيار الأسماء مباشرة متاح في كروم على أندرويد. وفي أي متصفح تقدر تستخدم ملف .vcf تحت.</p>'}
+ <label class="block text-center border border-line rounded-xl py-3 font-bold cursor-pointer">📇 من ملف جهات اتصال (.vcf)<input id="impv" type="file" accept=".vcf,text/vcard,text/x-vcard" multiple class="hidden"></label>
+ <p class="text-[11px] text-mute -mt-1">من تطبيق جهات الاتصال: حدّد الأسماء ← مشاركة ← احفظ كملف vcf، وبعدين اخترته هنا.</p>
  <div class="${card}"><div class="font-bold text-sm">📋 أو الصق قائمة</div><p class="text-xs text-mute mt-1">كل سطر مخدوم: الاسم ثم التليفون ثم تاريخ الميلاد (اختياري)، بفاصلة أو Tab.</p><textarea id="impt" rows="5" class="${inp}" placeholder="مينا جرجس, 01012345678, 2012-05-20"></textarea><button data-im="paste" class="w-full mt-2 border border-line rounded-xl py-2.5 text-sm font-bold">تحليل القائمة</button></div>
  <button data-im="tpl" class="w-full text-xs text-acc underline py-2">تنزيل نموذج ملف جاهز للتعبئة</button></div>`}
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-im]');if(!b)return;const a=b.dataset.im;
  if(a==='tg'){const r=ui.imp.rows[+b.dataset.i];r.on=b.checked;const n=$('#imn');if(n)n.textContent=ui.imp.rows.filter(x=>x.on).length;return}
  if(a==='contacts'){try{const r=await navigator.contacts.select(['name','tel'],{multiple:true});
-   const rec=r.map(c=>({name:((c.name&&c.name[0])||'').trim(),phone:nPhone((c.tel&&c.tel[0])||''),bd:''})).filter(x=>x.name.length>=2);if(!rec.length)return toast('لم يتم اختيار أسماء');impSet(rec)}catch(_){toast('تعذّر فتح جهات الاتصال')}}
+   const rec=r.map(c=>({name:((c.name&&c.name[0])||'').trim(),phone:nPhone((c.tel&&c.tel[0])||''),bd:''})).filter(x=>x.name.length>=2);if(!rec.length)return toast('لم يتم اختيار أسماء');impSet(rec)}catch(_){ctFailed()}}
  else if(a==='paste'){const rec=impRecords(impRows($('#impt').value||''));if(!rec.length)return toast('اكتب أو الصق قائمة أولًا');impSet(rec)}
  else if(a==='cancel'){ui.imp=null;render()}
  else if(a==='tpl'){const f=new File(['\ufeffالاسم,التليفون,تاريخ الميلاد\nمينا جرجس,01012345678,2012-05-20\nمارية رأفت,01123456789,2011-11-03\n'],'kenisty-import-template.csv',{type:'text/csv'});
    try{const u=URL.createObjectURL(f),x=document.createElement('a');x.href=u;x.download=f.name;document.body.appendChild(x);x.click();x.remove();toast('تم تنزيل النموذج')}catch(_){toast('تعذّر التنزيل')}}
  else if(a==='go'){const sid=ui.isid||(S.services[0]&&S.services[0].id),rows=ui.imp.rows.filter(r=>r.on);if(!rows.length)return toast('مفيش أسماء محددة');
-   rows.forEach(r=>S.members.push({id:newId(),name:r.name,sid,phone:r.phone,att:[],bd:r.bd}));logA('استيراد '+rows.length+' مخدوم');save();ui.imp=null;ui.f='all';render();toast('تم استيراد '+rows.length+' مخدوم')}});
-document.addEventListener('change',e=>{const t=e.target;if(t.id==='impf'&&t.files[0]){const f=t.files[0];t.value='';impFile(f)}else if(t.id==='isid')ui.isid=t.value});
+   const ty=ui.ityp||'m';rows.forEach(r=>{if(ty==='s')S.servants.push({id:'SV-'+String(S.seqv++).padStart(4,'0'),name:r.name,phone:r.phone,role:'خادم',sid:sid||'',bd:r.bd||''});else if(ty==='g')(S.guests=S.guests||[]).push({id:'G'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:r.name,phone:r.phone,date:TODAY,st:'new',note:'',by:''});else S.members.push({id:newId(),name:r.name,sid,phone:r.phone,att:[],bd:r.bd})});logA('إضافة '+rows.length+(ui.ityp==='s'?' خادم':ui.ityp==='g'?' زائر':' مخدوم')+' بالجملة');save();ui.imp=null;ui.f='all';render();toast('تمت إضافة '+rows.length+(ui.ityp==='s'?' خادم':ui.ityp==='g'?' زائر':' مخدوم'))}});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='impf'&&t.files[0]){const f=t.files[0];t.value='';impFile(f)}else if(t.id==='isid')ui.isid=t.value;else if(t.id==='ityp'){ui.ityp=t.value;ui.imp=null;render()}else if(t.id==='impv'&&t.files.length){const fs=[...t.files];t.value='';(async()=>{let all=[];for(const f of fs){try{all=all.concat(vcfParse(await f.text()))}catch(_){}}all=all.filter(x=>x.name);if(!all.length)return toast('ما لقيتش جهات اتصال في الملف');impSet(all)})()}});
 
 /* ---------- ترقية السنة الخدمية ---------- */
 function promoAuto(){const m={};S.services.forEach((s,i)=>{m[s.id]=i<S.services.length-1?S.services[i+1].id:'__grad'});return m}
@@ -781,7 +784,7 @@ function vGuests(){S.guests=S.guests||[];const tab=ui.gt||'all',l=S.guests.filte
   <select data-gsel="${g.id}" class="${inp} !mt-0 flex-1 !py-1.5 text-sm" aria-label="الحالة">${Object.entries(GST).map(([k,v])=>`<option value="${k}" ${g.st===k?'selected':''}>${v[0]}</option>`).join('')}</select></div>
   <div class="grid grid-cols-3 gap-2 mt-2">${g.st==='joined'?'<span></span>':`<button data-gs="join" data-id="${g.id}" class="bg-ok text-white font-bold rounded-xl py-2 text-xs">↗ تحويل لمخدوم</button>`}<button data-gs="edit" data-id="${g.id}" class="border border-line rounded-xl py-2 text-xs">✎ تعديل</button><button data-gs="del" data-id="${g.id}" class="border border-bad/40 text-bad rounded-xl py-2 text-xs">🗑 حذف</button></div></article>`}).join('')||'<p class="text-center text-mute py-10">لا يوجد زوّار</p>'}</div>`}
 function guestForm(id){S.guests=S.guests||[];const g=id?S.guests.find(x=>x.id===id):{date:TODAY,st:'new'};
- $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">${id?'تعديل زائر':'زائر جديد'}</h2><label class="text-xs text-mute block mt-3">الاسم</label><input id="gn" value="${esc(g.name||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">التليفون</label><input id="gp" inputmode="tel" dir="ltr" value="${esc(g.phone||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">تاريخ أول زيارة</label><input id="gd" type="date" value="${g.date||TODAY}" class="${inp}"><label class="text-xs text-mute block mt-2">مين دعاه؟</label><input id="gb" value="${esc(g.by||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">ملاحظة</label><input id="gt" value="${esc(g.note||'')}" class="${inp}"><button data-gs="save" data-id="${id||''}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden');$('#gn').focus()}
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">${id?'تعديل زائر':'زائر جديد'}</h2><div class="mt-3">${ctBtn('guest','اختيار من جهات الاتصال')}</div><label class="text-xs text-mute block mt-3">الاسم</label><input id="gn" value="${esc(g.name||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">التليفون</label><input id="gp" inputmode="tel" dir="ltr" value="${esc(g.phone||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">تاريخ أول زيارة</label><input id="gd" type="date" value="${g.date||TODAY}" class="${inp}"><label class="text-xs text-mute block mt-2">مين دعاه؟</label><input id="gb" value="${esc(g.by||'')}" class="${inp}"><label class="text-xs text-mute block mt-2">ملاحظة</label><input id="gt" value="${esc(g.note||'')}" class="${inp}"><button data-gs="save" data-id="${id||''}" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden');$('#gn').focus()}
 function guestJoin(id){const g=S.guests.find(x=>x.id===id);if(!g)return;
  $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">تحويل <span class="sens">${esc(g.name)}</span> لمخدوم</h2><label class="text-xs text-mute block mt-3">الخدمة</label><select id="gsv" class="${inp}">${S.services.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select><button data-gs="dojoin" data-id="${id}" class="w-full mt-4 bg-ok text-white font-bold rounded-xl py-3">تحويل</button></div>`;$('#sheet').classList.remove('hidden')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-gs]');if(!b)return;const D=b.dataset,a=D.gs;S.guests=S.guests||[];
@@ -918,6 +921,7 @@ function profExtra(m){let h='';
 /* --- الصفحات التجميعية في «المزيد» --- */
 const hubItem=(go,i,t,d)=>`<button data-go="${go}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1 min-w-0"><div class="font-bold">${t}</div><div class="text-xs text-mute">${d}</div></div></button>`;
 function vSvc(){return `<div class="space-y-3"><button data-bm="open" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🎂</div><div class="flex-1"><div class="font-bold">رسائل أعياد الميلاد</div><div class="text-xs text-mute">تهنئة جاهزة لأعياد الأسبوع (${bdWeek().length})</div></div></button>
+ ${hubItem('gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص في أي مناسبة')}<button data-ba="open" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">☑</div><div class="flex-1"><div class="font-bold">تسجيل حضور جماعي</div><div class="text-xs text-mute">حدّد أكتر من مخدوم وسجّلهم مرة واحدة</div></div></button>
  ${hubItem('early','⚠️','إنذار مبكر','مخدومين حضورهم بدأ يقل ('+earlyList().length+')')}${hubItem('guests','🆕','الزوّار الجدد','تسجيل زائر ومتابعته وتحويله لمخدوم')}${hubItem('trips','🚌','الرحلات والمؤتمرات','المشاركين والمدفوع والمتبقي')}${hubItem('contest','🏆','المسابقات وحفظ الآيات','نتايج ومتصدرين')}${hubItem('smeet','🧑‍🏫','اجتماع الخدام','محضر ومهام وحضور')}${hubItem('visits','🗓️','الزيارات المجدولة','ميعاد زيارة ونتيجتها')}</div>`}
 function vAdm(){return `<div class="space-y-3">${hubItem('log','📜','سجل التعديلات','مين غيّر إيه ومتى')}${hubItem('brand','🏷️','الشعار واسم الخدمة','يظهر في الكشوف والتقارير')}${hubItem('mpdf','📄','التقرير الشهري الرسمي','للطباعة أو المشاركة')}${hubItem('year','📆','التقرير السنوي','السنة الخدمية')}${hubItem('team','👥','فريق الخدمة','إضافة خدام وصلاحياتهم')}${hubItem('promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة')}${hubItem('imp','📥','استيراد المخدومين','من Excel أو جهات الاتصال')}${hubItem('bak','💾','نسخة احتياطية','تنزيل أو استعادة')}</div>`}
 
@@ -935,7 +939,7 @@ function vSermon(){const a=sermLoad().sort((x,y)=>y.date.localeCompare(x.date)||
   return h+`<details data-n="${esc((x.title+' '+(x.by||'')+' '+(x.verse||'')+' '+(x.notes||'')).toLowerCase())}" class="${card} !mt-2"><summary class="cursor-pointer"><div class="font-bold">${esc(x.title)}${SAUD[x.id]?' 🎤':''}</div><div class="text-xs text-mute mt-0.5">${sermFull(x.date)}${x.by?' · '+esc(x.by):''}</div></summary>
   <div class="mt-3 text-sm leading-7">${x.verse?`<div><span class="text-acc">الآية:</span> ${esc(x.verse)}</div>`:''}${x.notes?`<div class="mt-1 whitespace-pre-wrap">${esc(x.notes)}</div>`:'<div class="text-mute">لا توجد ملاحظات</div>'}</div>
   ${saBlock(x)}<div class="grid grid-cols-3 gap-2 mt-3"><button data-sr="share" data-id="${x.id}" class="border border-ok/40 text-ok rounded-xl py-2 text-xs">مشاركة</button><button data-sr="edit" data-id="${x.id}" class="border border-line rounded-xl py-2 text-xs">✎ تعديل</button><button data-sr="del" data-id="${x.id}" class="border border-bad/40 text-bad rounded-xl py-2 text-xs">🗑 حذف</button></div></details>`}).join('')||'<p class="text-center text-mute py-10">لا توجد وعظات بعد</p>'}</div>
- <div class="grid grid-cols-2 gap-2"><button data-sr="export" class="border border-line rounded-xl py-2.5 text-xs font-bold ${a.length?'':'opacity-40'}">⬇️ تصدير (${a.length})</button><label class="text-center border border-line rounded-xl py-2.5 text-xs font-bold cursor-pointer">⬆️ استيراد<input id="sri" type="file" accept=".json,application/json" class="hidden"></label></div></div>`}
+ <div class="grid grid-cols-2 gap-2"><button data-sr="export" class="border border-line rounded-xl py-2.5 text-xs font-bold ${a.length?'':'opacity-40'}">⬇️ تصدير (${a.length})</button><label class="text-center border border-line rounded-xl py-2.5 text-xs font-bold cursor-pointer">⬆️ استيراد (نصوص أو صوت)<input id="sri" type="file" multiple accept=".json,application/json,${AUD_ACCEPT}" class="hidden"></label></div></div>`}
 function sermForm(id){const x=id?sermLoad().find(y=>y.id===id):{date:TODAY};if(!x)return;
  $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">🎙️ ${id?'تعديل وعظة':'وعظة جديدة'}</h2>
  <label class="text-xs text-mute block mt-3">اسم الوعظة</label><input id="sdt" value="${esc(x.title||'')}" placeholder="مثال: الابن الضال" class="${inp}">
@@ -956,7 +960,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-sr]');if(!
   try{const u=URL.createObjectURL(f),x=document.createElement('a');x.href=u;x.download=f.name;document.body.appendChild(x);x.click();x.remove();toast('تم التصدير')}catch(_){toast('تعذّر التنزيل — افتح من كروم')}}});
 document.addEventListener('change',async e=>{const t=e.target;
  if(t.id==='sdd'){const w=$('#sdw');if(w)w.textContent=sermWd(t.value)}
- else if(t.id==='sri'&&t.files[0]){const f=t.files[0];t.value='';let o;try{o=JSON.parse(await f.text())}catch(_){return toast('الملف غير صالح')}
+ else if(t.id==='sri'&&t.files[0]){const fs=[...t.files],au=fs.filter(isAudioFile);t.value='';if(au.length){for(const x of au)await sermFromAudio(x);return}const f=fs[0];let o;try{o=JSON.parse(await f.text())}catch(_){return toast('الملف غير صالح')}
   if(!o||o.app!=='kenisty-sermons'||!Array.isArray(o.items))return toast('ده مش ملف وعظات من البرنامج');
   const all=sermLoad(),have=new Set(all.map(x=>x.id));let n=0;o.items.forEach(x=>{if(x&&x.id&&x.title&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||'')&&!have.has(x.id)){all.push({id:String(x.id),t:+x.t||Date.now(),title:String(x.title),date:x.date,by:String(x.by||''),verse:String(x.verse||''),notes:String(x.notes||'')});n++}});
   if(sermSave(all)){render();toast(n?'تم استيراد '+n+' وعظة':'مفيش وعظات جديدة')}}});
@@ -972,7 +976,7 @@ async function saScan(){try{const d=await saDB();await new Promise((res,rej)=>{c
 async function saTmpScan(){try{const all=await saTx('t','readonly',s=>s.getAll());STMP={};(all||[]).forEach(r=>{(STMP[r.sid]=STMP[r.sid]||[]).push(r)})}catch(_){}}
 async function saClearTmp(sid){try{const ks=await saTx('t','readonly',s=>s.getAllKeys());for(const k of (ks||[])){if(String(k).startsWith(sid+'_'))await saTx('t','readwrite',s=>s.delete(k))}}catch(_){}}
 async function saDelAudio(id){try{await saTx('a','readwrite',s=>s.delete(id))}catch(_){}await saClearTmp(id);await saScan();await saTmpScan()}
-const saExt=m=>/mp4/.test(m||'')?'m4a':/ogg/.test(m||'')?'ogg':'webm';
+const saExt=m=>/mp4/.test(m||'')?'m4a':/ogg|opus/.test(m||'')?'ogg':/mpeg|mp3/.test(m||'')?'mp3':/wav/.test(m||'')?'wav':/aac/.test(m||'')?'aac':/amr/.test(m||'')?'amr':/3gpp/.test(m||'')?'3gp':'webm';
 const saSupported=()=>!!(window.MediaRecorder&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const saMime=()=>['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'].find(x=>MediaRecorder.isTypeSupported(x))||'';
 const saElapsed=R=>Math.floor((Date.now()-R.t0-R.paused-(R.pAt?Date.now()-R.pAt:0))/1000);
@@ -1006,8 +1010,8 @@ function saAsk(sid){const x=sermLoad().find(y=>y.id===sid);if(!x)return;const ha
  <ul class="text-sm text-mute leading-7 mt-3 list-disc ps-5"><li>هيظهر شريط أحمر فوق الشاشة فيه «إيقاف مؤقت» و«إنهاء وحفظ».</li><li><b class="text-slate-100">ما تقفلش الشاشة ولا تطلع من البرنامج</b> أثناء التسجيل، لأن الموبايل ممكن يوقفه.</li><li>التسجيل بياخد حوالي ١٤ ميجا للساعة، ومحفوظ على جهازك أنت بس.</li></ul>
  <button data-sa="go" data-id="${sid}" class="w-full mt-4 bg-bad text-white font-bold rounded-xl py-3">● ابدأ التسجيل</button></div>`;$('#sheet').classList.remove('hidden')}
 function saBlock(x){const au=SAUD[x.id];
- return au?`<div class="mt-3 bg-bg border border-line rounded-xl p-3"><div class="text-xs text-mute mb-2">🎤 تسجيل صوتي · ${saFmt(au.dur)} · ${saSize(au.size)}</div><div id="ap-${x.id}"><button data-sa="play" data-id="${x.id}" class="w-full bg-acc/15 text-acc font-bold rounded-lg py-2 text-sm">▶ تشغيل</button></div><div class="grid grid-cols-3 gap-2 mt-2"><button data-sa="share" data-id="${x.id}" class="border border-ok/40 text-ok rounded-lg py-1.5 text-xs">مشاركة</button><button data-sa="redo" data-id="${x.id}" class="border border-line rounded-lg py-1.5 text-xs">إعادة</button><button data-sa="del" data-id="${x.id}" class="border border-bad/40 text-bad rounded-lg py-1.5 text-xs">حذف الصوت</button></div></div>`
- :`<button data-sa="rec" data-id="${x.id}" class="w-full mt-3 border border-bad/40 text-bad font-bold rounded-xl py-2.5 text-sm">🎤 تسجيل صوتي للوعظة</button>`}
+ return au?`<div class="mt-3 bg-bg border border-line rounded-xl p-3"><div class="text-xs text-mute mb-2">🎤 تسجيل صوتي · ${saFmt(au.dur)} · ${saSize(au.size)}</div><div id="ap-${x.id}"><button data-sa="play" data-id="${x.id}" class="w-full bg-acc/15 text-acc font-bold rounded-lg py-2 text-sm">▶ تشغيل</button></div><div class="grid grid-cols-3 gap-2 mt-2"><button data-sa="share" data-id="${x.id}" class="border border-ok/40 text-ok rounded-lg py-1.5 text-xs">مشاركة</button><button data-sa="redo" data-id="${x.id}" class="border border-line rounded-lg py-1.5 text-xs">إعادة</button><button data-sa="del" data-id="${x.id}" class="border border-bad/40 text-bad rounded-lg py-1.5 text-xs">حذف الصوت</button></div><label class="block text-center mt-2 border border-line rounded-lg py-1.5 text-xs cursor-pointer">📁 استبدال بملف صوت<input type="file" accept="${AUD_ACCEPT}" data-saf="${x.id}" class="hidden"></label></div>`
+ :`<div class="grid grid-cols-2 gap-2 mt-3"><button data-sa="rec" data-id="${x.id}" class="border border-bad/40 text-bad font-bold rounded-xl py-2.5 text-sm">🎤 تسجيل صوتي</button><label class="text-center border border-acc/40 text-acc font-bold rounded-xl py-2.5 text-sm cursor-pointer">📁 إضافة ملف صوت<input type="file" accept="${AUD_ACCEPT}" data-saf="${x.id}" class="hidden"></label></div>`}
 function saBanner(){const ids=Object.keys(STMP).filter(sid=>(!SREC||SREC.sid!==sid)&&sermLoad().some(x=>x.id===sid));
  const tot=Object.values(SAUD).reduce((a,v)=>a+(v.size||0),0);
  return ids.map(sid=>`<div class="${card} border-warn/50"><div class="text-sm font-bold text-warn">تسجيل غير مكتمل</div><div class="text-xs text-mute mt-1">«${esc(sermLoad().find(x=>x.id===sid).title)}» — اتقطع لما البرنامج اتقفل. تقدر تسترجع اللي اتسجل.</div><button data-sa="recover" data-id="${sid}" class="w-full mt-2 bg-warn/20 text-warn font-bold rounded-xl py-2 text-sm">استرجاع التسجيل</button></div>`).join('')+(tot?`<div class="text-[11px] text-mute px-1">🎤 مساحة التسجيلات على جهازك: ${saSize(tot)}</div>`:'')}
@@ -1070,6 +1074,315 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-rn]'
  try{await FBX.renew(c);toast('تم تجديد الوصول ✓');if(window.RENEW)window.RENEW.need=false;render()}
  catch(_){if(el){el.className='text-sm mt-2 text-bad';el.textContent=navigator.onLine?'الكود غير صحيح أو انتهت صلاحيته':'يلزم إنترنت'}}b.disabled=false});
 
+/* ===== الواتساب الجماعي + تسجيل الحضور الجماعي ===== */
+const GW_EXTRA=[
+ ['trip','🚌 دعوة لرحلة أو مؤتمر','سلام ونعمة {g}،\nبندعو {n} لرحلة/مؤتمر خدمة {s} يوم [التاريخ]. من فضلكم تأكيد الحضور 🌿'],
+ ['feast','🎉 تهنئة بعيد','كل سنة وانتم طيبين {g} ✝️\nنهنّيكم بالعيد المجيد، وربنا يفرّح قلوبكم ويبارك بيوتكم. محبتنا من خدمة {s} 🌿'],
+ ['lect','🎓 تذكير بمحاضرة','سلام ونعمة {g}،\nنفكّركم بمحاضرة {s} [اليوم والميعاد]. ننتظر {n} 🌿'],
+ ['thx','🌟 شكر وتشجيع','سلام ونعمة {g}،\nفخورين بـ {n} ومواظبته 🌟 ربنا يبارك فيه ويحفظه. من خدمة {s} ✝️'],
+ ['welcome','🤝 ترحيب بمخدوم جديد','سلام ونعمة {g}،\nنورتونا يا {n} في خدمة {s} ✝️ ونتمنى نشوفكم دايمًا.'],
+ ['ann','📢 إعلان عام','سلام ونعمة {g}،\n[اكتب الإعلان هنا]\nمحبتنا من خدمة {s} 🌿'],
+ ['free','✏️ رسالة حرة','']];
+function gwTpls(){const b=[['abs','☎️ افتقاد غياب',TPL.abs[1]],['chk','💬 اطمئنان',TPL.chk[1]],['bd','🎂 عيد ميلاد',TPL.bd[1]],['evt','📅 تذكير بالاجتماع',TPL.evt[1]],...GW_EXTRA];
+ return b.map(([k,n,t])=>({k:'b:'+k,name:n,text:t,custom:false})).concat((S.tpls||[]).map(x=>({k:'c:'+x.id,name:'⭐ '+x.name,text:x.text,custom:true,id:x.id})))}
+function gwCur(){const T=gwTpls();return T.find(x=>x.k===(ui.gwt||'b:abs'))||T[0]}
+const gwTxt=()=>ui.gwx!=null?ui.gwx:gwCur().text;
+function gwFill(t,it){const first=String(it.name||'').split(' ')[0];return String(t).replace(/{n}/g,first).replace(/{g}/g,it.g||('أسرة '+first)).replace(/{s}/g,it.svc||brandName()).replace(/{d}/g,arDate()).replace(/{b}/g,brandName())}
+function gwItems(){const g=ui.gwg||(lastR()?'abs':'all');let out=[];
+ const mem=m=>({k:'m',id:m.id,name:m.name,phone:m.phone||'',g:m.gname||'',svc:svcName(m.sid)});
+ if(g==='ct')out=(ui.gwct||[]).map((x,i)=>({k:'c',id:'ct'+i,name:x.name||x.phone,phone:x.phone,g:'',svc:''}));
+ else if(g==='sv')out=(S.servants||[]).map(x=>({k:'s',id:x.id,name:x.name,phone:x.phone||'',g:'',svc:svcName(x.sid)}));
+ else if(g==='gs')out=(S.guests||[]).filter(x=>x.st!=='joined'&&x.st!=='gone').map(x=>({k:'g',id:x.id,name:x.name,phone:x.phone||'',g:'',svc:''}));
+ else{let l=S.members;
+  if(g==='abs'){const r=lastR(),ids=new Set(r?r.absIds||[]:[]);l=l.filter(m=>ids.has(m.id))}
+  else if(g==='bd')l=l.filter(m=>m.bd&&dtb(m.bd)<=7);
+  else if(g==='miss3')l=l.filter(m=>streak(m)>=3);
+  else if(g==='early'){const e=new Set(earlyList().map(x=>x.m.id));l=l.filter(m=>e.has(m.id))}
+  else if(g==='special')l=l.filter(m=>m.stat);
+  else if(g.startsWith('svc:'))l=l.filter(m=>m.sid===g.slice(4));
+  out=l.map(mem)}
+ const q=nz(ui.gwq).toLowerCase();if(q)out=out.filter(x=>x.name.toLowerCase().includes(q));
+ const seen=new Set();return out.map(x=>{const p=nPh(x.phone),dup=!!(p&&seen.has(p));if(p)seen.add(p);return{...x,p,dup}})}
+const gwKey=x=>x.k+':'+x.id;
+function gwSel(x){const k=gwKey(x);return ui.gws&&ui.gws[k]!==undefined?ui.gws[k]:!!(x.p&&!x.dup)}
+function gwCount(){const n=gwItems().filter(x=>x.p&&gwSel(x)).length,e=$('#gwn');if(e)e.textContent=n}
+function vGwa(){const T=gwTpls(),cur=gwCur(),txt=gwTxt(),it=gwItems(),sent=ui.gwsent||(ui.gwsent={}),g=ui.gwg||(lastR()?'abs':'all'),
+ sel=it.filter(x=>x.p&&gwSel(x)),left=sel.filter(x=>!sent[gwKey(x)]),prev=sel[0]||it.find(x=>x.p),
+ groups=[['abs','غايبين'],['bd','أعياد ميلاد'],['all','الكل'],['miss3','غاب ٣+'],['early','إنذار مبكر'],['special','حالات خاصة'],['sv','الخدام'],['gs','الزوّار'],['ct','📇 جهات الاتصال'],...S.services.map(s=>['svc:'+s.id,s.name])],
+ nextBtn=`<button data-gw="next" class="w-full bg-ok text-white font-bold rounded-2xl py-3.5 ${left.length?'':'opacity-50'}">▶ إرسال للتالي (${left.length} متبقي)</button>`;
+ return `<div class="space-y-3"><div class="${card} !mt-0"><label class="text-xs text-mute block">المناسبة / القالب</label><select id="gwt" class="${inp}">${T.map(x=>`<option value="${esc(x.k)}" ${x.k===cur.k?'selected':''}>${esc(x.name)}</option>`).join('')}</select>
+ <label class="text-xs text-mute block mt-3">نص الرسالة</label><textarea id="gwx" rows="5" class="${inp}">${esc(txt)}</textarea>
+ <div class="text-[11px] text-mute mt-1">اضغط لإضافة: {n} الاسم الأول · {g} ولي الأمر · {s} الخدمة · {d} تاريخ اليوم · {b} اسم الخدمة</div>
+ <div class="flex flex-wrap gap-1.5 mt-2">${['{n}','{g}','{s}','{d}','{b}'].map(p=>`<button type="button" data-gw="ins" data-p="${p}" class="px-3 py-1 rounded-lg border border-line text-xs font-mono">${p}</button>`).join('')}</div>
+ <button data-gw="savetpl" class="w-full mt-3 border border-acc/40 text-acc rounded-xl py-2 text-xs font-bold">⭐ حفظ كقالب جديد</button>
+ <div class="grid grid-cols-2 gap-2 mt-2">${cur.custom?'<button data-gw="updtpl" class="border border-line rounded-xl py-2 text-xs font-bold">💾 تحديث القالب</button><button data-gw="deltpl" class="border border-bad/40 text-bad rounded-xl py-2 text-xs font-bold">🗑 حذف القالب</button>':'<button data-gw="reset" class="col-span-2 border border-line rounded-xl py-2 text-xs font-bold">↺ رجوع للنص الأصلي</button>'}</div>
+ ${prev?`<div class="mt-3 bg-bg border border-line rounded-xl p-3 text-sm leading-7 whitespace-pre-wrap"><div class="text-[11px] text-mute mb-1">معاينة (${esc(String(prev.name).split(' ')[0])}):</div>${esc(gwFill(txt,prev))}</div>`:''}</div>
+ <div class="flex gap-2 overflow-x-auto py-1 -mx-4 px-4">${groups.map(([k,n])=>`<button data-gw="grp" data-k="${esc(k)}" class="shrink-0 px-3.5 py-1.5 rounded-full text-sm border ${g===k?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${esc(n)}</button>`).join('')}</div>
+ ${g==='ct'?ctBtn('gw','إضافة من جهات الاتصال',true)+(ui.gwct&&ui.gwct.length?'<button data-gw="ctclear" class="w-full text-xs text-bad underline py-1">مسح القايمة</button>':'<p class="text-xs text-mute text-center">اختار أرقام من جهات الاتصال، وهتظهر هنا للإرسال بالرسالة اللي فوق.</p>'):''}<input id="gwq" type="search" value="${esc(ui.gwq||'')}" placeholder="ابحث بالاسم…" class="${inp} !mt-0">
+ <div class="flex items-center gap-2 text-xs"><button data-gw="all" class="border border-line rounded-lg px-3 py-1.5">تحديد الكل</button><button data-gw="none" class="border border-line rounded-lg px-3 py-1.5">إلغاء الكل</button><span class="text-mute flex-1 text-end">المحدد: <b id="gwn" class="text-acc">${sel.length}</b> من ${it.length}</span></div>
+ ${nextBtn}
+ <div class="${card} !mt-0" id="gwl">${it.map(x=>{const k=gwKey(x),s=sent[k];return `<label data-n="${esc(String(x.name).toLowerCase())}" class="flex items-center gap-3 py-2.5 border-b border-line last:border-0"><input type="checkbox" data-gw="tg" data-key="${esc(k)}" ${gwSel(x)&&x.p?'checked':''} ${x.p?'':'disabled'} class="w-5 h-5"><div class="flex-1 min-w-0"><div class="font-bold truncate sens">${esc(x.name)}</div><div class="text-xs ${x.p?'text-mute':'text-bad'}" dir="ltr" style="text-align:start">${x.p?esc(x.phone):'لا يوجد رقم'}${x.dup?' · رقم مكرر':''}</div></div>${s?'<span class="text-xs text-ok">أُرسل ✓</span>':''}${x.p?`<button type="button" data-gw="one" data-key="${esc(k)}" class="text-xs font-bold rounded-lg px-3 py-1.5 ${s?'border border-line text-mute':'bg-ok text-white'}">${s?'إعادة':'إرسال'}</button>`:''}</label>`}).join('')||'<p class="text-center text-mute py-8">لا يوجد أشخاص في المجموعة دي</p>'}</div>
+ ${it.length>6?nextBtn:''}<p class="text-[11px] text-mute text-center leading-6">واتساب بيفتح محادثة واحدة في المرة، فكل ضغطة «إرسال للتالي» بتفتح الشخص اللي بعده برسالته الجاهزة.</p></div>`}
+function gwSend(x){if(!x||!x.p)return;const cur=gwCur();window.open(wa(x.phone)+'?text='+encodeURIComponent(gwFill(gwTxt(),x)),'_blank','noopener');
+ (ui.gwsent=ui.gwsent||{})[gwKey(x)]=1;if(x.k==='m'&&!window.RO&&S.notes){(S.notes[x.id]=S.notes[x.id]||[]).push({ts:Date.now(),type:'واتساب',text:String(cur.name).replace(/^[^\u0600-\u06FFA-Za-z]+/,'')});save()}render()}
+function gwSaveSheet(upd){const t=($('#gwx')||{}).value||'';if(!nz(t))return toast('اكتب نص الرسالة الأول');ui.gwx=t;
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">⭐ حفظ كقالب</h2><label class="text-xs text-mute block mt-3">اسم القالب (المناسبة)</label><input id="gwnm" placeholder="مثال: دعوة حفل التسبحة" class="${inp}"><button data-gw="savetpl2" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden');$('#gwnm').focus()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gw]');if(!b)return;const a=b.dataset.gw;
+ if(a==='grp'){ui.gwg=b.dataset.k;ui.gws={};render()}
+ else if(a==='all'||a==='none'){ui.gws=ui.gws||{};gwItems().forEach(x=>{if(x.p)ui.gws[gwKey(x)]=(a==='all')});render()}
+ else if(a==='tg'){ui.gws=ui.gws||{};ui.gws[b.dataset.key]=b.checked;gwCount()}
+ else if(a==='ins'){const t=$('#gwx');if(!t)return;const p=b.dataset.p,s0=t.selectionStart!=null?t.selectionStart:t.value.length,e0=t.selectionEnd!=null?t.selectionEnd:s0;t.value=t.value.slice(0,s0)+p+t.value.slice(e0);ui.gwx=t.value;t.focus();try{t.setSelectionRange(s0+p.length,s0+p.length)}catch(_){}}
+ else if(a==='reset'){ui.gwx=null;render()}
+ else if(a==='savetpl')gwSaveSheet();
+ else if(a==='savetpl2'){const n=nz(($('#gwnm')||{}).value);if(!n)return toast('اكتب اسم القالب');const x={id:'T'+Date.now().toString(36),name:n,text:ui.gwx||''};(S.tpls=S.tpls||[]).push(x);ui.gwt='c:'+x.id;ui.gwx=null;save();$('#sheet').classList.add('hidden');render();toast('تم حفظ القالب')}
+ else if(a==='updtpl'){const c=gwCur(),x=(S.tpls||[]).find(y=>'c:'+y.id===c.k),t=($('#gwx')||{}).value;if(x&&nz(t)){x.text=t;ui.gwx=null;save();render();toast('تم تحديث القالب')}}
+ else if(a==='deltpl'){const c=gwCur();if(c.custom&&confirm('حذف القالب «'+c.name.replace('⭐ ','')+'»؟')){S.tpls=(S.tpls||[]).filter(y=>'c:'+y.id!==c.k);ui.gwt='b:abs';ui.gwx=null;save();render()}}
+ else if(a==='ctclear'){ui.gwct=[];ui.gws={};render()}
+ else if(a==='one'){gwSend(gwItems().find(y=>gwKey(y)===b.dataset.key))}
+ else if(a==='next'){const sent=ui.gwsent||{},x=gwItems().find(y=>y.p&&gwSel(y)&&!sent[gwKey(y)]);x?gwSend(x):toast('تم الإرسال للكل ✓')}});
+document.addEventListener('change',e=>{const t=e.target;if(t.id==='gwt'){ui.gwt=t.value;ui.gwx=null;render()}});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.id==='gwx')ui.gwx=t.value;
+ else if(t.id==='gwq'){ui.gwq=t.value;const q=t.value.trim().toLowerCase();document.querySelectorAll('#gwl label').forEach(r=>r.style.display=(!q||(r.dataset.n||'').includes(q))?'':'none')}
+ else if(t.id==='baq'&&ui.ba){ui.ba.q=t.value;const q=t.value.trim().toLowerCase();document.querySelectorAll('#bal label').forEach(r=>r.style.display=(!q||(r.dataset.n||'').includes(q))?'':'none')}});
+/* --- تسجيل الحضور الجماعي --- */
+function baList(){const b=ui.ba,q=nz(b.q).toLowerCase(),d=day();return S.members.filter(m=>(b.f==='all'||b.f==='none'||m.sid===b.f)&&(b.f!=='none'||!d[m.id])&&(!q||m.name.toLowerCase().includes(q)))}
+function baSheet(){if(closedToday())return toast('الجلسة مقفولة — افتحها الأول');const b=ui.ba=ui.ba||{st:'p',sel:{},q:'',f:'all'},l=baList(),d=day(),n=Object.keys(b.sel).filter(k=>b.sel[k]).length;
+ $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">☑ تسجيل حضور جماعي</h2><p class="text-xs text-mute mt-1">اختار الحالة، وحدّد أكتر من واحد، واضغط تطبيق.</p>
+ <div class="grid grid-cols-4 gap-1.5 mt-3">${Object.entries(ST).map(([k,[nm,cls]])=>`<button data-ba="st" data-k="${k}" class="py-2 rounded-xl text-xs font-bold border ${b.st===k?cls:'border-line text-mute'}">${nm}</button>`).join('')}</div>
+ <input id="baq" type="search" placeholder="ابحث…" value="${esc(b.q||'')}" class="${inp}">
+ <div class="flex gap-2 overflow-x-auto py-2">${[['all','الكل'],['none','غير المسجّلين'],...S.services.map(s=>[s.id,s.name])].map(([k,t])=>`<button data-ba="f" data-k="${esc(k)}" class="shrink-0 px-3 py-1 rounded-full text-xs border ${b.f===k?'bg-acc border-acc text-white font-bold':'border-line text-mute'}">${esc(t)}</button>`).join('')}</div>
+ <div class="flex gap-2 text-xs"><button data-ba="all" class="border border-line rounded-lg px-3 py-1.5">تحديد الظاهر</button><button data-ba="none" class="border border-line rounded-lg px-3 py-1.5">إلغاء الكل</button><span class="flex-1 text-end text-mute">المحدد: <b id="ban" class="text-acc">${n}</b></span></div>
+ <div id="bal" class="mt-2">${l.map(m=>`<label data-n="${esc(m.name.toLowerCase())}" class="flex items-center gap-3 py-2 border-b border-line"><input type="checkbox" data-ba="tg" data-id="${m.id}" ${b.sel[m.id]?'checked':''} class="w-5 h-5"><span class="flex-1 truncate sens">${esc(m.name)}</span>${d[m.id]&&ST[d[m.id]]?`<span class="text-[11px] px-2 py-0.5 rounded-full border ${ST[d[m.id]][1]}">${ST[d[m.id]][0]}</span>`:''}</label>`).join('')||'<p class="text-sm text-mute py-4 text-center">لا نتائج</p>'}</div>
+ <button data-ba="apply" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">تطبيق على المحدد</button></div>`;$('#sheet').classList.remove('hidden')}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ba]');if(!b)return;const a=b.dataset.ba;
+ if(a==='open'){ui.ba=null;baSheet();return}if(!ui.ba)return;const B=ui.ba;
+ if(a==='st'){B.st=b.dataset.k;baSheet()}
+ else if(a==='f'){B.f=b.dataset.k;baSheet()}
+ else if(a==='all'){baList().forEach(m=>B.sel[m.id]=true);baSheet()}
+ else if(a==='none'){B.sel={};baSheet()}
+ else if(a==='tg'){B.sel[b.dataset.id]=b.checked;const n=Object.keys(B.sel).filter(k=>B.sel[k]).length,el=$('#ban');if(el)el.textContent=n}
+ else if(a==='apply'){if(closedToday())return toast('الجلسة مقفولة');const ids=Object.keys(B.sel).filter(k=>B.sel[k]&&findM(k));if(!ids.length)return toast('حدّد واحد على الأقل');const d=day();ids.forEach(id=>{d[id]=B.st});
+  const nm=ST[B.st][0];save();ui.ba=null;$('#sheet').classList.add('hidden');render();toast('تم تسجيل '+ids.length+' ('+nm+')')}});
+
+/* ===== إضافة أي شخص من جهات الاتصال (اختيار مباشر أو ملف .vcf) ===== */
+function ctOK(){try{return 'contacts' in navigator&&'ContactsManager' in window&&!localStorage.getItem('kenisty_ctfail')}catch(_){return false}}
+function ctFailed(){try{localStorage.setItem('kenisty_ctfail','1')}catch(_){}toast('اختيار الجهات مباشرة مش شغال في التطبيق ده — استخدم زرار «ملف vcf»');render()}
+function qpDec(s){try{return decodeURIComponent(String(s).replace(/=([0-9A-Fa-f]{2})/g,'%$1'))}catch(_){return String(s)}}
+function vcfParse(txt){const out=[];
+ String(txt||'').replace(/\r/g,'').split(/BEGIN:VCARD/i).slice(1).forEach(card=>{
+  const body=card.split(/END:VCARD/i)[0].replace(/\n[ \t]/g,'').replace(/=\n/g,'');
+  const val=l=>{const i=l.indexOf(':'),h=l.slice(0,i).toUpperCase(),v=l.slice(i+1);return /QUOTED-PRINTABLE/.test(h)?qpDec(v):v.replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\n/gi,' ')};
+  const lines=body.split('\n').filter(Boolean);let fn='',n='';const tels=[];
+  lines.forEach(l=>{if(/^FN[;:]/i.test(l))fn=val(l);else if(/^N[;:]/i.test(l))n=val(l);else if(/^(ITEM\d+\.)?TEL[;:]/i.test(l)){const p=nPh(val(l));if(p)tels.push(p)}});
+  let name=fn;if(!name&&n){const a=n.split(';');name=((a[1]||'')+' '+(a[0]||'')).trim()}
+  name=String(name).replace(/\s+/g,' ').trim();if(name||tels.length)out.push({name,phone:tels[0]||'',phones:tels})});
+ return out}
+async function ctPick(multi){if(!ctOK())return null;
+ try{const r=await navigator.contacts.select(['name','tel'],{multiple:!!multi});
+  return r.map(c=>{const ph=(c.tel||[]).map(nPh).filter(Boolean);return{name:nz((c.name&&c.name[0])||''),phone:ph[0]||'',phones:ph}}).filter(x=>x.name||x.phone)}catch(_){return null}}
+function ctBtn(kind,label,multi){const l=label||'من جهات الاتصال',
+ vcf=`<label class="block text-center border border-acc/40 text-acc rounded-xl py-2 text-xs font-bold cursor-pointer">📁 ${ctOK()?'ملف vcf':l+' (ملف vcf)'}<input type="file" accept=".vcf,text/vcard,text/x-vcard,text/directory" ${multi?'multiple':''} data-ctv="${kind}" class="hidden"></label>`;
+ return ctOK()?`<div class="grid grid-cols-2 gap-2"><button type="button" data-ct="${kind}" class="border border-acc/40 text-acc rounded-xl py-2 text-xs font-bold">📇 ${l}</button>${vcf}</div>`:vcf}
+function ctFillOne(kind,c){if(!c)return;const set=(s,v)=>{const e=$(s);if(e&&v!=null)e.value=v};
+ if(kind==='member'){set('#sb [data-k=name]',c.name);set('#sb [data-k=phone]',c.phone)}
+ else if(kind==='guardian'){set('#sb [data-k=phone]',c.phone);set('#sb [data-k=gname]',c.name)}
+ else if(kind==='servant'){set('#svn',c.name);set('#svp',c.phone)}
+ else if(kind==='guest'){set('#gn',c.name);set('#gp',c.phone)}
+ if(c.phones&&c.phones.length>1)toast('الجهة ليها '+c.phones.length+' أرقام — اتاخد الأول');else if(!c.phone)toast('الجهة دي مالهاش رقم')}
+function ctAddMany(list){ui.gwct=ui.gwct||[];let n=0;(list||[]).forEach(c=>{if(c.phone&&!ui.gwct.some(y=>y.phone===c.phone)){ui.gwct.push({name:c.name,phone:c.phone});n++}});ui.gws={};render();toast(n?'اتضاف '+n+' للقايمة':'مفيش أرقام جديدة')}
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-ct]');if(!b)return;const k=b.dataset.ct;
+ const r=await ctPick(k==='gw');if(r===null)return ctFailed();if(!r.length)return;
+ if(k==='gw')ctAddMany(r);else ctFillOne(k,r[0])});
+document.addEventListener('change',async e=>{const t=e.target,k=t.dataset&&t.dataset.ctv;if(!k||!t.files.length)return;
+ let all=[];for(const f of [...t.files]){try{all=all.concat(vcfParse(await f.text()))}catch(_){}}t.value='';
+ if(!all.length)return toast('ما لقيتش جهات اتصال في الملف');
+ if(k==='gw')ctAddMany(all);else ctFillOne(k,all[0])});
+const impBase=()=>ui.ityp==='s'?(S.servants||[]):ui.ityp==='g'?(S.guests||[]):S.members;
+function itypSel(){const t=ui.ityp||'m';return `<label class="text-xs text-mute block mb-1">هتضيفهم كـ</label><select id="ityp" class="${inp} !mt-0 mb-3">${[['m','مخدومين'],['s','خدام'],['g','زوّار']].map(([v,l])=>`<option value="${v}" ${t===v?'selected':''}>${l}</option>`).join('')}</select>`}
+
+/* ===== إضافة ملف صوت من برا البرنامج للوعظات ===== */
+const isAudioFile=f=>/^audio\//.test(f.type||'')||/\.(m4a|mp3|ogg|opus|wav|aac|amr|3gp|webm|mpeg)$/i.test(f.name||'');
+const AUD_ACCEPT='audio/*,.m4a,.mp3,.ogg,.opus,.wav,.aac,.amr,.3gp,.webm';
+function saDuration(f){return new Promise(res=>{try{const u=URL.createObjectURL(f),a=new Audio();let done=false;const end=d=>{if(done)return;done=true;try{URL.revokeObjectURL(u)}catch(_){}res(isFinite(d)?Math.round(d):0)};a.preload='metadata';a.onloadedmetadata=()=>end(a.duration);a.onerror=()=>end(0);setTimeout(()=>end(0),4000);a.src=u}catch(_){res(0)}})}
+async function saImport(sid,f){if(SREC&&SREC.sid===sid)return toast('فيه تسجيل شغال للوعظة دي');
+ const ext=((f.name||'').match(/\.([a-z0-9]+)$/i)||[,''])[1].toLowerCase(),byExt={m4a:'audio/mp4',mp3:'audio/mpeg',mpeg:'audio/mpeg',ogg:'audio/ogg',opus:'audio/ogg',wav:'audio/wav',aac:'audio/aac',amr:'audio/amr','3gp':'audio/3gpp',webm:'audio/webm'},
+ type=/^audio\//.test(f.type||'')?f.type:(byExt[ext]||'');
+ if(!type)return toast('الملف ده مش ملف صوت');
+ if(SAUD[sid]&&!confirm('فيه تسجيل قديم للوعظة دي، وهيتبدّل بالملف الجديد. متأكد؟'))return;
+ if(f.size>300*1048576&&!confirm('الملف كبير ('+saSize(f.size)+') وهياخد مساحة من جهازك. تكمل؟'))return;
+ try{const e=await navigator.storage.estimate();if((e.quota||0)&&(e.quota-(e.usage||0))<f.size*1.2)return toast('مساحة التخزين مش كفاية للملف ده')}catch(_){}
+ const dur=await saDuration(f),blob=f.slice(0,f.size,type);
+ try{await saTx('a','readwrite',s=>s.put({id:sid,blob,mime:type,dur,size:f.size,t:Date.now(),ext:1}));await saClearTmp(sid);await saScan();toast('تمت إضافة الملف الصوتي ('+(dur?saFmt(dur)+' · ':'')+saSize(f.size)+')')}
+ catch(_){toast('تعذّر حفظ الملف — المساحة ممتلئة؟')}
+ render()}
+async function sermFromAudio(f){const all=sermLoad(),d=new Date(f.lastModified||Date.now()),date=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10),
+ title=(f.name||'وعظة').replace(/\.[^.]+$/,'').replace(/[_\-]+/g,' ').trim()||'وعظة',id='W'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+ all.push({id,t:Date.now(),title,date,by:'',verse:'',notes:''});if(!sermSave(all))return;await saImport(id,f);if(SAUD[id])toast('اتضافت وعظة «'+title+'» بالصوت — تقدر تعدّل الاسم والتاريخ')}
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.saf)return;const sid=t.dataset.saf,f=t.files[0];t.value='';if(f)saImport(sid,f)});
+
+/* ===== الكلمة اليومية: شريط صغير (آية + تأمل + كلمة منفعة من الآباء) ===== */
+const WB_V=[
+['الرب راعي فلا يعوزني شيء.','مزمور 23: 1'],
+['معونتي من عند الرب صانع السماوات والأرض.','مزمور 121: 2'],
+['الله لنا ملجأ وقوة، عونا في الضيقات وجد شديدا.','مزمور 46: 1'],
+['سراج لرجلي كلامك ونور لسبيلي.','مزمور 119: 105'],
+['توكل على الرب بكل قلبك، وعلى فهمك لا تعتمد. في كل طرقك اعرفه وهو يقوم سبلك.','أمثال 3: 5-6'],
+['لا تخف لأني معك. لا تتلفت لأني إلهك. قد أيدتك وأعنتك وعضدتك بيمين بري.','إشعياء 41: 10'],
+['تعالوا إلي يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم.','متى 11: 28'],
+['سلاما أترك لكم. سلامي أعطيكم. ليس كما يعطي العالم أعطيكم أنا. لا تضطرب قلوبكم ولا ترهب.','يوحنا 14: 27'],
+['لأنه هكذا أحب الله العالم حتى بذل ابنه الوحيد، لكي لا يهلك كل من يؤمن به، بل تكون له الحياة الأبدية.','يوحنا 3: 16'],
+['أنا هو نور العالم. من يتبعني فلا يمشي في الظلمة بل يكون له نور الحياة.','يوحنا 8: 12'],
+['أنا الكرمة وأنتم الأغصان. الذي يثبت في وأنا فيه هذا يأتي بثمر كثير، لأنكم بدوني لا تقدرون أن تفعلوا شيئا.','يوحنا 15: 5'],
+['أستطيع كل شيء في المسيح الذي يقويني.','فيلبي 4: 13'],
+['لا تهتموا بشيء، بل في كل شيء بالصلاة والدعاء مع الشكر لتعلم طلباتكم لدى الله. وسلام الله الذي يفوق كل عقل يحفظ قلوبكم وأفكاركم في المسيح يسوع.','فيلبي 4: 6-7'],
+['ونحن نعلم أن كل الأشياء تعمل معا للخير للذين يحبون الله، الذين هم مدعوون حسب قصده.','رومية 8: 28'],
+['فرحين في الرجاء، صابرين في الضيق، مواظبين على الصلاة.','رومية 12: 12'],
+['أما الآن فيثبت: الإيمان والرجاء والمحبة، هذه الثلاثة، ولكن أعظمهن المحبة.','1 كورنثوس 13: 13'],
+['فلا نفشل في عمل الخير، لأننا سنحصد في وقته إن كنا لا نكل.','غلاطية 6: 9'],
+['لأن الله لم يعطنا روح الفشل، بل روح القوة والمحبة والنصح.','2 تيموثاوس 1: 7'],
+['يسوع المسيح هو هو أمسا واليوم وإلى الأبد.','عبرانيين 13: 8'],
+['لكن اطلبوا أولا ملكوت الله وبره، وهذه كلها تزاد لكم.','متى 6: 33'],
+['فليضئ نوركم هكذا قدام الناس، لكي يروا أعمالكم الحسنة، ويمجدوا أباكم الذي في السماوات.','متى 5: 16'],
+['وها أنا معكم كل الأيام إلى انقضاء الدهر.','متى 28: 20'],
+['اسألوا تعطوا. اطلبوا تجدوا. اقرعوا يفتح لكم.','لوقا 11: 9'],
+['ذوقوا وانظروا ما أطيب الرب! طوبى للرجل المتوكل عليه.','مزمور 34: 8'],
+['الرب نوري وخلاصي، فممن أخاف؟ الرب حصن حياتي، فممن أرتعب؟','مزمور 27: 1'],
+['سلم للرب طريقك واتكل عليه وهو يجري.','مزمور 37: 5'],
+['الساكن في ستر العلي، في ظل القدير يبيت.','مزمور 91: 1'],
+['رب الولد في طريقه، فمتى شاخ أيضا لا يحيد عنه.','أمثال 22: 6'],
+['دعوا الأولاد يأتون إلي ولا تمنعوهم، لأن لمثل هؤلاء ملكوت السماوات.','متى 19: 14'],
+['لا يستهن أحد بحداثتك، بل كن قدوة للمؤمنين في الكلام، في التصرف، في المحبة، في الروح، في الإيمان، في الطهارة.','1 تيموثاوس 4: 12'],
+['والفهماء يضيئون كضياء الجلد، والذين ردوا كثيرين إلى البر كالكواكب إلى أبد الدهور.','دانيال 12: 3'],
+['كونوا راسخين، غير متزعزعين، مكثرين في عمل الرب كل حين، عالمين أن تعبكم ليس باطلا في الرب.','1 كورنثوس 15: 58'],
+['أنا هو الراعي الصالح، والراعي الصالح يبذل نفسه عن الخراف.','يوحنا 10: 11'],
+['هوذا ما أحسن وما أجمل أن يسكن الإخوة معا!','مزمور 133: 1'],
+['وكونوا لطفاء بعضكم نحو بعض، شفوقين متسامحين كما سامحكم الله أيضا في المسيح.','أفسس 4: 32'],
+['وكل ما فعلتم فاعملوا من القلب، كما للرب ليس للناس.','كولوسي 3: 23'],
+['ملقين كل همكم عليه، لأنه هو يعتني بكم.','1 بطرس 5: 7'],
+['إن كان أحدكم تعوزه حكمة، فليطلب من الله الذي يعطي الجميع بسخاء ولا يعير، فسيعطى له.','يعقوب 1: 5'],
+['جعلت الرب أمامي في كل حين، لأنه عن يميني فلا أتزعزع.','مزمور 16: 8'],
+['وأما منتظرو الرب فيجددون قوة. يرفعون أجنحة كالنسور. يركضون ولا يتعبون. يمشون ولا يعيون.','إشعياء 40: 31'],
+['إنه من إحسانات الرب أننا لم نفن، لأن مراحمه لا تزول. هي جديدة في كل صباح. كثيرة أمانتك.','مراثي 3: 22-23'],
+['وصية جديدة أنا أعطيكم: أن تحبوا بعضكم بعضا. كما أحببتكم أنا تحبون أنتم أيضا بعضكم بعضا.','يوحنا 13: 34'],
+['السماوات تحدث بمجد الله، والفلك يخبر بعمل يديه.','مزمور 19: 1'],
+['الرب رحيم ورؤوف، طويل الروح وكثير الرحمة.','مزمور 103: 8'],
+['الصديق يحب في كل حين، والأخ للشدة يولد.','أمثال 17: 17'],
+['وأما ثمر الروح فهو: محبة فرح سلام، طول أناة لطف صلاح، إيمان وداعة تعفف.','غلاطية 5: 22-23'],
+['تكفيك نعمتي، لأن قوتي في الضعف تكمل.','2 كورنثوس 12: 9']];
+const WB_FEAST=[
+['الميلاد','لأنه ولد لكم اليوم في مدينة داود مخلص هو المسيح الرب.','لوقا 2: 11'],
+['الغطاس','هذا هو ابني الحبيب الذي به سررت.','متى 3: 17'],
+['التجلي','هذا هو ابني الحبيب الذي به سررت. له اسمعوا.','متى 17: 5'],
+['القيامة','ليس هو ههنا، لأنه قام كما قال.','متى 28: 6'],
+['الصليب','فإن كلمة الصليب عند الهالكين جهالة، وأما عندنا نحن المخلصين فهي قوة الله.','1 كورنثوس 1: 18'],
+['الجمعة العظيمة','فلما أخذ يسوع الخل قال: قد أكمل. ونكس رأسه وأسلم الروح.','يوحنا 19: 30'],
+['الشعانين','أوصنا لابن داود! مبارك الآتي باسم الرب! أوصنا في الأعالي!','متى 21: 9'],
+['الصوم الكبير','ولكن الآن، يقول الرب، ارجعوا إلي بكل قلوبكم، وبالصوم والبكاء والنوح.','يوئيل 2: 12'],
+['نينوى','ولكن الآن، يقول الرب، ارجعوا إلي بكل قلوبكم، وبالصوم والبكاء والنوح.','يوئيل 2: 12'],
+['العذراء','لأنه نظر إلى اتضاع أمته. فهوذا منذ الآن جميع الأجيال تطوبني.','لوقا 1: 48'],
+['البشارة','لأنه نظر إلى اتضاع أمته. فهوذا منذ الآن جميع الأجيال تطوبني.','لوقا 1: 48'],
+['العنصرة','وامتلأ الجميع من الروح القدس، وابتدأوا يتكلمون بألسنة أخرى كما أعطاهم الروح أن ينطقوا.','أعمال 2: 4'],
+['الرسل','فاذهبوا وتلمذوا جميع الأمم وعمدوهم باسم الآب والابن والروح القدس.','متى 28: 19'],
+['النيروز','كللت السنة بجودك، وآثارك تقطر دسما.','مزمور 65: 11']];
+const WB_R=[
+'ابدأ يومك بدقيقة صمت أمام الله قبل أي رسالة أو مكالمة؛ فالقلب المرتب يسمع صوته أوضح.',
+'الخدمة ليست ما نفعله للناس فقط، بل ما يفعله الله فينا ونحن نخدم. اسأل اليوم: ماذا يريد أن يعلمني من خلال من أخدمهم؟',
+'كل مخدوم يحمل قصة لا تراها. ابتسامة صادقة وسؤال بسيط عن أحواله قد يكونان أول طوبة في جسر المحبة.',
+'التواضع لا يعني أن تقلل من نفسك، بل أن تنسى نفسك لتنتبه لغيرك.',
+'الغياب لا يعني الرفض دائما؛ قد يكون وراءه ظرف أو خجل أو احتياج. اتصال بمحبة أقوى من ألف عتاب.',
+'لا تنتظر أن تكون كاملا لتخدم؛ الله يستخدم القلب المستعد لا القلب الخالي من الضعف.',
+'الشكر يغير نظرتنا. عد اليوم ثلاث نعم صغيرة لم تنتبه لها بالأمس.',
+'الصلاة ليست كلاما طويلا؛ أحيانا هي جملة صادقة من القلب: يا رب أعني.',
+'حين تتعب من الخدمة تذكر أن الراعي الصالح هو الذي يحمل الخراف، وأنت فقط تسير معه.',
+'الغفران قرار قبل أن يكون شعورا. ابدأ به ودع الله يشفي القلب بمرور الوقت.',
+'الطفل يتعلم من تصرفاتنا أكثر مما يتعلم من كلامنا. كن اليوم الدرس الذي تريد أن يتعلمه.',
+'الصبر في الخدمة زرع لا تراه نتيجته اليوم، لكن الله لا يضيع تعب المحبة.',
+'الأمانة في الصغير تمهد للكبير: كشف حضور مرتب، رسالة أرسلت في وقتها، صلاة لأجل اسم بعينه.',
+'قبل أن تصحح أحدا اسأل نفسك: هل أريد أن أنتصر لنفسي أم أن أربح أخي؟',
+'ابحث عن مخدوم لا ينتبه له أحد، واجعله اليوم محور اهتمامك.',
+'الفرح علامة حضور الله. لا تخف فرحك في الخدمة، فهو يعدي من حولك.',
+'الصوم ليس امتناعا عن الطعام فقط، بل امتناع عن كلمة جارحة ونظرة متعالية وفكر مدين.',
+'عندما تضيق بك الأمور افتح الإنجيل على أي صفحة؛ فكلمة واحدة قد تغير يومك.',
+'اجعل لكل مخدوم مكانا في صلاتك الصامتة؛ الصلاة لأجلهم تسبق أي خدمة.',
+'الله لا يطلب منك نتيجة بل أمانة؛ النتيجة عمله هو.',
+'حين تخطئ في خدمتك لا تهرب: اعتذر، وتعلم، وابدأ من جديد؛ فالتوبة أجمل بداية.',
+'المحبة أن تعطي وقتك لمن لا يستطيع أن يرد لك شيئا.',
+'لا تقارن خدمتك بخدمة غيرك؛ لكل واحد وزناته ولكل قلب طريقه.',
+'الكلمة الطيبة صدقة تعطيها وأنت جالس. قل اليوم لأحد خدامك أو مخدوميك: ربنا يباركك.',
+'الهدوء قوة. لا ترد على الانفعال بانفعال، بل بصلاة صامتة وكلمة هادئة.',
+'الخدمة الناجحة تبدأ بأسرة سعيدة؛ أعط بيتك حقه من الوقت والمحبة.',
+'الرجاء أن تقف في المساء وتقول: غدا سيكون الله معي كما هو معي اليوم.',
+'اسأل عن المخدوم الغائب كما تسأل عن أخ لك، وسيشعر أنه لم ينس.',
+'الراحة ليست ضعفا؛ حتى المسيح اعتزل ليصلي. خذ لنفسك وقتا مع الله.',
+'كل مرة تقول فيها سامحني تبني جسرا جديدا بين القلوب.',
+'ما تزرعه اليوم في طفل قد لا ينمو أمام عينيك، لكنه سيثمر في عمره كله.',
+'ابتعد عن النميمة حتى لو بدت بريئة؛ الكلام عن الناس يبعدك عن الكلام مع الله.',
+'السلام الداخلي لا يأتي من غياب المشاكل، بل من وجود الله وسط المشاكل.',
+'في الاجتماع القادم استمع أكثر مما تتكلم؛ فقد تجد حلا لما يشغلك في كلمة غيرك.',
+'شجع اليوم من يحاول، حتى لو كانت نتيجته متواضعة؛ التشجيع وقود الاستمرار.',
+'اجعل خدمتك مكانا يشعر فيه الجميع أنهم مرحب بهم كما هم.',
+'لا تؤجل خيرا تقدر أن تعمله اليوم: اتصال، زيارة، رسالة، صلاة.',
+'الصليب في حياتنا ليس عقابا، بل طريق يعلمنا أن نحب حتى النهاية.',
+'مهما كان يومك مزدحما خصص لحظات للصلاة؛ فبدونها نعمل بقوتنا لا بقوة الله.',
+'لا تحمل هم الغد؛ الله الذي أعطاك الخدمة اليوم سيعطيك قوة الغد.'];
+const WB_S=[
+['رأيت فخاخ العدو منتشرة على الأرض كلها، فتنهدت وقلت: من يقدر أن ينجو منها؟ فسمعت صوتا يقول لي: التواضع.','الأنبا أنطونيوس (بتصرف)'],
+['حياتنا وموتنا هو مع قريبنا. فإن ربحنا أخانا ربحنا الله، وإن أعثرنا أخانا أخطأنا إلى المسيح.','الأنبا أنطونيوس (بتصرف)'],
+['لم أعد أخاف الله بل أحبه، لأن المحبة تطرد الخوف إلى خارج.','الأنبا أنطونيوس (بتصرف)'],
+['من يجلس في الوحدة ويصمت ينجو من ثلاث حروب: السمع والكلام والنظر، وتبقى له حرب واحدة هي حرب القلب.','الأنبا أنطونيوس (بتصرف)'],
+['اهرب، اصمت، واظب على الصلاة.','الأنبا أرسانيوس (بتصرف)'],
+['كثيرا ما ندمت على كلامي، أما على صمتي فلم أندم قط.','الأنبا أرسانيوس (بتصرف)'],
+['اذهب اجلس في قلايتك، وقلايتك تعلمك كل شيء.','الأنبا موسى الأسود (بتصرف)'],
+['علم فمك أن يقول ما في قلبك.','الأنبا بيمن (بتصرف)'],
+['لا حاجة إلى كلام كثير في الصلاة، بل ابسط يديك وقل: يا رب كما تريد وكما تعلم ارحمني. وإن اشتد عليك الصراع فقل: يا رب أعني.','الأنبا مقار الكبير (بتصرف)'],
+['إن كنت حين توبخ أحدا يتحرك فيك الغضب فأنت ترضي هواك أنت. لا تهلك نفسك لكي تخلص غيرك.','الأنبا مقار الكبير (بتصرف)'],
+['إن كان لك قلب فيمكنك أن تخلص.','الأنبا بموا (بتصرف)'],
+['كن في سلام مع نفسك، فتسالمك السماء والأرض.','القديس إسحق السرياني (بتصرف)'],
+['لقد خلقتنا لنفسك يا رب، وقلوبنا لا تستريح حتى تستريح فيك.','القديس أغسطينوس'],
+['الخبز الذي تدخره هو للجائع، والثوب المعلق في خزانتك هو للعريان، والمال الذي تكنزه هو للفقير.','القديس باسيليوس الكبير (بتصرف)']];
+function wbDay(off){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+(off||0));return d}
+const wbIdx=d=>Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);
+let WBF={};
+function wbFeast(d){const k=d.toDateString();if(k in WBF)return WBF[k];let f=null;
+ try{if(typeof calEvents==='function'){const same=x=>x.dt&&x.dt.toDateString()===k;calEvents(d,d).filter(same).forEach(e=>{const m=WB_FEAST.find(x=>String(e.n).includes(x[0]));if(m&&!f)f=m})}}catch(_){}
+ return WBF[k]=f}
+function wbWords(t){try{return((typeof S!=='undefined'&&S.words)||[]).filter(x=>x.t===t&&x.text)}catch(_){return[]}}
+function wbPick(off){const d=wbDay(off),i=wbIdx(d),f=wbFeast(d),
+ V=WB_V.map(x=>({text:x[0],ref:x[1]})).concat(wbWords('v').map(x=>({text:x.text,ref:x.ref||''}))),
+ R=WB_R.map(x=>({text:x})).concat(wbWords('r').map(x=>({text:x.text}))),
+ Sy=WB_S.map(x=>({text:x[0],by:x[1]})).concat(wbWords('s').map(x=>({text:x.text,by:x.ref||''})));
+ const v=f?{text:f[1],ref:f[2]}:V[i%V.length];
+ return{d,v,r:R[(i+11)%R.length].text,s:Sy[(i+3)%Sy.length],feast:f?'مناسبة اليوم: '+f[0]:''}}
+function wbOn(){try{return localStorage.getItem('kenisty_wbar')!=='off'}catch(_){return true}}
+function wbText(p){return '✝️ آية اليوم\n«'+p.v.text+'»'+(p.v.ref?'\n('+p.v.ref+')':'')+'\n\n🕊️ تأمل اليوم\n'+p.r+'\n\n📜 كلمة منفعة\n'+p.s.text+(p.s.by?'\n— '+p.s.by:'')+'\n\n'+brandName()}
+function wbRender(){const sy=document.getElementById('sync');if(!sy)return;let el=document.getElementById('wbar');
+ if(!wbOn()){if(el)el.remove();return}
+ if(!el){el=document.createElement('div');el.id='wbar';el.className='max-w-md mx-auto px-4 pt-1.5';sy.insertAdjacentElement('afterend',el)}
+ const p=wbPick(0),k=window.__wbi||0,it=[['✝️','آية اليوم',p.v.text,p.v.ref],['🕊️','تأمل اليوم',p.r,''],['📜','كلمة منفعة',p.s.text,p.s.by]][k%3];
+ el.innerHTML=`<button type="button" data-go="word" data-wb="reset" aria-label="الكلمة اليومية" class="w-full flex items-center gap-2.5 text-start rounded-xl border border-line bg-card/70 px-3 py-2"><span class="text-base shrink-0">${it[0]}</span><span class="flex-1 min-w-0"><span class="block text-[10px] text-acc font-bold truncate">${it[1]}${it[3]?' · '+esc(it[3]):''}</span><span class="block text-[12.5px] leading-5 lc2">${esc(it[2])}</span></span><span class="flex gap-1 shrink-0">${[0,1,2].map(i=>`<i class="w-1.5 h-1.5 rounded-full ${i===k%3?'bg-acc':'bg-line'}"></i>`).join('')}</span></button>`}
+function vWord(){const o=ui.wo||0,p=wbPick(o),on=wbOn(),W=(S.words=S.words||[]),TL={v:'✝️ آية',r:'🕊️ تأمل',s:'📜 كلمة منفعة'};
+ const blk=(ic,t,txt,src,kind)=>`<div class="${card}"><div class="flex items-center gap-2 text-sm font-bold text-acc"><span class="text-lg">${ic}</span>${t}</div><p class="mt-2 text-[15px] leading-8">${kind==='v'?'«'+esc(txt)+'»':esc(txt)}</p>${src?`<div class="text-xs text-mute mt-1">${esc(src)}</div>`:''}<div class="grid grid-cols-2 gap-2 mt-3"><button data-wb="share" data-k="${kind}" class="border border-ok/40 text-ok rounded-xl py-2 text-xs font-bold">مشاركة واتساب</button><button data-wb="copy" data-k="${kind}" class="border border-line rounded-xl py-2 text-xs font-bold">نسخ</button></div></div>`;
+ return `<div class="space-y-3"><div class="flex items-center justify-between gap-2"><button data-wb="prev" class="px-3 h-10 rounded-xl border border-line bg-card text-xs font-bold">◀ السابق</button><div class="text-center min-w-0"><div class="font-bold text-sm">${arD(p.d)}</div>${o?'<button data-wb="today" class="text-xs text-acc underline">رجوع لليوم</button>':''}</div><button data-wb="next" class="px-3 h-10 rounded-xl border border-line bg-card text-xs font-bold">التالي ▶</button></div>
+ ${p.feast?`<div class="text-xs text-warn text-center">${esc(p.feast)}</div>`:''}
+ ${blk('✝️','آية اليوم',p.v.text,p.v.ref,'v')}${blk('🕊️','تأمل اليوم',p.r,'','r')}${blk('📜','كلمة منفعة من الآباء',p.s.text,p.s.by,'s')}
+ <button data-wb="all" class="w-full bg-ok text-white font-bold rounded-xl py-3">📤 مشاركة الكلمة كاملة على واتساب</button>
+ <div class="${card}"><label class="flex items-center gap-3"><input type="checkbox" data-wb="toggle" ${on?'checked':''} class="w-5 h-5"><span class="text-sm">إظهار الشريط أعلى الشاشة</span></label></div>
+ <div class="${card}"><div class="flex items-center justify-between"><h2 class="font-bold text-sm">كلماتك الخاصة (${W.length})</h2><button data-wb="addw" class="text-xs text-acc border border-acc/40 rounded-lg px-3 py-1.5">+ إضافة</button></div><p class="text-xs text-mute mt-1 leading-6">أضف آية أو تأملا أو كلمة منفعة من عندك، وتدخل في الدوران مع الكلمات الجاهزة وتظهر للكل.</p>${W.map(x=>`<div class="flex items-start gap-2 py-2 border-t border-line mt-2"><div class="flex-1 min-w-0"><div class="text-[11px] text-acc font-bold">${TL[x.t]||''}${x.ref?' · '+esc(x.ref):''}</div><div class="text-sm leading-6">${esc(x.text)}</div></div><button data-wb="delw" data-id="${x.id}" class="text-bad text-sm px-1" aria-label="حذف">✕</button></div>`).join('')}</div>
+ <p class="text-[11px] text-mute text-center leading-6">الآيات من ترجمة الفاندايك. أقوال الآباء من أقوال آباء البرية والقديسين (بتصرف). التأملات كتابة أصلية للتشجيع.</p></div>`}
+function wbForm(){$('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">إضافة كلمة</h2><label class="text-xs text-mute block mt-3">النوع</label><select id="wbt" class="${inp}"><option value="v">✝️ آية</option><option value="r">🕊️ تأمل</option><option value="s">📜 كلمة منفعة</option></select><label class="text-xs text-mute block mt-2">النص</label><textarea id="wbx" rows="4" class="${inp}"></textarea><label class="text-xs text-mute block mt-2">المصدر (اختياري: رقم الآية أو اسم القائل)</label><input id="wbr" class="${inp}"><button data-wb="savew" class="w-full mt-4 bg-acc text-white font-bold rounded-xl py-3">حفظ</button></div>`;$('#sheet').classList.remove('hidden');$('#wbx').focus()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-wb]');if(!b)return;const a=b.dataset.wb;
+ if(a==='reset'){ui.wo=0;return}
+ if(a==='prev'){ui.wo=(ui.wo||0)-1;render()}else if(a==='next'){ui.wo=(ui.wo||0)+1;render()}else if(a==='today'){ui.wo=0;render()}
+ else if(a==='toggle'){try{localStorage.setItem('kenisty_wbar',b.checked?'on':'off')}catch(_){}wbRender()}
+ else if(a==='share'||a==='copy'||a==='all'){const p=wbPick(ui.wo||0),k=b.dataset.k,t=a==='all'?wbText(p):(k==='v'?'✝️ «'+p.v.text+'»'+(p.v.ref?'\n('+p.v.ref+')':''):k==='r'?'🕊️ '+p.r:'📜 '+p.s.text+(p.s.by?'\n— '+p.s.by:''))+'\n\n'+brandName();
+  if(a==='copy'){try{navigator.clipboard.writeText(t).then(()=>toast('تم النسخ'),()=>toast('تعذر النسخ'))}catch(_){toast('تعذر النسخ')}}else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener')}
+ else if(a==='addw')wbForm();
+ else if(a==='savew'){const x=nz(($('#wbx')||{}).value);if(!x)return toast('اكتب النص');(S.words=S.words||[]).push({id:'K'+Date.now().toString(36),t:($('#wbt')||{}).value||'v',text:x,ref:nz(($('#wbr')||{}).value)});save();$('#sheet').classList.add('hidden');render();wbRender();toast('تمت الإضافة')}
+ else if(a==='delw'){if(confirm('حذف الكلمة؟')){S.words=(S.words||[]).filter(y=>y.id!==b.dataset.id);save();render();wbRender()}}});
+setInterval(()=>{try{if(document.hidden||!wbOn())return;window.__wbi=((window.__wbi||0)+1)%3;wbRender()}catch(_){}},9000);
+setTimeout(wbRender,400);setTimeout(wbRender,2500);
+
 /* ===== الهوية والدور ===== */
 function roleOf(){
  if(window.RO&&window.RATT)return{i:'📝',t:'خادم · تسجيل حضور',d:'بتشوف مخدومين خدماتك وبتسجّل حضورهم. الإغلاق والتقارير والتعديل عند أمين الخدمة.',c:'bg-sky-500/15 text-sky-300 border-sky-500/30'};
@@ -1080,7 +1393,7 @@ function whoAmI(){const m=window.FBX&&FBX.me&&FBX.me();return m?(m.email||m.name
 function roleChip(){const r=roleOf();return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-bold ${r.c}">${r.i} ${r.t}</span>`}
 function accCard(){const r=roleOf(),w=whoAmI();
  return `<div class="bg-card border border-line rounded-2xl p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-2xl border grid place-items-center text-2xl ${r.c}">${r.i}</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">أنت داخل بصفة</div><div class="font-extrabold text-lg">${r.t}</div>${w?`<div class="text-xs text-mute truncate" dir="ltr">${esc(w)}</div>`:''}</div></div><p class="text-xs text-mute mt-2 leading-6">${r.d}</p><div class="grid grid-cols-2 gap-2 mt-2"><button data-hlp="roles" class="border border-line rounded-xl py-2 text-xs font-bold">ما هي الأدوار؟</button>${window.RO?'':'<button data-go="team" class="border border-acc/40 text-acc rounded-xl py-2 text-xs font-bold">👥 فريق الخدمة</button>'}</div></div>`}
-const moreMenu=()=>[...(window.RENEW&&!window.IS_ADMIN?[['renew','🔐','تجديد الوصول','اكتب الكود الجديد اللي وصلك على واتساب']]:[]),['help','📖','الشروحات','شرح مبسط لكل ميزة في البرنامج'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها من ملف'],['lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],['print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة بتواريخ الأسابيع القادمة'],['team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],['qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا'],['year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],['fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],['cal','✝️','تقويم الكنيسة','الأعياد والأصوام ومناسباتك'],['visits','🗓️','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],['imp','📥','استيراد المخدومين','من Excel أو جهات الاتصال أو قائمة'],['promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة'],['svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام وإنذار مبكر'],['adm','🏛️','أدوات الإدارة','سجل التعديلات والشعار والتقرير الرسمي'],['sermon','🎙️','الوعظات','سجّل الوعظة: الاسم واليوم والتاريخ (على جهازك بس)'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const moreMenu=()=>[...(window.RENEW&&!window.IS_ADMIN?[['renew','🔐','تجديد الوصول','اكتب الكود الجديد اللي وصلك على واتساب']]:[]),['help','📖','الشروحات','شرح مبسط لكل ميزة في البرنامج'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها من ملف'],['lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],['print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة بتواريخ الأسابيع القادمة'],['team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],['qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا'],['year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],['fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],['cal','✝️','تقويم الكنيسة','الأعياد والأصوام ومناسباتك'],['visits','🗓️','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],['imp','📥','إضافة أشخاص بالجملة','من جهات الاتصال أو Excel أو ملف vcf (مخدومين وخدام وزوّار)'],['promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة'],['svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام وإنذار مبكر'],['adm','🏛️','أدوات الإدارة','سجل التعديلات والشعار والتقرير الرسمي'],['word','✝️','الكلمة اليومية','آية وتأمل وكلمة منفعة من الآباء'],['gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص في أي مناسبة'],['sermon','🎙️','الوعظات','سجّل الوعظة: الاسم واليوم والتاريخ (على جهازك بس)'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -1229,6 +1542,7 @@ function vSrv(){
  `<div class="space-y-3">${lst.map(x=>`<div class="bg-card border border-line rounded-2xl p-3"><div class="flex items-center gap-3">${avatar(x)}<div class="min-w-0 flex-1"><div class="font-bold truncate">${esc(x.name)}</div><div class="text-xs text-mute">${roleTag(x)}</div></div></div><div class="grid grid-cols-4 gap-1.5 mt-2.5">${Object.entries(ST).map(([k,[n,cls]])=>`<button data-sv="st" data-id="${x.id}" data-v="${k}" class="py-2 rounded-xl text-xs font-bold border ${s[x.id]===k?cls:'border-line text-mute'}">${n}</button>`).join('')}</div></div>`).join('')||'<p class="text-center text-mute py-10">أضف خدامًا من «قائمة الخدام» أولًا</p>'}</div>`}
 function svSheet(id){const x=id?svFind(id):{};
  $('#sb').innerHTML=`<div class="max-h-[84vh] overflow-y-auto"><h2 class="text-lg font-extrabold">${id?'تعديل خادم':'إضافة خادم'}</h2>
+ <div class="mt-3">${ctBtn('servant','اختيار من جهات الاتصال')}</div>
  <label class="text-xs text-mute block mt-2">الاسم *</label><input id="svn" value="${esc(x.name||'')}" class="${inp}">
  <label class="text-xs text-mute block mt-2">التليفون</label><input id="svp" inputmode="tel" dir="ltr" value="${esc(x.phone||'')}" class="${inp}">
  <label class="text-xs text-mute block mt-2">الدور</label><select id="svr" class="${inp}">${ROLES.map(r=>`<option ${r===(x.role||'خادم')?'selected':''}>${r}</option>`).join('')}</select>
@@ -1386,13 +1700,16 @@ function vHelp(){const ho=ui.hopen;ui.hopen=null;const q=(t,a,k)=>`<details clas
  q('🏅 الشارات ورسم الحضور','في ملف المخدوم: 🔥 مواظب (٤ جلسات حضور متتالية)، 🌟 حضور كامل، 🎖️ ١٠ جلسات، 🏆 ٢٥ جلسة. وفيه رسم بياني بنسبة حضوره شهريًا. وفي ملفه كمان زرار 🎤 للإملاء الصوتي بدل الكتابة، وقايمة لنقله لخدمة تانية.','badges')+
  q('☀️ الوضع الفاتح','«المزيد ← الإعدادات ← لون الخلفية ← فاتح». وتقدر ترجع لأي لون في أي وقت.','light')+
  q('📷 أوراق المحاضرات (تصوير ومشاركة)','<b>١)</b> «المزيد ← المحاضرات» واختار اليوم.<br><b>٢)</b> تحت المحاضرة اضغط «📷 الأوراق».<br><b>٣)</b> سيب علامة «☁️ شاركها مع أمين الخدمة والفريق» لو عايز الأمين والخدام يشوفوها، وشيلها لو الصورة ليك بس.<br><b>٤)</b> «📷 تصوير» يفتح الكاميرا، أو «🖼 من المعرض». الصورة بتتصغّر لوحدها.<br><b>٥)</b> اضغط الصورة تكبّرها. «مشاركة» تبعتها واتساب، و«حذف» تمسحها.<br><br>☁️ = صورة مشتركة بتظهر لكل الفريق. 📱 = صورة على جهازك بس.<br>أمين الخدمة يحذف أي صورة، والخادم يحذف صوره هو. الحد الأقصى ١٠ صور للمحاضرة.<br><br><b>مرة واحدة (لصاحب التطبيق):</b> عشان الصور المشتركة تشتغل لازم تحدّث قواعد Firebase من ملف القواعد الجديد. لحد ما تتحدّث، الصور بتتحفظ على الجهاز بس.<br>الصور اللي على الجهاز مش بتدخل في النسخة الاحتياطية، وبتضيع لو مسحت بيانات المتصفح.','papers')+
- q('📥 استيراد المخدومين','<b>١)</b> «المزيد ← استيراد المخدومين».<br><b>٢)</b> اختار الخدمة اللي هيتضافوا ليها.<br><b>٣)</b> اختار الطريقة:<br>• <b>ملف Excel أو CSV:</b> أول سطر عناوين (الاسم، التليفون، تاريخ الميلاد) أو من غير عناوين بنفس الترتيب. ممكن تنزّل «نموذج جاهز للتعبئة» من نفس الشاشة.<br>• <b>جهات الاتصال:</b> تختار أسماء من موبايلك (كروم على أندرويد).<br>• <b>لصق قائمة:</b> سطر لكل مخدوم.<br><b>٤)</b> هتشوف معاينة بالأسماء. الأسماء الموجودة أو المكررة بتتشال علامتها تلقائيًا، وتقدر تعدّل اختيارك، وبعدين «استيراد المحدد».<br><br>ملف Excel محتاج نت أول مرة لقراءته.','imp')+
+ q('📥 إضافة أشخاص بالجملة (جهات الاتصال)','<b>١)</b> «المزيد ← استيراد المخدومين».<br><b>٢)</b> اختار الخدمة اللي هيتضافوا ليها.<br><b>٣)</b> اختار الطريقة (وفوق اختار هتضيفهم كـ مخدومين أو خدام أو زوّار):<br>• <b>📇 جهات الاتصال:</b> اختيار الأسماء مباشرة من موبايلك (كروم على أندرويد).<br>• <b>ملف جهات اتصال .vcf:</b> بيشتغل في أي متصفح، حتى جوه الـ APK: من تطبيق جهات الاتصال حدّد الأسماء ← مشاركة ← احفظ كملف vcf، واختاره هنا.<br>• <b>ملف Excel أو CSV:</b> أول سطر عناوين (الاسم، التليفون، تاريخ الميلاد) أو من غير عناوين بنفس الترتيب. ممكن تنزّل «نموذج جاهز للتعبئة» من نفس الشاشة.<br>• <b>لصق قائمة:</b> سطر لكل مخدوم.<br><b>٤)</b> هتشوف معاينة بالأسماء. الأسماء الموجودة أو المكررة بتتشال علامتها تلقائيًا، وتقدر تعدّل اختيارك، وبعدين «استيراد المحدد».<br><br>ملف Excel محتاج نت أول مرة لقراءته.','imp')+
  q('🎓 ترقية السنة الخدمية','في بداية السنة الجديدة (سبتمبر) بدل ما تنقل كل مخدوم لوحده:<br><b>١)</b> «المزيد ← ترقية السنة الخدمية».<br><b>٢)</b> اضغط «ترتيب تلقائي» (كل فصل ينتقل للي بعده والأخير يتخرّج)، أو اختار لكل فصل بنفسك.<br><b>٣)</b> راجع «اللي هيحصل»، وممكن تختار «صفّر نسب الحضور».<br><b>٤)</b> «تنفيذ الترقية»: هتنزّل نسخة احتياطية تلقائيًا الأول.<br><br>الخريجين بيتشالوا من القوائم ويتحفظوا في قائمة «الخريجين». سجل الجلسات والتقرير السنوي بيفضلوا زي ما هما.<br>الخدام ما بيتأثروش. ما تنفذهاش مرتين في نفس السنة.','promo')+
  q('🗓️ الزيارات المجدولة','<b>١)</b> افتح ملف المخدوم واضغط «📅 جدولة زيارة»، واختار اليوم والميعاد والخادم وسبب الزيارة.<br><b>٢)</b> «المزيد ← الزيارات المجدولة» بيعرض القادمة والمتأخرة (بالأحمر).<br><b>٣)</b> بعد الزيارة اضغط «✓ تمت» واكتب النتيجة، وبتتسجل في ملاحظات المخدوم. «↻ تأجيل» يغيّر الميعاد.<br><br>زيارات النهارده بتظهر في شاشة اليوم وفي إشعار الصبح. ولو حابب تذكير والتطبيق مقفول، فعّل «الزيارات المجدولة» في ملف تذكيرات التقويم (إعدادات التنبيهات).','visits')+
- q('🎙️ الوعظات (سجل شخصي)','<b>١)</b> «المزيد ← الوعظات» ثم «+ وعظة جديدة».<br><b>٢)</b> اكتب <b>اسم الوعظة</b> واختار <b>التاريخ</b>، واليوم (الجمعة مثلًا) بيظهر لوحده جنب التاريخ. الواعظ والآية والملاحظات اختيارية.<br><b>٣)</b> الوعظات بتظهر مرتبة بالأحدث ومقسمة بالشهور. اضغط على أي وعظة تفتحها، وفيها «مشاركة» واتساب و«تعديل» و«حذف». وفيه بحث فوق القايمة.<br><br><b>🎤 التسجيل الصوتي:</b> افتح الوعظة واضغط «🎤 تسجيل صوتي»، أو من شاشة وعظة جديدة اضغط «حفظ وابدأ التسجيل». هيظهر شريط أحمر فوق فيه «إيقاف مؤقت» و«إنهاء وحفظ». <b>ما تقفلش الشاشة ولا تطلع من البرنامج أثناء التسجيل</b> لأن الموبايل ممكن يوقفه. التسجيل بياخد حوالي ١٤ ميجا للساعة. لو البرنامج اتقفل فجأة هتلاقي «استرجاع التسجيل» في شاشة الوعظات. التسجيل ليه «تشغيل» و«مشاركة» و«إعادة» و«حذف الصوت».<br><br><b>🔒 الخصوصية:</b> الوعظات محفوظة على جهازك أنت بس. مش بتتزامن مع Firebase، ومش بتظهر لأمين الخدمة ولا لأي خادم، وكل حساب على الجهاز له سجله.<br><b>النسخ الاحتياطي:</b> مش بتدخل في «النسخة الاحتياطية» العادية، وبتضيع لو مسحت بيانات المتصفح أو غيّرت الموبايل. استخدم «⬇️ تصدير» من نفس الشاشة، و«⬆️ استيراد» على الجهاز الجديد (التصدير للنصوص فقط، والتسجيلات الصوتية بتتشارك كملفات من زرار «مشاركة»).','sermon')+
+ q('🎙️ الوعظات (سجل شخصي)','<b>١)</b> «المزيد ← الوعظات» ثم «+ وعظة جديدة».<br><b>٢)</b> اكتب <b>اسم الوعظة</b> واختار <b>التاريخ</b>، واليوم (الجمعة مثلًا) بيظهر لوحده جنب التاريخ. الواعظ والآية والملاحظات اختيارية.<br><b>٣)</b> الوعظات بتظهر مرتبة بالأحدث ومقسمة بالشهور. اضغط على أي وعظة تفتحها، وفيها «مشاركة» واتساب و«تعديل» و«حذف». وفيه بحث فوق القايمة.<br><br><b>📁 ملف صوت من برا البرنامج:</b> في أي وعظة اضغط «📁 إضافة ملف صوت» واختار الملف (تسجيل من تطبيق تاني، أو صوت جالك على واتساب بصيغة opus أو m4a أو mp3…). أو من «⬆️ استيراد (نصوص أو صوت)» اختار ملف صوت وهيتعمل منه وعظة جديدة بنفس اسم الملف وتاريخه، وتقدر تعدّلهم.<br><br><b>🎤 التسجيل الصوتي:</b> افتح الوعظة واضغط «🎤 تسجيل صوتي»، أو من شاشة وعظة جديدة اضغط «حفظ وابدأ التسجيل». هيظهر شريط أحمر فوق فيه «إيقاف مؤقت» و«إنهاء وحفظ». <b>ما تقفلش الشاشة ولا تطلع من البرنامج أثناء التسجيل</b> لأن الموبايل ممكن يوقفه. التسجيل بياخد حوالي ١٤ ميجا للساعة. لو البرنامج اتقفل فجأة هتلاقي «استرجاع التسجيل» في شاشة الوعظات. التسجيل ليه «تشغيل» و«مشاركة» و«إعادة» و«حذف الصوت».<br><br><b>🔒 الخصوصية:</b> الوعظات محفوظة على جهازك أنت بس. مش بتتزامن مع Firebase، ومش بتظهر لأمين الخدمة ولا لأي خادم، وكل حساب على الجهاز له سجله.<br><b>النسخ الاحتياطي:</b> مش بتدخل في «النسخة الاحتياطية» العادية، وبتضيع لو مسحت بيانات المتصفح أو غيّرت الموبايل. استخدم «⬇️ تصدير» من نفس الشاشة، و«⬆️ استيراد» على الجهاز الجديد (التصدير للنصوص فقط، والتسجيلات الصوتية بتتشارك كملفات من زرار «مشاركة»).','sermon')+
  q('🧩 أنشطة الخدمة','من «المزيد ← أنشطة الخدمة»:<br>• <b>🎂 رسائل أعياد الميلاد:</b> تهنئة جاهزة بالاسم لأعياد الأسبوع، وزرار «إرسال للتالي».<br>• <b>⚠️ إنذار مبكر:</b> مخدومين كانوا بيحضروا كويس وآخر ٣ جلسات حضورهم قل، قبل ما يوصلوا للغياب المتتالي. بيظهر كمان كارت في شاشة اليوم.<br>• <b>🆕 الزوّار الجدد:</b> سجّل الزائر وتابع حالته (جديد، تحت المتابعة، انضم) وحوّله لمخدوم بضغطة.<br>• <b>🚌 الرحلات والمؤتمرات:</b> المشاركين والمدفوع والمتبقي لكل واحد، وتذكير واتساب لمن لم يدفع كامل.<br>• <b>🏆 المسابقات:</b> اكتب نقاط كل مخدوم، وبيظهر المتصدرين.<br>• <b>🧑‍🏫 اجتماع الخدام:</b> محضر وحضور الخدام ومهام ومين مسؤول.<br><br><b>ملف المخدوم:</b> ضفنا العنوان (مع زرار الخريطة) وحالة خاصة (مريض، مسافر، ظروف خاصة). المسافر ما بيظهرش في تنبيهات الغياب.<br><b>فلاتر المخدومين:</b> في تبويب «المخدومين» تحت البحث: غاب ٣+، أقل من ٥٠٪، حالات خاصة، بدون رقم، عيد ميلاد قريب.','svcx')+
  q('🏛️ أدوات الإدارة','من «المزيد ← أدوات الإدارة»:<br>• <b>📜 سجل التعديلات:</b> مين عمل إيه ومتى (إضافة وتعديل وحذف مخدومين، إغلاق الجلسات، الترقية، الاستيراد، وتسجيل حضور الخدام). آخر ٣٠٠ عملية.<br>• <b>🏷️ الشعار واسم الخدمة:</b> بيظهروا في أعلى الكشوف المطبوعة والتقارير.<br>• <b>📄 التقرير الشهري الرسمي:</b> اختار الشهر، وهتلاقي ملخص الحضور والجلسات والخدمات والغياب والزيارات، للطباعة PDF أو المشاركة، وفيه خانات توقيع.<br>وفيها اختصارات للتقرير السنوي والفريق والترقية والاستيراد والنسخة الاحتياطية.','admx')+
  q('🔐 تجديد الدخول كل شهرين','<b>الفكرة:</b> كل شهرين بيتغيّر كود الدخول، وكل خادم لازم يكتب الكود الجديد عشان يكمل يشوف بياناته. الكود بيوصله على واتساب رقمه، وده بيضمن إن اللي بيدخل لسه معروف لأمين الخدمة.<br><br><b>للمالك:</b><br>١) «👑 لوحة المالك ← الأكواد»، وفي كارت «🔐 التجديد الدوري» اختار مدة السماح (٧ أيام مثلًا) واضغط «تفعيل التجديد الدوري».<br>٢) اضغط «📨 إرسال الكود للخدام على واتساب»: هتلاقي قايمة الخدام اللي ليهم أرقام في «الخدام وحضورهم»، وكل ضغطة بتفتح واتساب برسالة جاهزة بالاسم والكود. «إرسال للتالي» بيكمل واحد ورا التاني.<br>٣) كل شهرين اضغط «فعّل الكود التالي»، وابعته للخدام بنفس الطريقة. مدة السماح بتبدأ من وقتها، وبعدها الكود القديم بيقفل لوحده.<br><br><b>للخادم:</b><br>١) بيظهر كارت «🔐 جدّد وصولك خلال X يوم» في شاشة اليوم، وبند «🔐 تجديد الوصول» في «المزيد».<br>٢) افتحه واكتب الكود اللي وصلك على واتساب واضغط «تجديد».<br>٣) لو عدّت مدة السماح من غير تجديد، هتظهر شاشة «تجديد الوصول» أول ما تفتح البرنامج. اكتب الكود وكمّل. <b>بياناتك ما بتضيعش</b>، بس مش بتظهر لك لحد ما تجدّد.<br><br><b>ملاحظات:</b><br>• المالك مش محتاج تجديد.<br>• الخادم اللي اتضاف من الطلبات بيحتاج التجديد كمان.<br>• ممكن توقف التجديد في أي وقت من نفس الكارت.<br>• لازم تحدّث قواعد Firebase بالملف الجديد (firestore-rules-v4) قبل ما تفعّل التجديد.','renew')+
+ q('📣 الواتساب الجماعي (أي مناسبة)','<b>١)</b> «المزيد ← 📣 الواتساب الجماعي».<br><b>٢)</b> اختار <b>المناسبة</b> من القايمة: افتقاد، اطمئنان، عيد ميلاد، تذكير بالاجتماع، دعوة رحلة، تهنئة بعيد، تذكير محاضرة، شكر وتشجيع، ترحيب، إعلان عام، أو رسالة حرة.<br><b>٣)</b> عدّل النص زي ما تحب. استخدم أزرار {n} الاسم الأول و{g} ولي الأمر و{s} الخدمة و{d} تاريخ اليوم و{b} اسم الخدمة، وكل واحد بيستلم رسالة باسمه.<br><b>٤)</b> اختار <b>مين</b> هيستلم: الغايبين، أعياد الميلاد، الكل، غاب ٣+، إنذار مبكر، حالات خاصة، الخدام، الزوّار، أو خدمة معينة. وحدّد أكتر من شخص (تحديد الكل أو إلغاء الكل أو فرادى).<br><b>٥)</b> اضغط «▶ إرسال للتالي»: بيفتح واتساب للشخص الأول برسالته، ترجع وتضغط تاني للتالي، وهكذا. أو «إرسال» جنب أي اسم.<br><br><b>⭐ قوالبك أنت:</b> بعد ما تكتب رسالة اضغط «حفظ كقالب جديد» وسمّيها. تقدر تحدّثها أو تمسحها بعد كده.<br><b>ملاحظات:</b> أرقام الأخوات المكررة بتتشال علامتها تلقائيًا عشان ما توصلش نفس الرسالة مرتين. واتساب نفسه بيفتح محادثة واحدة في المرة، فمفيش إرسال تلقائي لكل الناس مرة واحدة. الرسايل بتتسجل في ملاحظات المخدوم.','gwa')+
+ q('☑ تسجيل الحضور الجماعي','في تبويب «الحضور» اضغط «☑ تسجيل جماعي»:<br>١) اختار الحالة (حاضر، متأخر، غايب، معتذر).<br>٢) حدّد أكتر من مخدوم (تحديد الظاهر، أو فلتر بالخدمة، أو «غير المسجّلين»).<br>٣) «تطبيق على المحدد».<br><br>مفيد في آخر الجلسة: اختار «غير المسجّلين» ← «تحديد الظاهر» ← غايب ← تطبيق، فتسجّل كل اللي فاضلين غياب مرة واحدة.','batt')+
+ q('✝️ الكلمة اليومية (آية وتأمل وكلمة منفعة)','فيه <b>شريط صغير</b> أعلى الشاشة بيتبدل كل ثواني بين: ✝️ آية اليوم، 🕊️ تأمل اليوم، 📜 كلمة منفعة من الآباء. بيتغير تلقائيًا كل يوم، وفي الأعياد (الميلاد والغطاس والقيامة والصليب والصوم الكبير وغيرها) بتظهر آية مناسبة للعيد.<br><br><b>اضغط على الشريط</b> تفتح الكلمة كاملة، وتقدر:<br>• تتصفح الأيام اللي فاتت والجاية.<br>• «مشاركة واتساب» أو «نسخ» لأي واحدة، أو «مشاركة الكلمة كاملة».<br>• <b>تخفي الشريط</b> (وترجعه) من علامة «إظهار الشريط».<br>• <b>تضيف كلماتك أنت</b> (آية أو تأمل أو كلمة منفعة) وتدخل في الدوران وتظهر للكل.<br><br>الآيات من ترجمة الفاندايك، وأقوال الآباء من أقوال آباء البرية والقديسين (بتصرف). تأكد من الاقتباس لو هتستخدمه في مطبوع رسمي. ومن «المزيد ← الكلمة اليومية» تقدر تفتحها في أي وقت.','word')+
  q('👤 الأدوار: مين بيدخل البرنامج وبيقدر يعمل إيه','<b>👑 المالك:</b> صاحب التطبيق (حسابه مسجّل كمالك في Firebase). معاه كل صلاحيات أمين الخدمة، وكمان «لوحة المالك» لأكواد الدعوة وقبول طلبات الانضمام.<br><br><b>⭐ أمين خدمة:</b> أي حساب دخل بكود الدعوة. بيدير بياناته وخدماته كلها (المخدومين والحضور والتقارير)، وبيضيف الخدام من «فريق الخدمة».<br><br><b>👁 خادم:</b> عضو في فريق أمين خدمة. بيشوف مخدومين خدماته بس ويتصل بيهم، من غير تعديل.<br><br><b>المخدومين:</b> دلوقتي هما أسماء مسجّلة جوه البرنامج ومش بيدخلوه بحساب.<br><br>الدور بيظهر فوق الشاشة دايمًا، وفي كارت «أنت داخل بصفة» أول «المزيد».<br><br><b>أنا المالك، لازم أضيف نفسي أمين خدمة؟</b> لأ، حسابك بالفعل أمين خدمة لبياناتك، ومعاه صلاحية المالك. تضيف الخدام من «المزيد ← فريق الخدمة».','roles')+
  q('📲 تثبيت البرنامج ومشاركته','<b>تثبيت على الموبايل:</b> افتح رابط البرنامج من كروم، اضغط ⋮ فوق، واختار «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». هيبقى له أيقونة زي أي تطبيق، وبيتحدّث لوحده من غير ما تنزّل حاجة تاني.<br><br><b>لإضافة خادم جديد (لأمين الخدمة):</b> «👑 لوحة المالك ← الأكواد ← إرسال واتساب» بيبعت الرابط مع كود الدعوة. من غير الكود مفيش حد يقدر يدخل على بيانات الخدمة.','install')+
  q('نسيت الباسورد','من شاشة الدخول اكتب إيميلك واضغط «نسيت الباسورد؟». ولو بتدخل بـ Google اضغط زرار Google.')}
@@ -1459,7 +1776,7 @@ const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCa
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
 
 /* نقسّم الحالة لمستندات صغيرة في users/{uid}/c (مساحة خاصة بكل مستخدم): meta / p / s_التاريخ / r_التاريخ / n_كود المخدوم */
-const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[]}};
+const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[],tpls:s.tpls||[],words:s.words||[]}};
  Object.entries(s.sess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['s_'+d]=v});
  Object.entries(s.vsess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['v_'+d]=v});
  (s.reports||[]).forEach(r=>o['r_'+r.date]=r);
@@ -1490,12 +1807,12 @@ function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j,d.d
   if(first){{S.members=[];S.sess={};S.reports=[];S.notes={};S.services=[{id:'s1',name:'الفصل الأول'}];S.seq=1;S.servants=[];S.vsess={};S.seqv=1;S.lect=S.lect||[]}
    S.dirty=true;first=false;sync()}return}
  if(S.dirty&&!first)return;                          // عندي تعديلات لسه ما اترفعتش
- const n={seq:S.seq,services:S.services,members:S.members,servants:[],seqv:1,vsess:{},sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan,lect:S.lect||[],cal:S.cal||[],alumni:S.alumni||[],lastPromo:S.lastPromo||null,visits:S.visits||[],guests:S.guests||[],trips:S.trips||[],contests:S.contests||[],smeet:S.smeet||[],brand:S.brand||null,log:S.log||[]};
+ const n={seq:S.seq,services:S.services,members:S.members,servants:[],seqv:1,vsess:{},sess:{},notes:{},reports:[],pf:S.pf,plan:S.plan,lect:S.lect||[],cal:S.cal||[],alumni:S.alumni||[],lastPromo:S.lastPromo||null,visits:S.visits||[],guests:S.guests||[],trips:S.trips||[],contests:S.contests||[],smeet:S.smeet||[],brand:S.brand||null,log:S.log||[],tpls:S.tpls||[],words:S.words||[]};
  const ovl=[];
  docs.forEach(([id,j,nm])=>{if(id.startsWith('sv_')){ovl.push([id,j,nm]);return}const v=JSON.parse(j);last[id]=j;
   if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members;n.servants=v.servants||[];n.seqv=v.seqv||1}
   else if(id==='p'){n.pf=v.pf;n.plan=v.plan;n.lect=v.lect||[];n.cal=v.cal||[];n.alumni=v.alumni||[];n.lastPromo=v.promo||null;n.visits=v.visits||[]}
-  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[]}
+  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[];n.tpls=v.tpls||[];n.words=v.words||[]}
   else if(id.startsWith('s_'))n.sess[id.slice(2)]=v;
   else if(id.startsWith('r_'))n.reports.push(v);
   else if(id.startsWith('v_'))n.vsess[id.slice(2)]=v;
