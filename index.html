@@ -2105,48 +2105,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-v]')
  else if(a==='mg'){ui.mgo=(ui.mgo||0)+(+D.n);render()}
  else if(a==='mday'){ui.mgd=D.d;render()}
  else if(a==='jsh')wsh('سلام ونعمة 🙏\nرابط برنامج الخدمة: '+location.origin+location.pathname);
- else if(a==='jpr'){const i=$('#jq');if(!i||!i.src)return toast('استنى الكود يظهر');const w=window.open('','_blank');if(w){w.document.write(`<body style="text-align:center;font-family:sans-serif"><h2>انضم لخدمة الكنيسة</h2><img src="${i.src}" width="300"><p dir="ltr">${esc(location.origin+location.pathname)}</p><script>
-/* ===== v28b: السنكسار (بحث + سنكسار اليوم) — البيانات في synaxarium.json وتتخزّن على الجهاز ===== */
-(()=>{
-const MN=['توت','بابه','هاتور','كيهك','طوبة','أمشير','برمهات','برمودة','بشنس','بؤونة','أبيب','مسرى','النسيء'],
- SY={d:null,busy:0},
- nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه'),
- db=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_syn',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}),
- idbGet=async()=>{const d=await db();return new Promise(res=>{const q=d.transaction('k').objectStore('k').get('all');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})},
- idbSet=async v=>{const d=await db();return new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'all');t.oncomplete=res;t.onerror=res})};
-async function synLoad(){if(SY.d||SY.busy)return;SY.busy=1;
- try{let v=await idbGet();if(!v){const r=await fetch('synaxarium.json');if(!r.ok)throw 0;v=await r.json();idbSet(v).catch(()=>{})}SY.d=v;SY.idx=null}catch(_){toast('محتاج إنترنت مرة واحدة لتحميل السنكسار');SY.fail=1}
- SY.busy=0;if(ui.tab==='more'&&ui.sub==='synax')render()}
-const dayAt=o=>{const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()+o);return t};
-const keyAt=o=>{const c=copOf(dayAt(o));return{k:c.m+'-'+c.d,c}};
-const synToday=()=>SY.d?(SY.d[keyAt(0).k]||[]):[];
-const synCard=()=>{const{c}=keyAt(0),l=synToday();return `<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="text-2xl">🕊️</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">سنكسار اليوم — ${c.d} ${MN[c.m-1]}</div><div class="font-bold text-sm truncate">${l.length?esc(l.map(x=>x[0]).join(' • ')):'اضغط لعرض سنكسار اليوم'}</div></div><span class="text-xs text-acc">›</span></button>`};
-function search(q){q=nrm(q.trim());if(q.length<2)return[];if(!SY.idx)SY.idx=Object.entries(SY.d).flatMap(([k,l])=>l.map(e=>({k,n:e[0],nn:nrm(e[0]),t:nrm(e[1])})));
- const a=SY.idx.filter(x=>x.nn.includes(q)),b=SY.idx.filter(x=>!x.nn.includes(q)&&x.t.includes(q));return a.concat(b).slice(0,30)}
-function vSyn(){if(!SY.d){if(!SY.fail)synLoad();return `<p class="text-center text-mute py-10">${SY.fail?'تعذّر تحميل السنكسار — اتأكد إن ملف synaxarium.json مرفوع جنب index.html وفيه إنترنت':'جاري التحميل…'}</p>`}
- const o=ui.syo||0,{k,c}=keyAt(o),l=SY.d[k]||[],q=ui.syq||'',res=q?search(q):null;
- return `<div class="space-y-3"><div class="flex gap-2"><input id="syq" value="${esc(q)}" placeholder="ابحث باسم القديس أو كلمة" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-sy="find" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>
- ${res?`<div class="${card} !mt-0"><div class="flex justify-between mb-1"><h2 class="font-bold">نتائج (${res.length})</h2><button data-sy="clr" class="text-xs text-acc">مسح</button></div>${res.map(x=>{const[m,d]=x.k.split('-');return `<button data-sy="go" data-k="${x.k}" class="w-full text-start py-2 border-b border-line last:border-0 text-sm"><div class="font-bold">${esc(x.n)}</div><div class="text-xs text-mute">${d} ${MN[m-1]}</div></button>`}).join('')||'<p class="text-sm text-mute">مفيش نتائج</p>'}</div>`:''}
- <div class="flex items-center justify-between"><button data-sy="nav" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><div class="text-center"><b>${c.d} ${MN[c.m-1]}</b><div class="text-xs text-mute">${arDate(dayAt(o))}</div></div><button data-sy="nav" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>
- ${o?'<button data-sy="today" class="text-xs text-acc">← رجوع لليوم</button>':''}
- ${l.map((e,i)=>`<details class="bg-card border border-line rounded-2xl p-3" ${l.length===1?'open':''}><summary class="font-bold cursor-pointer">${esc(e[0])}</summary><div class="text-sm mt-2 whitespace-pre-line leading-7">${esc(e[1])}</div></details>`).join('')||'<p class="text-center text-mute py-6">مفيش بيانات لليوم ده</p>'}
- ${l.length?'<button data-sy="share" class="w-full border border-ok/40 text-ok font-bold rounded-xl py-3 text-sm">📤 مشاركة سنكسار اليوم واتساب</button>':''}</div>`}
-SUBT.synax='السنكسار';
-const _vm=vMore;vMore=function(){if(ui.sub==='synax')return vSyn();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🕊️</div><div class="flex-1"><div class="font-bold">السنكسار</div><div class="text-xs text-mute">سيرة قديس اليوم وبحث في كل الأيام</div></div></button>`)};
-const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+synCard())};
-document.addEventListener('click',e=>{const b=e.target.closest('[data-sy]');if(!b)return;const D=b.dataset,a=D.sy;
- if(a==='nav'){ui.syo=(ui.syo||0)+(+D.n);render()}
- else if(a==='today'){ui.syo=0;render()}
- else if(a==='find'){ui.syq=($('#syq').value||'').trim();render()}
- else if(a==='clr'){ui.syq='';render()}
- else if(a==='go'){for(let o=0;o<400;o++){if(keyAt(o).k===D.k){ui.syo=o;break}}ui.syq='';render();scrollTo(0,0)}
- else if(a==='share'){const{c}=keyAt(ui.syo||0),l=SY.d[keyAt(ui.syo||0).k]||[];window.open('https://wa.me/?text='+encodeURIComponent('🕊️ سنكسار '+c.d+' '+MN[c.m-1]+'\n'+l.map(x=>'• '+x[0]).join('\n')),'_blank','noopener')}});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='syq'){ui.syq=e.target.value.trim();render()}});
-setTimeout(()=>{if(navigator.onLine||true)synLoad()},4000);
-})();
-</script>
-
-</body>`);w.document.close();w.print()}}
+ else if(a==='jpr'){const i=$('#jq');if(!i||!i.src)return toast('استنى الكود يظهر');const w=window.open('','_blank');if(w){w.document.write(`<body style="text-align:center;font-family:sans-serif"><h2>انضم لخدمة الكنيسة</h2><img src="${i.src}" width="300"><p dir="ltr">${esc(location.origin+location.pathname)}</p><\/body>`);w.document.close();w.print()}}
  else if(a==='cr'){crSel=D.x;document.querySelectorAll('.cr').forEach(x=>x.classList.remove('bg-acc','text-white'));b.classList.add('bg-acc','text-white')}
  else if(a==='crs'){const tx=($('#crt').value||'').trim();if(!crSel&&!tx)return toast('اختار النتيجة أو اكتب ملاحظة');(S.notes[D.id]=S.notes[D.id]||[]).push({ts:Date.now(),type:'اتصال',text:[crSel,tx].filter(Boolean).join(' — ')});save();$('#sheet').classList.add('hidden');toast('اتسجلت في ملاحظاته ✓')}
  else if(a==='vrec')vrec(D.id);
