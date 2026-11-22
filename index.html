@@ -2214,9 +2214,22 @@ const vGmsg=()=>`<div class="space-y-3"><div class="${card} !mt-0 text-xs text-m
 const sec=(l)=>l.map((e,i)=>`<details class="bg-card border border-line rounded-2xl p-3" ${l.length===1?'open':''}><summary class="font-bold cursor-pointer">${esc(e.h||'')}</summary><div class="text-sm mt-2 whitespace-pre-line leading-8">${esc(e.t||'')}</div></details>`).join('');
 const vAgp=()=>{const n=need('agpeya');if(n)return n;const H=D.agpeya.hours||[],i=ui.ah;
  return i==null?`<div class="space-y-3">${H.map((h,k)=>`<button data-z="ah" data-i="${k}" class="w-full bg-card border border-line rounded-2xl p-4 text-start font-bold">${esc(h.name)}</button>`).join('')}</div>`:`<div class="space-y-3"><button data-z="ah" data-i="" class="text-sm text-acc">← كل الساعات</button><h2 class="font-bold">${esc(H[i].name)}</h2>${sec(H[i].sections||[])}</div>`};
-const qkey=o=>{const t=now();t.setDate(t.getDate()+o);const c=copOf(t);return{k:c.m+'-'+c.d,c,t}};
-const vQot=()=>{const n=need('qotmaras');if(n)return n;const o=ui.qo||0,{k,c,t}=qkey(o),l=(D.qotmaras.days||D.qotmaras)[k]||[];
- return `<div class="space-y-3"><div class="flex items-center justify-between"><button data-z="qn" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><div class="text-center"><b>${c.d} ${MNm[c.m-1]}</b><div class="text-xs text-mute">${arDate(t)}</div></div><button data-z="qn" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>${sec(l)||'<p class="text-center text-mute py-6">مفيش قراءات لليوم ده</p>'}</div>`};
+const KT={},kdate=o=>{const t=now();t.setDate(t.getDate()+o);return t},kstr=t=>String(t.getDate()).padStart(2,'0')+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+t.getFullYear(),
+ KAPI=s=>'https://api.katameros.app/readings/gregorian/'+s+'?languageId=3';
+async function kLoad(s){if(KT[s])return;KT[s]='busy';
+ try{const d=await idb();let v=await new Promise(res=>{const q=d.transaction('k').objectStore('k').get('kat-'+s);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});
+  if(!v){const r=await fetch(KAPI(s));if(!r.ok)throw 0;v=await r.json();if(!v||!v.sections)throw 0;await new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'kat-'+s);t.oncomplete=res;t.onerror=res})}
+  KT[s]=v}catch(_){KT[s]='err'}
+ if(ui.tab==='more'&&ui.sub==='qot')render()}
+const strip=h=>String(h||'').replace(/<\/p>\s*<p>/g,'\n\n').replace(/<br\s*\/?>/g,'\n').replace(/<[^>]+>/g,'').replace(/\r\n|\r/g,'\n').trim();
+const kRead=r=>(r.title?`<div class="font-bold mt-2">${esc(r.title)}</div>`:'')+(r.introduction?`<div class="text-xs text-mute mt-1">${esc(strip(r.introduction))}</div>`:'')
+ +(r.passages||[]).map(p=>`<div class="mt-2"><div class="text-xs text-acc font-bold">${esc(p.bookTranslation||'')} ${esc(p.ref||'')}</div><div class="text-sm leading-8">${(p.verses||[]).map(v=>`<sup class="text-acc" style="font-size:.6em">${v.number}</sup>${esc(v.text)}`).join(' ')}</div></div>`).join('')
+ +(r.html?`<div class="text-sm leading-8 whitespace-pre-line mt-2">${esc(strip(r.html))}</div>`:'')+(r.conclusion?`<div class="text-xs text-mute mt-2">${esc(strip(r.conclusion))}</div>`:'');
+const vQot=()=>{const o=ui.qo||0,t=kdate(o),s=kstr(t),c=copOf(t),v=KT[s];
+ const nav=`<div class="flex items-center justify-between"><button data-z="qn" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><div class="text-center"><b>${c.d} ${MNm[c.m-1]}</b><div class="text-xs text-mute">${arDate(t)}</div></div><button data-z="qn" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>`;
+ if(!v||v==='busy'){kLoad(s);return `<div class="space-y-3">${nav}<p class="text-center text-mute py-10">جاري تحميل القراءات…</p></div>`}
+ if(v==='err')return `<div class="space-y-3">${nav}<p class="text-center text-mute py-6">تعذّر تحميل قراءات اليوم. اتأكد من الإنترنت (مطلوب أول مرة لكل يوم).</p><button data-z="qr" data-s="${s}" class="${BT}">إعادة المحاولة</button><a href="${KAPI(s)}" target="_blank" rel="noopener" class="block text-center text-xs text-acc">فتح القراءات في المتصفح</a></div>`;
+ return `<div class="space-y-1">${nav}${v.sections.map(sec=>`<h2 class="font-extrabold mt-4">${esc(sec.title||'')}</h2>`+(sec.subSections||[]).map(ss=>`<details class="bg-card border border-line rounded-2xl p-3 mt-2"><summary class="font-bold cursor-pointer">${esc(ss.title||'')}</summary>${(ss.readings||[]).map(kRead).join('<hr class="border-line my-2">')}</details>`).join('')).join('')}</div>`};
 
 /* ---- 5) الكتاب المقدس ---- */
 const fs=()=>{try{return +(localStorage.getItem('kenisty_bfs')||18)}catch(_){return 18}};
@@ -2258,6 +2271,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-z]')
  else if(a==='fs'){try{localStorage.setItem('kenisty_bfs',Math.max(14,Math.min(34,fs()+(+D2.n))))}catch(_){}render()}
  else if(a==='cv'){try{await navigator.clipboard.writeText(D2.vt);toast('اتنسخت الآية ✓')}catch(_){}}
  else if(a==='pd'){S.bible=S.bible||{start:t,done:{}};const arr=S.bible.done[t]=S.bible.done[t]||[],i=arr.indexOf('me');i<0?arr.push('me'):arr.splice(i,1);save();render()}
+ else if(a==='qr'){delete KT[D2.s];render()}
  else if(a==='plan'){planOpen();if(!D.bible)docLoad('bible')}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='bqi'){ui.bq=e.target.value.trim();render()}});
