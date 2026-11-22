@@ -1776,7 +1776,7 @@ const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCa
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
 
 /* نقسّم الحالة لمستندات صغيرة في users/{uid}/c (مساحة خاصة بكل مستخدم): meta / p / s_التاريخ / r_التاريخ / n_كود المخدوم */
-const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[],tpls:s.tpls||[],words:s.words||[]}};
+const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[],tpls:s.tpls||[],words:s.words||[],roster:s.roster||null,bible:s.bible||null}};
  Object.entries(s.sess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['s_'+d]=v});
  Object.entries(s.vsess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['v_'+d]=v});
  (s.reports||[]).forEach(r=>o['r_'+r.date]=r);
@@ -1812,7 +1812,7 @@ function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j,d.d
  docs.forEach(([id,j,nm])=>{if(id.startsWith('sv_')){ovl.push([id,j,nm]);return}const v=JSON.parse(j);last[id]=j;
   if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members;n.servants=v.servants||[];n.seqv=v.seqv||1}
   else if(id==='p'){n.pf=v.pf;n.plan=v.plan;n.lect=v.lect||[];n.cal=v.cal||[];n.alumni=v.alumni||[];n.lastPromo=v.promo||null;n.visits=v.visits||[]}
-  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[];n.tpls=v.tpls||[];n.words=v.words||[]}
+  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[];n.tpls=v.tpls||[];n.words=v.words||[];n.roster=v.roster||null;n.bible=v.bible||null}
   else if(id.startsWith('s_'))n.sess[id.slice(2)]=v;
   else if(id.startsWith('r_'))n.reports.push(v);
   else if(id.startsWith('v_'))n.vsess[id.slice(2)]=v;
@@ -1991,5 +1991,216 @@ if ('serviceWorker' in navigator) {
   setInterval(() => { if (navigator.onLine) sync(); }, 60000);                                // and once a minute while open
 }
 </script>
+<script>
+/* ===== v28: ملخص الأسبوع • مخدوم اليوم • عدّاد المناسبات • QR الانضمام • ملاحظة الاتصال • تقويم الشهر • ملاحظة صوتية • جدول الخدمة • خطة القراءة ===== */
+(()=>{
+const dd=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)},
+ ds=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')},
+ now=()=>{const d=new Date();d.setHours(12,0,0,0);return d},
+ until=d=>Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate(),12)-now())/864e5),
+ when=n=>n===0?'النهارده':n===1?'بكرة':'باقي '+n+' أيام',
+ BT='w-full bg-acc text-white font-bold rounded-xl py-3',BO='w-full border border-line rounded-xl py-3 text-sm font-bold',
+ sheet=h=>{$('#sb').innerHTML=h;$('#sheet').classList.remove('hidden')},
+ wsh=t=>window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener'),
+ cp=async t=>{try{await navigator.clipboard.writeText(t);toast('اتنسخ ✓')}catch(_){toast('تعذّر النسخ')}},
+ DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+
+/* 1) ملخص الأسبوع نصًا */
+const wsText=()=>{const d=Object.keys(S.sess||{}).filter(k=>Object.keys(S.sess[k]||{}).length).sort().pop();if(!d)return '';
+ const r=wkData(d,'all'),f=S.members.filter(m=>(m.att||[]).length>=4&&m.att.slice(-4).every(x=>x===1)).map(m=>m.name);
+ return `📋 ملخص الأسبوع — ${arDate(dd(d))}\n✅ الحضور: ${r.p+r.l} من ${r.p+r.l+r.a} (${r.rate}%)\n❌ الغايبين (${r.a}):${r.abs.map(n=>'\n• '+n).join('')||' —'}\n🌟 حضروا ٤ أسابيع ورا بعض (${f.length}):${f.map(n=>'\n• '+n).join('')||' —'}\n🙏 ربنا يبارك الخدمة`};
+const vWsum=()=>{const t=wsText();return t?`<div class="space-y-3"><textarea id="wst" rows="14" class="${inp}">${esc(t)}</textarea><button data-v="wsw" class="${BT}">📤 إرسال واتساب (أمين الخدمة / جروب الخدام)</button><button data-v="wsc" class="${BO}">نسخ النص</button></div>`:'<p class="text-center text-mute py-10">سجّل حضور جلسة أولًا</p>'};
+
+/* 2) مخدوم اليوم للصلاة */
+const pray=()=>{const l=[...S.members].sort((a,b)=>a.id<b.id?-1:1);return l.length?l[Math.floor(now()/864e5)%l.length]:null};
+const prayCard=()=>{const m=pray();return m?`<button data-v="pray" data-id="${m.id}" class="w-full bg-card border border-acc/30 rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="text-2xl">🙏</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">نصلي النهارده من أجل…</div><div class="font-bold truncate sens">${esc(m.name)}</div></div><span class="text-xs text-acc">الملف ›</span></button>`:''};
+
+/* 3) عدّاد المناسبات */
+const cdItems=()=>{const o=[],n0=now(),to=new Date(+n0+60*864e5);
+ (S.trips||[]).forEach(t=>{if(t.date){const n=until(dd(String(t.date).slice(0,10)));if(n>=0&&n<=60)o.push({n,t:'🚌 '+t.name})}});
+ try{calEvents(n0,to).forEach(e=>{if(e.k==='mine'||e.k==='feast'){const n=until(e.dt);if(n>=0&&n<=60)o.push({n,t:e.n})}})}catch(_){}
+ const seen=new Set();return o.sort((a,b)=>a.n-b.n).filter(x=>!seen.has(x.t)&&seen.add(x.t)).slice(0,4)};
+const cdCard=()=>{const l=cdItems();return l.length?`<div class="${card}"><h2 class="font-bold mb-1">⏳ المناسبات القريبة</h2>${l.map(x=>`<div class="flex justify-between items-center py-1.5 text-sm"><span class="truncate">${esc(x.t)}</span><b class="${x.n<=1?'text-warn':'text-acc'} shrink-0 ms-2">${when(x.n)}</b></div>`).join('')}<button data-go="mgrid" class="text-xs text-acc mt-1">عرض تقويم الشهر ›</button></div>`:''};
+
+/* 4) QR الانضمام */
+const vJoin=()=>{const u=location.origin+location.pathname;setTimeout(()=>loadQR(()=>{const i=$('#jq');if(i)i.src=qrImg(u)}),0);
+ return `<div class="space-y-3"><div class="${card} !mt-0 text-center"><h2 class="font-bold">QR انضمام الخدام</h2><p class="text-sm text-mute mt-1">الخادم الجديد يمسح الكود بالكاميرا فيفتح البرنامج. كود الدعوة يتبعت له لوحده.</p><img id="jq" class="mx-auto mt-3 bg-white p-2 rounded-xl w-56 h-56" alt="QR"><div class="text-xs text-mute mt-2 break-all" dir="ltr">${esc(u)}</div></div><button data-v="jsh" class="${BT}">📤 مشاركة الرابط واتساب</button><button data-v="jpr" class="${BO}">🖨️ طباعة الكود</button></div>`};
+
+/* 5) ملاحظة بعد الاتصال */
+let pend=null,crSel='';
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"]');if(!a)return;const ph=a.getAttribute('href').slice(4).replace(/\D/g,'').slice(-9);
+ const m=S.members.find(x=>x.phone&&String(x.phone).replace(/\D/g,'').slice(-9)===ph);if(m)pend={id:m.id,ts:Date.now()}},true);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||!pend)return;const p=pend;pend=null;const dt=Date.now()-p.ts;if(dt>36e5||dt<3000)return;callSheet(p.id)});
+const callSheet=id=>{const m=findM(id);if(!m)return;crSel='';sheet(`<div class="max-h-[84vh] overflow-y-auto"><h2 class="font-extrabold">📞 مكالمة ${esc(m.name)}</h2><p class="text-xs text-mute">رد؟ فيه إيه؟</p><div class="grid grid-cols-2 gap-2 mt-3">${['رد وكله تمام','رد وعنده احتياج','مردّش','الرقم غلط'].map(x=>`<button data-v="cr" data-x="${x}" class="cr border border-line rounded-xl py-2.5 text-sm">${x}</button>`).join('')}</div><textarea id="crt" rows="3" class="${inp}" placeholder="ملاحظات (اختياري)"></textarea><button data-v="crs" data-id="${id}" class="${BT} mt-3">حفظ في ملاحظاته</button></div>`)};
+
+/* 6) تقويم الشهر */
+const C={feast:'#f59e0b',fast:'#a78bfa',mine:'#38bdf8',trip:'#38bdf8',lect:'#34d399',bd:'#f472b6'};
+const vMgrid=()=>{const o=ui.mgo||0,b=now();b.setDate(1);b.setMonth(b.getMonth()+o);const y=b.getFullYear(),mo=b.getMonth(),first=new Date(y,mo,1,12),last=new Date(y,mo+1,0,12),ev={},today=ds(now());
+ const add=(d,k,n)=>{const s=ds(d);(ev[s]=ev[s]||[]).push({k,n})};
+ try{calEvents(first,last).forEach(e=>{if(e.k==='fast'){const end=e.end||e.dt;for(let t=new Date(e.dt);t<=end&&t<=last;t.setDate(t.getDate()+1))if(t>=first)add(t,'fast',e.n)}else if(e.dt>=first)add(e.dt,e.k,e.n)})}catch(_){}
+ (S.trips||[]).forEach(t=>{if(t.date&&String(t.date).slice(0,7)===ds(first).slice(0,7))add(dd(String(t.date).slice(0,10)),'trip','🚌 '+t.name)});
+ (S.lect||[]).forEach(l=>{for(let d=1;d<=last.getDate();d++){const t=new Date(y,mo,d,12);if(t.getDay()===l.day)add(t,'lect','🎤 '+(l.title||l.name||'محاضرة')+(l.time?' '+l.time:''))}});
+ S.members.forEach(m=>{if(m.bd&&+m.bd.slice(0,2)===mo+1)add(new Date(y,mo,+m.bd.slice(3),12),'bd','🎂 '+m.name)});
+ const sel=ui.mgd&&ui.mgd.slice(0,7)===ds(first).slice(0,7)?ui.mgd:(today.slice(0,7)===ds(first).slice(0,7)?today:ds(first));
+ const cells=Array.from({length:first.getDay()},()=>'<div></div>').concat(Array.from({length:last.getDate()},(_,i)=>{const s=ds(new Date(y,mo,i+1,12)),ks=[...new Set((ev[s]||[]).map(x=>x.k))].slice(0,3);
+  return `<button data-v="mday" data-d="${s}" class="aspect-square rounded-xl text-sm relative ${s===sel?'bg-acc text-white font-bold':'bg-card border border-line'} ${s===today?'ring-1 ring-warn':''}">${i+1}<span class="absolute bottom-1 inset-x-0 flex justify-center gap-0.5">${ks.map(k=>`<i style="width:5px;height:5px;border-radius:9px;background:${C[k]}"></i>`).join('')}</span></button>`}));
+ const L=[...new Map((ev[sel]||[]).map(x=>[x.n,x])).values()];
+ return `<div class="space-y-3"><div class="flex items-center justify-between"><button data-v="mg" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><b>${b.toLocaleDateString('ar-EG',{month:'long',year:'numeric'})}</b><button data-v="mg" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>
+ <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-mute">${DAYS.map(n=>`<div>${n.slice(0,3)}</div>`).join('')}</div><div class="grid grid-cols-7 gap-1">${cells.join('')}</div>
+ <div class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-mute">${[['feast','أعياد'],['fast','أصوام'],['mine','مناسبات/رحلات'],['lect','محاضرات'],['bd','ميلاد']].map(([k,n])=>`<span><i style="display:inline-block;width:8px;height:8px;border-radius:9px;background:${C[k]}"></i> ${n}</span>`).join('')}</div>
+ <div class="${card}"><h2 class="font-bold mb-1">${arDate(dd(sel))}</h2>${L.length?L.map(x=>`<div class="text-sm py-1" style="border-inline-start:3px solid ${C[x.k]};padding-inline-start:8px">${esc(x.n)}</div>`).join(''):'<p class="text-sm text-mute">مفيش حاجة في اليوم ده</p>'}</div></div>`};
+
+/* 7) ملاحظة صوتية للمخدوم (على الجهاز) */
+const vdb=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_voice',1);r.onupgradeneeded=()=>r.result.createObjectStore('a',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const vput=async rec=>{const d=await vdb();return new Promise((res,rej)=>{const t=d.transaction('a','readwrite');t.objectStore('a').put(rec);t.oncomplete=res;t.onerror=()=>rej(t.error)})};
+const vall=async()=>{const d=await vdb();return new Promise((res,rej)=>{const q=d.transaction('a').objectStore('a').getAll();q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})};
+const vrm=async k=>{const d=await vdb();return new Promise(res=>{const t=d.transaction('a','readwrite');t.objectStore('a').delete(k);t.oncomplete=res})};
+const vlist=async id=>{const el=$('#vl');if(!el)return;let l=[];try{l=(await vall()).filter(x=>x.mid===id).sort((a,b)=>b.ts-a.ts)}catch(_){}
+ el.innerHTML=l.map(x=>`<div class="flex items-center gap-2"><audio controls preload="none" src="${URL.createObjectURL(x.blob)}" class="flex-1 h-9 min-w-0"></audio><span class="text-[10px] text-mute">${new Date(x.ts).toLocaleDateString('ar-EG',{day:'numeric',month:'short'})}</span><button data-v="vdel" data-k="${x.id}" data-mid="${id}" class="text-bad text-sm" aria-label="حذف">🗑</button></div>`).join('')||'<p class="text-xs text-mute">مفيش تسجيلات</p>'};
+let REC=null;
+async function vrec(id){if(REC){REC.stop();return}
+ if(!navigator.mediaDevices||!window.MediaRecorder)return toast('التسجيل مش مدعوم — افتح من كروم');
+ let st;try{st=await navigator.mediaDevices.getUserMedia({audio:true})}catch(_){return toast('اسمح بالميكروفون')}
+ const ch=[],r=new MediaRecorder(st),t0=Date.now();
+ const iv=setInterval(()=>{const s=Math.round((Date.now()-t0)/1e3),b=$('#vrb');if(b)b.textContent='⏹ '+s+'/30';if(s>=30)r.stop()},500);
+ r.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ r.onstop=async()=>{clearInterval(iv);st.getTracks().forEach(x=>x.stop());REC=null;const blob=new Blob(ch,{type:r.mimeType||'audio/webm'}),dur=Math.round((Date.now()-t0)/1e3);
+  try{await vput({id:'v'+Date.now(),mid:id,ts:Date.now(),dur,blob});(S.notes[id]=S.notes[id]||[]).push({ts:Date.now(),type:'صوت',text:'🎙️ ملاحظة صوتية '+dur+' ث'});save()}catch(_){toast('تعذّر الحفظ')}
+  const b=$('#vrb');if(b)b.textContent='تسجيل ٣٠ ثانية';vlist(id)};
+ REC=r;r.start()}
+const _ns=noteSheet;noteSheet=function(id){_ns(id);const h=$('#sb>div');if(h&&!$('#vl')){h.insertAdjacentHTML('beforeend',`<div class="mt-3 border-t border-line pt-3"><div class="flex items-center justify-between"><b class="text-sm">🎙️ ملاحظات صوتية</b><button data-v="vrec" data-id="${id}" id="vrb" class="text-xs bg-acc/15 text-acc rounded-lg px-3 py-1.5">تسجيل ٣٠ ثانية</button></div><div id="vl" class="mt-2 space-y-2"></div></div>`);vlist(id)}};
+
+/* 8) جدول الخدمة (الدور) */
+const RS=()=>S.roster=S.roster||{roles:['تحضير','درس','ألحان','استقبال'],day:5,a:{}};
+const rdates=()=>{const r=RS(),o=[],t=now();t.setDate(t.getDate()+(r.day-t.getDay()+7)%7);for(let i=0;i<4;i++){o.push(ds(t));t.setDate(t.getDate()+7)}return o};
+const rEmpty=d=>{const r=RS();return r.roles.filter(x=>!(r.a[d]||{})[x])};
+const rText=()=>{const r=RS(),sv=S.servants||[];return '📅 جدول الخدمة\n'+rdates().map(d=>arDate(dd(d))+'\n'+r.roles.map(x=>'• '+x+': '+((sv.find(s=>s.id===(r.a[d]||{})[x])||{}).name||'—')).join('\n')).join('\n\n')};
+const vRoster=()=>{const r=RS(),sv=S.servants||[];if(!sv.length)return '<p class="text-center text-mute py-10">ضيف الخدام أولًا من شاشة الخدام</p>';
+ return `<div class="space-y-3"><div class="${card} !mt-0"><label class="text-xs text-mute">يوم الخدمة</label><select data-vr="day" class="${inp}">${DAYS.map((n,i)=>`<option value="${i}" ${i===r.day?'selected':''}>${n}</option>`).join('')}</select></div>
+ ${rdates().map(d=>{const e=rEmpty(d);return `<div class="${card}"><div class="flex justify-between"><b>${arDate(dd(d))}</b>${e.length?`<span class="text-xs text-warn">⚠️ ${e.length} فاضي</span>`:'<span class="text-xs text-ok">✓ كامل</span>'}</div>${r.roles.map(x=>`<div class="flex items-center gap-2 mt-2"><span class="w-20 text-sm shrink-0">${esc(x)}</span><select data-vr="as" data-d="${d}" data-r="${esc(x)}" class="${inp} !mt-0"><option value="">— فاضي —</option>${sv.map(s=>`<option value="${s.id}" ${(r.a[d]||{})[x]===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>`).join('')}</div>`}).join('')}
+ <div class="grid grid-cols-3 gap-2"><button data-v="rsh" class="bg-ok text-white font-bold rounded-xl py-3 text-xs">واتساب</button><button data-v="radd" class="border border-line rounded-xl py-3 text-xs">+ دور</button><button data-v="rdel" class="border border-line rounded-xl py-3 text-xs text-bad">حذف دور</button></div></div>`};
+const rosterAlert=()=>{if(!S.roster)return '';const d=rdates()[0],n=until(dd(d)),e=rEmpty(d);return n<=7&&e.length?`<button data-go="roster" class="w-full bg-warn/10 border border-warn/40 rounded-2xl p-3 mt-3 text-start text-sm">⚠️ جدول الخدمة ${when(n)}: دور فاضي (${e.map(esc).join('، ')})</button>`:''};
+
+/* 9) خطة قراءة الكتاب المقدس */
+const CH=[['متى',28],['مرقس',16],['لوقا',24],['يوحنا',21]].flatMap(([n,c])=>Array.from({length:c},(_,i)=>n+' '+(i+1)));
+const BB=()=>S.bible=S.bible||{start:ds(now()),done:{}};
+const chOf=d=>CH[((Math.round((dd(d)-dd(BB().start))/864e5)%CH.length)+CH.length)%CH.length];
+const bStreak=()=>{const b=BB();let c=0,t=now();if(!(b.done[ds(t)]||[]).includes('me'))t.setDate(t.getDate()-1);while((b.done[ds(t)]||[]).includes('me')){c++;t.setDate(t.getDate()-1)}return c};
+const vBible=()=>{const b=BB(),t=ds(now()),dn=b.done[t]||[],me=dn.includes('me'),sv=S.servants||[];
+ return `<div class="space-y-3"><div class="${card} !mt-0 text-center"><div class="text-xs text-mute">قراءة النهارده</div><div class="text-3xl font-extrabold mt-1">${chOf(t)}</div><div class="text-xs text-mute mt-1">الأناجيل الأربعة — فصل كل يوم</div><button data-v="bk" data-w="me" class="${me?'bg-ok/20 text-ok':'bg-acc text-white'} font-bold rounded-xl py-3 w-full mt-3">${me?'✓ قرأت النهارده':'علّم إنك قرأت'}</button><div class="mt-2 text-sm">🔥 ${bStreak()} يوم ورا بعض</div></div>
+ ${sv.length?`<div class="${card}"><h2 class="font-bold mb-2">الخدام — ${dn.filter(x=>x!=='me').length} من ${sv.length}</h2>${sv.map(x=>`<label class="flex items-center gap-3 py-1.5"><input type="checkbox" class="w-5 h-5" data-v="bk" data-w="${x.id}" ${dn.includes(x.id)?'checked':''}><span>${esc(x.name)}</span></label>`).join('')}<button data-v="bks" class="${BO} mt-3">📤 تذكير واتساب للخدام</button></div>`:''}</div>`};
+
+/* ===== ربط الشاشات ===== */
+const SUB={wsum:['ملخص الأسبوع نصًا',vWsum],mgrid:['تقويم الشهر',vMgrid],joinqr:['QR الانضمام',vJoin],roster:['جدول الخدمة',vRoster],bible:['خطة القراءة',vBible]};
+Object.keys(SUB).forEach(k=>SUBT[k]=SUB[k][0]);
+const menu=()=>[['wsum','📤','ملخص الأسبوع نصًا','رسالة جاهزة لأمين الخدمة أو جروب الخدام'],['mgrid','📅','تقويم الشهر','كل المناسبات في شبكة واحدة'],['roster','🗓️','جدول الخدمة','مين بيخدم إيه كل أسبوع'],['bible','📖','خطة القراءة','فصل كل يوم مع سلسلة أيام'],['joinqr','🔳','QR الانضمام','كود للخدام الجداد']]
+ .map(([k,i,t,s])=>`<button data-go="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div></button>`).join('');
+const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+menu())};
+const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+prayCard()+rosterAlert()+cdCard()+`<div class="grid grid-cols-2 gap-2 mt-3"><button data-go="wsum" class="bg-card border border-line rounded-xl py-2.5 text-sm">📤 ملخص الأسبوع</button><button data-go="bible" class="bg-card border border-line rounded-xl py-2.5 text-sm">📖 قراءة اليوم</button></div>`)};
+
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-v]');if(!b)return;const D=b.dataset,a=D.v,t=ds(now());
+ if(a==='wsw')wsh($('#wst').value);
+ else if(a==='wsc')cp($('#wst').value);
+ else if(a==='pray')noteSheet(D.id);
+ else if(a==='mg'){ui.mgo=(ui.mgo||0)+(+D.n);render()}
+ else if(a==='mday'){ui.mgd=D.d;render()}
+ else if(a==='jsh')wsh('سلام ونعمة 🙏\nرابط برنامج الخدمة: '+location.origin+location.pathname);
+ else if(a==='jpr'){const i=$('#jq');if(!i||!i.src)return toast('استنى الكود يظهر');const w=window.open('','_blank');if(w){w.document.write(`<body style="text-align:center;font-family:sans-serif"><h2>انضم لخدمة الكنيسة</h2><img src="${i.src}" width="300"><p dir="ltr">${esc(location.origin+location.pathname)}</p><script>
+/* ===== v28b: السنكسار (بحث + سنكسار اليوم) — البيانات في synaxarium.json وتتخزّن على الجهاز ===== */
+(()=>{
+const MN=['توت','بابه','هاتور','كيهك','طوبة','أمشير','برمهات','برمودة','بشنس','بؤونة','أبيب','مسرى','النسيء'],
+ SY={d:null,busy:0},
+ nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه'),
+ db=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_syn',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}),
+ idbGet=async()=>{const d=await db();return new Promise(res=>{const q=d.transaction('k').objectStore('k').get('all');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})},
+ idbSet=async v=>{const d=await db();return new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'all');t.oncomplete=res;t.onerror=res})};
+async function synLoad(){if(SY.d||SY.busy)return;SY.busy=1;
+ try{let v=await idbGet();if(!v){const r=await fetch('synaxarium.json');if(!r.ok)throw 0;v=await r.json();idbSet(v).catch(()=>{})}SY.d=v;SY.idx=null}catch(_){toast('محتاج إنترنت مرة واحدة لتحميل السنكسار');SY.fail=1}
+ SY.busy=0;if(ui.tab==='more'&&ui.sub==='synax')render()}
+const dayAt=o=>{const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()+o);return t};
+const keyAt=o=>{const c=copOf(dayAt(o));return{k:c.m+'-'+c.d,c}};
+const synToday=()=>SY.d?(SY.d[keyAt(0).k]||[]):[];
+const synCard=()=>{const{c}=keyAt(0),l=synToday();return `<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="text-2xl">🕊️</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">سنكسار اليوم — ${c.d} ${MN[c.m-1]}</div><div class="font-bold text-sm truncate">${l.length?esc(l.map(x=>x[0]).join(' • ')):'اضغط لعرض سنكسار اليوم'}</div></div><span class="text-xs text-acc">›</span></button>`};
+function search(q){q=nrm(q.trim());if(q.length<2)return[];if(!SY.idx)SY.idx=Object.entries(SY.d).flatMap(([k,l])=>l.map(e=>({k,n:e[0],nn:nrm(e[0]),t:nrm(e[1])})));
+ const a=SY.idx.filter(x=>x.nn.includes(q)),b=SY.idx.filter(x=>!x.nn.includes(q)&&x.t.includes(q));return a.concat(b).slice(0,30)}
+function vSyn(){if(!SY.d){if(!SY.fail)synLoad();return `<p class="text-center text-mute py-10">${SY.fail?'تعذّر تحميل السنكسار — اتأكد إن ملف synaxarium.json مرفوع جنب index.html وفيه إنترنت':'جاري التحميل…'}</p>`}
+ const o=ui.syo||0,{k,c}=keyAt(o),l=SY.d[k]||[],q=ui.syq||'',res=q?search(q):null;
+ return `<div class="space-y-3"><div class="flex gap-2"><input id="syq" value="${esc(q)}" placeholder="ابحث باسم القديس أو كلمة" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-sy="find" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>
+ ${res?`<div class="${card} !mt-0"><div class="flex justify-between mb-1"><h2 class="font-bold">نتائج (${res.length})</h2><button data-sy="clr" class="text-xs text-acc">مسح</button></div>${res.map(x=>{const[m,d]=x.k.split('-');return `<button data-sy="go" data-k="${x.k}" class="w-full text-start py-2 border-b border-line last:border-0 text-sm"><div class="font-bold">${esc(x.n)}</div><div class="text-xs text-mute">${d} ${MN[m-1]}</div></button>`}).join('')||'<p class="text-sm text-mute">مفيش نتائج</p>'}</div>`:''}
+ <div class="flex items-center justify-between"><button data-sy="nav" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><div class="text-center"><b>${c.d} ${MN[c.m-1]}</b><div class="text-xs text-mute">${arDate(dayAt(o))}</div></div><button data-sy="nav" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>
+ ${o?'<button data-sy="today" class="text-xs text-acc">← رجوع لليوم</button>':''}
+ ${l.map((e,i)=>`<details class="bg-card border border-line rounded-2xl p-3" ${l.length===1?'open':''}><summary class="font-bold cursor-pointer">${esc(e[0])}</summary><div class="text-sm mt-2 whitespace-pre-line leading-7">${esc(e[1])}</div></details>`).join('')||'<p class="text-center text-mute py-6">مفيش بيانات لليوم ده</p>'}
+ ${l.length?'<button data-sy="share" class="w-full border border-ok/40 text-ok font-bold rounded-xl py-3 text-sm">📤 مشاركة سنكسار اليوم واتساب</button>':''}</div>`}
+SUBT.synax='السنكسار';
+const _vm=vMore;vMore=function(){if(ui.sub==='synax')return vSyn();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🕊️</div><div class="flex-1"><div class="font-bold">السنكسار</div><div class="text-xs text-mute">سيرة قديس اليوم وبحث في كل الأيام</div></div></button>`)};
+const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+synCard())};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-sy]');if(!b)return;const D=b.dataset,a=D.sy;
+ if(a==='nav'){ui.syo=(ui.syo||0)+(+D.n);render()}
+ else if(a==='today'){ui.syo=0;render()}
+ else if(a==='find'){ui.syq=($('#syq').value||'').trim();render()}
+ else if(a==='clr'){ui.syq='';render()}
+ else if(a==='go'){for(let o=0;o<400;o++){if(keyAt(o).k===D.k){ui.syo=o;break}}ui.syq='';render();scrollTo(0,0)}
+ else if(a==='share'){const{c}=keyAt(ui.syo||0),l=SY.d[keyAt(ui.syo||0).k]||[];window.open('https://wa.me/?text='+encodeURIComponent('🕊️ سنكسار '+c.d+' '+MN[c.m-1]+'\n'+l.map(x=>'• '+x[0]).join('\n')),'_blank','noopener')}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='syq'){ui.syq=e.target.value.trim();render()}});
+setTimeout(()=>{if(navigator.onLine||true)synLoad()},4000);
+})();
+</script>
+
+</body>`);w.document.close();w.print()}}
+ else if(a==='cr'){crSel=D.x;document.querySelectorAll('.cr').forEach(x=>x.classList.remove('bg-acc','text-white'));b.classList.add('bg-acc','text-white')}
+ else if(a==='crs'){const tx=($('#crt').value||'').trim();if(!crSel&&!tx)return toast('اختار النتيجة أو اكتب ملاحظة');(S.notes[D.id]=S.notes[D.id]||[]).push({ts:Date.now(),type:'اتصال',text:[crSel,tx].filter(Boolean).join(' — ')});save();$('#sheet').classList.add('hidden');toast('اتسجلت في ملاحظاته ✓')}
+ else if(a==='vrec')vrec(D.id);
+ else if(a==='vdel'){if(confirm('حذف التسجيل؟')){await vrm(D.k);vlist(D.mid)}}
+ else if(a==='bk'){const bb=BB(),arr=bb.done[t]=bb.done[t]||[],i=arr.indexOf(D.w);i<0?arr.push(D.w):arr.splice(i,1);save();render()}
+ else if(a==='bks')wsh('📖 قراءة النهارده: '+chOf(t)+' — ✓ علّم إنك قرأت في البرنامج 🙏');
+ else if(a==='rsh')wsh(rText());
+ else if(a==='radd'){const n=(prompt('اسم الدور الجديد؟')||'').trim();if(n&&!RS().roles.includes(n)){RS().roles.push(n);save();render()}}
+ else if(a==='rdel'){const r=RS(),n=(prompt('اكتب اسم الدور اللي هيتحذف:\n'+r.roles.join('، '))||'').trim();if(r.roles.includes(n)){r.roles=r.roles.filter(x=>x!==n);save();render()}}
+});
+document.addEventListener('change',e=>{const s=e.target.closest('[data-vr]');if(!s)return;const r=RS();if(s.dataset.vr==='day')r.day=+s.value;else(r.a[s.dataset.d]=r.a[s.dataset.d]||{})[s.dataset.r]=s.value;save();render()});
+})();
+</script>
+
+<script>
+/* ===== v28b: السنكسار (بحث + سنكسار اليوم) — البيانات في synaxarium.json وتتخزّن على الجهاز ===== */
+(()=>{
+const MN=['توت','بابه','هاتور','كيهك','طوبة','أمشير','برمهات','برمودة','بشنس','بؤونة','أبيب','مسرى','النسيء'],
+ SY={d:null,busy:0},
+ nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه'),
+ db=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_syn',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}),
+ idbGet=async()=>{const d=await db();return new Promise(res=>{const q=d.transaction('k').objectStore('k').get('all');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})},
+ idbSet=async v=>{const d=await db();return new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'all');t.oncomplete=res;t.onerror=res})};
+async function synLoad(){if(SY.d||SY.busy)return;SY.busy=1;
+ try{let v=await idbGet();if(!v){const r=await fetch('synaxarium.json');if(!r.ok)throw 0;v=await r.json();idbSet(v).catch(()=>{})}SY.d=v;SY.idx=null}catch(_){toast('محتاج إنترنت مرة واحدة لتحميل السنكسار');SY.fail=1}
+ SY.busy=0;if(ui.tab==='more'&&ui.sub==='synax')render()}
+const dayAt=o=>{const t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()+o);return t};
+const keyAt=o=>{const c=copOf(dayAt(o));return{k:c.m+'-'+c.d,c}};
+const synToday=()=>SY.d?(SY.d[keyAt(0).k]||[]):[];
+const synCard=()=>{const{c}=keyAt(0),l=synToday();return `<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 mt-3 flex items-center gap-3 text-start"><div class="text-2xl">🕊️</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">سنكسار اليوم — ${c.d} ${MN[c.m-1]}</div><div class="font-bold text-sm truncate">${l.length?esc(l.map(x=>x[0]).join(' • ')):'اضغط لعرض سنكسار اليوم'}</div></div><span class="text-xs text-acc">›</span></button>`};
+function search(q){q=nrm(q.trim());if(q.length<2)return[];if(!SY.idx)SY.idx=Object.entries(SY.d).flatMap(([k,l])=>l.map(e=>({k,n:e[0],nn:nrm(e[0]),t:nrm(e[1])})));
+ const a=SY.idx.filter(x=>x.nn.includes(q)),b=SY.idx.filter(x=>!x.nn.includes(q)&&x.t.includes(q));return a.concat(b).slice(0,30)}
+function vSyn(){if(!SY.d){if(!SY.fail)synLoad();return `<p class="text-center text-mute py-10">${SY.fail?'تعذّر تحميل السنكسار — اتأكد إن ملف synaxarium.json مرفوع جنب index.html وفيه إنترنت':'جاري التحميل…'}</p>`}
+ const o=ui.syo||0,{k,c}=keyAt(o),l=SY.d[k]||[],q=ui.syq||'',res=q?search(q):null;
+ return `<div class="space-y-3"><div class="flex gap-2"><input id="syq" value="${esc(q)}" placeholder="ابحث باسم القديس أو كلمة" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-sy="find" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>
+ ${res?`<div class="${card} !mt-0"><div class="flex justify-between mb-1"><h2 class="font-bold">نتائج (${res.length})</h2><button data-sy="clr" class="text-xs text-acc">مسح</button></div>${res.map(x=>{const[m,d]=x.k.split('-');return `<button data-sy="go" data-k="${x.k}" class="w-full text-start py-2 border-b border-line last:border-0 text-sm"><div class="font-bold">${esc(x.n)}</div><div class="text-xs text-mute">${d} ${MN[m-1]}</div></button>`}).join('')||'<p class="text-sm text-mute">مفيش نتائج</p>'}</div>`:''}
+ <div class="flex items-center justify-between"><button data-sy="nav" data-n="-1" class="w-10 h-10 rounded-xl bg-card border border-line">›</button><div class="text-center"><b>${c.d} ${MN[c.m-1]}</b><div class="text-xs text-mute">${arDate(dayAt(o))}</div></div><button data-sy="nav" data-n="1" class="w-10 h-10 rounded-xl bg-card border border-line">‹</button></div>
+ ${o?'<button data-sy="today" class="text-xs text-acc">← رجوع لليوم</button>':''}
+ ${l.map((e,i)=>`<details class="bg-card border border-line rounded-2xl p-3" ${l.length===1?'open':''}><summary class="font-bold cursor-pointer">${esc(e[0])}</summary><div class="text-sm mt-2 whitespace-pre-line leading-7">${esc(e[1])}</div></details>`).join('')||'<p class="text-center text-mute py-6">مفيش بيانات لليوم ده</p>'}
+ ${l.length?'<button data-sy="share" class="w-full border border-ok/40 text-ok font-bold rounded-xl py-3 text-sm">📤 مشاركة سنكسار اليوم واتساب</button>':''}</div>`}
+SUBT.synax='السنكسار';
+const _vm=vMore;vMore=function(){if(ui.sub==='synax')return vSyn();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🕊️</div><div class="flex-1"><div class="font-bold">السنكسار</div><div class="text-xs text-mute">سيرة قديس اليوم وبحث في كل الأيام</div></div></button>`)};
+const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+synCard())};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-sy]');if(!b)return;const D=b.dataset,a=D.sy;
+ if(a==='nav'){ui.syo=(ui.syo||0)+(+D.n);render()}
+ else if(a==='today'){ui.syo=0;render()}
+ else if(a==='find'){ui.syq=($('#syq').value||'').trim();render()}
+ else if(a==='clr'){ui.syq='';render()}
+ else if(a==='go'){for(let o=0;o<400;o++){if(keyAt(o).k===D.k){ui.syo=o;break}}ui.syq='';render();scrollTo(0,0)}
+ else if(a==='share'){const{c}=keyAt(ui.syo||0),l=SY.d[keyAt(ui.syo||0).k]||[];window.open('https://wa.me/?text='+encodeURIComponent('🕊️ سنكسار '+c.d+' '+MN[c.m-1]+'\n'+l.map(x=>'• '+x[0]).join('\n')),'_blank','noopener')}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='syq'){ui.syq=e.target.value.trim();render()}});
+setTimeout(()=>{if(navigator.onLine||true)synLoad()},4000);
+})();
+</script>
+
 </body>
 </html>
