@@ -1393,7 +1393,8 @@ function whoAmI(){const m=window.FBX&&FBX.me&&FBX.me();return m?(m.email||m.name
 function roleChip(){const r=roleOf();return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border font-bold ${r.c}">${r.i} ${r.t}</span>`}
 function accCard(){const r=roleOf(),w=whoAmI();
  return `<div class="bg-card border border-line rounded-2xl p-4"><div class="flex items-center gap-3"><div class="w-12 h-12 rounded-2xl border grid place-items-center text-2xl ${r.c}">${r.i}</div><div class="flex-1 min-w-0"><div class="text-xs text-mute">أنت داخل بصفة</div><div class="font-extrabold text-lg">${r.t}</div>${w?`<div class="text-xs text-mute truncate" dir="ltr">${esc(w)}</div>`:''}</div></div><p class="text-xs text-mute mt-2 leading-6">${r.d}</p><div class="grid grid-cols-2 gap-2 mt-2"><button data-hlp="roles" class="border border-line rounded-xl py-2 text-xs font-bold">ما هي الأدوار؟</button>${window.RO?'':'<button data-go="team" class="border border-acc/40 text-acc rounded-xl py-2 text-xs font-bold">👥 فريق الخدمة</button>'}</div></div>`}
-const moreMenu=()=>[...(window.RENEW&&!window.IS_ADMIN?[['renew','🔐','تجديد الوصول','اكتب الكود الجديد اللي وصلك على واتساب']]:[]),['help','📖','الشروحات','شرح مبسط لكل ميزة في البرنامج'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها من ملف'],['lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],['print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة بتواريخ الأسابيع القادمة'],['team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],['qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا'],['year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],['fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],['cal','✝️','تقويم الكنيسة','الأعياد والأصوام ومناسباتك'],['visits','🗓️','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],['imp','📥','إضافة أشخاص بالجملة','من جهات الاتصال أو Excel أو ملف vcf (مخدومين وخدام وزوّار)'],['promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة'],['svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام وإنذار مبكر'],['adm','🏛️','أدوات الإدارة','سجل التعديلات والشعار والتقرير الرسمي'],['word','✝️','الكلمة اليومية','آية وتأمل وكلمة منفعة من الآباء'],['gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص في أي مناسبة'],['sermon','🎙️','الوعظات','سجّل الوعظة: الاسم واليوم والتاريخ (على جهازك بس)'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const moreMenuOld=()=>[...(window.RENEW&&!window.IS_ADMIN?[['renew','🔐','تجديد الوصول','اكتب الكود الجديد اللي وصلك على واتساب']]:[]),['help','📖','الشروحات','شرح مبسط لكل ميزة في البرنامج'],['wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],['pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],['set','⚙️','الإعدادات','حجم ونوع الخط والألوان والنقاط'],['bd','🎂','أعياد الميلاد','أسبوع أو شهر أو شهرين أو فترة تختارها'],['fu','🤝','تقرير الافتقاد','الاتصالات والزيارات ومين محتاج افتقاد'],['month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],['hist','🗂','سجل الجلسات','كل الجلسات السابقة'],['sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],['nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],['bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها من ملف'],['lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],['print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة بتواريخ الأسابيع القادمة'],['team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],['qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا'],['year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],['fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],['cal','✝️','تقويم الكنيسة','الأعياد والأصوام ومناسباتك'],['visits','🗓️','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],['imp','📥','إضافة أشخاص بالجملة','من جهات الاتصال أو Excel أو ملف vcf (مخدومين وخدام وزوّار)'],['promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة'],['svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام وإنذار مبكر'],['adm','🏛️','أدوات الإدارة','سجل التعديلات والشعار والتقرير الرسمي'],['word','✝️','الكلمة اليومية','آية وتأمل وكلمة منفعة من الآباء'],['gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص في أي مناسبة'],['sermon','🎙️','الوعظات','سجّل الوعظة: الاسم واليوم والتاريخ (على جهازك بس)'],...(window.IS_ADMIN?[['owner','👑','لوحة المالك','الأكواد وطلبات الانضمام']]:[]),['out','🚪','تسجيل الخروج','خروج من هذا الجهاز'],['wipe','🧹','مسح كل المخدومين والجلسات','للبدء من الصفر (الخدمات تبقى)']].map(([k,i,t,s])=>`<button data-sub="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`).join('');
+const moreMenu=()=>window.K32?window.K32.menu():moreMenuOld();
 
 /* --- إحصائيات الشهر من الجلسات المغلقة (S.reports) وحالات كل فرد (S.sess) --- */
 function monthData(ym){const rs=S.reports.filter(r=>r.date.startsWith(ym)),ds=rs.map(r=>r.date);
@@ -2095,8 +2096,8 @@ const SUB={wsum:['ملخص الأسبوع نصًا',vWsum],mgrid:['تقويم ا
 Object.keys(SUB).forEach(k=>SUBT[k]=SUB[k][0]);
 const menu=()=>[['wsum','📤','ملخص الأسبوع نصًا','رسالة جاهزة لأمين الخدمة أو جروب الخدام'],['mgrid','📅','تقويم الشهر','كل المناسبات في شبكة واحدة'],['roster','🗓️','جدول الخدمة','مين بيخدم إيه كل أسبوع'],['bible','📖','خطة القراءة','فصل كل يوم مع سلسلة أيام'],['joinqr','🔳','QR الانضمام','كود للخدام الجداد']]
  .map(([k,i,t,s])=>`<button data-go="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div></button>`).join('');
-const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+menu())};
-const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+prayCard()+rosterAlert()+cdCard()+`<div class="grid grid-cols-2 gap-2 mt-3"><button data-go="wsum" class="bg-card border border-line rounded-xl py-2.5 text-sm">📤 ملخص الأسبوع</button><button data-go="bible" class="bg-card border border-line rounded-xl py-2.5 text-sm">📖 قراءة اليوم</button></div>`)};
+const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();return h};
+window.K=window.K||{};K.pray=pray;K.cd=cdItems;K.when=when;K.rosterInfo=()=>{if(!S.roster)return null;const d=rdates()[0],n=until(dd(d)),e=rEmpty(d);return n<=7&&e.length?{n,e}:null};
 
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-v]');if(!b)return;const D=b.dataset,a=D.v,t=ds(now());
  if(a==='wsw')wsh($('#wst').value);
@@ -2147,8 +2148,8 @@ function vSyn(){if(!SY.d){if(!SY.fail)synLoad();return `<p class="text-center te
  ${l.map((e,i)=>`<details class="bg-card border border-line rounded-2xl p-3" ${l.length===1?'open':''}><summary class="font-bold cursor-pointer">${esc(e[0])}</summary><div class="text-sm mt-2 whitespace-pre-line leading-7">${esc(e[1])}</div></details>`).join('')||'<p class="text-center text-mute py-6">مفيش بيانات لليوم ده</p>'}
  ${l.length?'<button data-sy="share" class="w-full border border-ok/40 text-ok font-bold rounded-xl py-3 text-sm">📤 مشاركة سنكسار اليوم واتساب</button>':''}</div>`}
 SUBT.synax='السنكسار';
-const _vm=vMore;vMore=function(){if(ui.sub==='synax')return vSyn();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="synax" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">🕊️</div><div class="flex-1"><div class="font-bold">السنكسار</div><div class="text-xs text-mute">سيرة قديس اليوم وبحث في كل الأيام</div></div></button>`)};
-const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+synCard())};
+const _vm=vMore;vMore=function(){if(ui.sub==='synax')return vSyn();return _vm()};
+window.K=window.K||{};K.syn=()=>{const{c}=keyAt(0),l=synToday();return{c,mn:MN[c.m-1],names:l.map(x=>x[0])}};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-sy]');if(!b)return;const D=b.dataset,a=D.sy;
  if(a==='nav'){ui.syo=(ui.syo||0)+(+D.n);render()}
  else if(a==='today'){ui.syo=0;render()}
@@ -2195,8 +2196,8 @@ const riskCard=()=>{const l=risks(),h=l.filter(x=>x.lv===2).length;return l.leng
 const vRisk=()=>{const l=risks();return l.length?`<div class="space-y-3">${l.map(({m,lv,why})=>`<div class="bg-card border ${lv===2?'border-bad/40':'border-warn/40'} rounded-2xl p-3"><div class="flex items-center gap-2"><span>${lv===2?'🔴':'🟠'}</span><b class="flex-1 truncate sens">${esc(m.name)}</b><span class="text-xs text-mute">${esc(svcName(m.sid))}</span></div><div class="text-xs text-mute mt-1">${why.map(esc).join(' · ')}</div><div class="grid grid-cols-3 gap-2 mt-2"><a href="tel:${esc(m.phone||'')}" class="text-center bg-acc/15 text-acc rounded-xl py-2 text-sm ${m.phone?'':'opacity-30 pointer-events-none'}">اتصال</a><a href="${wa(m.phone)}?text=${encodeURIComponent('سلام ونعمة يا '+m.name.split(' ')[0]+' 🙏 وحشتنا في الاجتماع، ربنا يطمّنك عليك')}" target="_blank" rel="noopener" class="text-center bg-ok/15 text-ok rounded-xl py-2 text-sm ${m.phone?'':'opacity-30 pointer-events-none'}">واتساب</a><button data-z="mopen" data-id="${m.id}" class="border border-line rounded-xl py-2 text-sm">الملف</button></div></div>`).join('')}</div>`:'<p class="text-center text-mute py-10">مفيش حد معرّض للغياب دلوقتي 🙏</p>'};
 
 /* ---- 2) متابعة الاعتراف والتناول ---- */
-const CONF=45,COMM=30,dtx=n=>n===null?'لسه ما اتسجلش':n===0?'النهارده':'من '+n+' يوم';
-const vConf=()=>{const f=ui.cf||'all';let l=S.members.map(m=>({m,c:since(m.conf),k:since(m.comm)}));
+let CONF=45,COMM=30;const dtx=n=>n===null?'لسه ما اتسجلش':n===0?'النهارده':'من '+n+' يوم';
+const vConf=()=>{try{const c=JSON.parse(localStorage.getItem('kenisty_conf')||'{}');CONF=+c.c||45;COMM=+c.m||30}catch(_){}const f=ui.cf||'all';let l=S.members.map(m=>({m,c:since(m.conf),k:since(m.comm)}));
  if(f==='late')l=l.filter(x=>x.c===null||x.c>CONF||x.k===null||x.k>COMM);
  l.sort((a,b)=>(b.c===null?9999:b.c)-(a.c===null?9999:a.c));
  return `<div class="space-y-3"><div class="${card} !mt-0 text-xs text-mute">بيانات حساسة. المتأخر = اعتراف أكتر من ${CONF} يوم أو تناول أكتر من ${COMM} يوم، وبتختفي الأسماء في «وضع الخصوصية».</div>
@@ -2255,8 +2256,8 @@ const planOpen=()=>{try{const p=planRef();if(!D.bible){ui.bb=null}else{ui.bb=bid
 const SUB={risk:['خطر الغياب',vRisk],conf:['الاعتراف والتناول',vConf],gmsg:['رسالة ولي الأمر',vGmsg],bibread:['الكتاب المقدس',vBibRead],agp:['الأجبية',vAgp],qot:['قطمارس اليوم',vQot]};
 Object.keys(SUB).forEach(k=>SUBT[k]=SUB[k][0]);
 const menu=()=>[['bibread','📜','الكتاب المقدس','قراءة وبحث في كل الأسفار'],['risk','📉','خطر الغياب','مين محتاج افتقاد قبل ما يبعد'],['conf','🕯️','الاعتراف والتناول','متابعة آخر اعتراف وتناول'],['gmsg','💌','رسالة ولي الأمر','حضور الشهر لكل مخدوم'],['qot','📖','قطمارس اليوم','قراءات القداس'],['agp','🙏','الأجبية','صلوات الساعات']].map(([k,i,t,s])=>`<button data-go="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div></button>`).join('');
-const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();if(ui.sub==='bible')return h.replace('<button data-v="bk" data-w="me"',m=>'<button data-z="plan" class="w-full bg-acc/15 text-acc font-bold rounded-xl py-3 mb-2">📜 اقرأ أصحاح النهارده من الكتاب</button>'+m);return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+menu())};
-const _vh=vHome;vHome=function(){const h=_vh();return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+riskCard())};
+const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();if(ui.sub==='bible')return h.replace('<button data-v="bk" data-w="me"',m=>'<button data-z="plan" class="w-full bg-acc/15 text-acc font-bold rounded-xl py-3 mb-2">📜 اقرأ أصحاح النهارده من الكتاب</button>'+m);return h};
+window.K=window.K||{};K.risks=risks;
 
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-z]');if(!b)return;const D2=b.dataset,a=D2.z,t=ds(now());
  if(a==='mopen')noteSheet(D2.id);
@@ -2315,13 +2316,129 @@ const vKhul=()=>{if(!KD.d){if(KD.f)return `<div class="space-y-3"><div class="bg
  const s=l.sections[j],f=fs();try{localStorage.setItem('kenisty_khul_pos',JSON.stringify({i,j}))}catch(_){}
  return `<div class="space-y-3"><div class="flex justify-between"><button data-zk="s" data-i="${i}" data-j="" class="text-sm text-acc">← ${esc(l.name)}</button><div class="flex items-center gap-2"><span class="text-xs text-mute">${j+1} / ${l.sections.length}</span><button data-zk="f" data-n="-2" class="w-9 h-9 rounded-xl bg-card border border-line">أ-</button><button data-zk="f" data-n="2" class="w-9 h-9 rounded-xl bg-card border border-line">أ+</button></div></div><div class="bg-card border border-line rounded-2xl p-4"><h2 class="font-extrabold text-center mb-3">${esc(s.h)}</h2><div class="whitespace-pre-line" style="font-size:${f}px;line-height:2">${esc(s.t)}</div></div><div class="grid grid-cols-2 gap-2"><button data-zk="s" data-i="${i}" data-j="${j+1<l.sections.length?j+1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${j+1<l.sections.length?'':'disabled'}>‹ التالي</button><button data-zk="s" data-i="${i}" data-j="${j>0?j-1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${j>0?'':'disabled'}>السابق ›</button></div></div>`};
 SUBT.khul='الخولاجي';
-const _vm=vMore;vMore=function(){if(ui.sub==='khul')return vKhul();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="khul" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">⛪</div><div class="flex-1"><div class="font-bold">الخولاجي</div><div class="text-xs text-mute">القداسات الباسيلي والغريغوري والكيرلسي</div></div></button>`)};
+const _vm=vMore;vMore=function(){if(ui.sub==='khul')return vKhul();return _vm()};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-zk]');if(!b)return;const D=b.dataset;
  if(D.zk==='r'){KD.f=0;KD.b=0;render();return}
  if(D.zk==='f'){try{localStorage.setItem('kenisty_bfs',Math.max(14,Math.min(34,fs()+(+D.n))))}catch(_){}render();return}
  if(D.zk==='l'){ui.kl=D.i===''?null:+D.i;ui.ks=null}
  else{ui.kl=+D.i;ui.ks=D.j===''?null:+D.j}
  render();scrollTo(0,0)});
+})();
+</script>
+<script>
+/* ===== v32: ترتيب «المزيد» والشاشة الرئيسية والإعدادات ===== */
+(()=>{
+const K=window.K=window.K||{};
+const nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');
+const HC='kenisty_home',HCD={risk:1,pray:1,syn:1,cd:1,roster:1};
+const hc=()=>{try{return Object.assign({},HCD,JSON.parse(localStorage.getItem(HC)||'{}'))}catch(_){return{...HCD}}};
+const cfg=()=>{try{return JSON.parse(localStorage.getItem('kenisty_conf')||'{}')}catch(_){return{}}};
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+
+/* ---------- المجموعات: [نوع الرابط, المفتاح, أيقونة, العنوان, الوصف] ---------- */
+const GROUPS=[
+ {k:'pray',i:'📜',t:'القراءة والصلاة',s:'الإنجيل والأجبية والقطمارس والخولاجي',items:[
+  ['go','bibread','📜','الكتاب المقدس','قراءة وبحث في كل الأسفار'],
+  ['go','bible','📖','خطة قراءة الأناجيل','فصل كل يوم مع علامة ✓ وسلسلة أيام'],
+  ['go','agp','🙏','الأجبية','صلوات الساعات'],
+  ['go','qot','📖','قطمارس اليوم','قراءات القداس'],
+  ['go','khul','⛪','الخولاجي','القداسات الباسيلي والغريغوري والكيرلسي'],
+  ['go','synax','🕊️','السنكسار','سيرة قديس اليوم وبحث في كل الأيام'],
+  ['sub','word','✝️','الكلمة اليومية','آية وتأمل وكلمة منفعة'],
+  ['sub','sermon','🎙️','الوعظات','سجّل الوعظة (على جهازك بس)']]},
+ {k:'care',i:'🤝',t:'الافتقاد والمتابعة',s:'مين محتاج افتقاد ومتابعة روحية',items:[
+  ['go','risk','📉','خطر الغياب','مين محتاج افتقاد قبل ما يبعد'],
+  ['sub','fu','🤝','تقرير الافتقاد','الاتصالات والزيارات'],
+  ['sub','fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],
+  ['sub','visits','🏠','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],
+  ['go','conf','🕯️','الاعتراف والتناول','آخر اعتراف وآخر تناول لكل مخدوم'],
+  ['go','gmsg','💌','رسالة ولي الأمر','حضور آخر 4 اجتماعات'],
+  ['sub','gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص']]},
+ {k:'rep',i:'📋',t:'الحضور والتقارير',s:'ملخصات وتقارير وإحصائيات',items:[
+  ['go','wsum','📤','ملخص الأسبوع للواتساب','رسالة جاهزة لأمين الخدمة أو الجروب'],
+  ['sub','wk','📋','التقارير الأسبوعية','تقرير كل خدمة لكل أسبوع'],
+  ['sub','month','📊','التقرير الشهري','إحصائيات الشهر + تصدير'],
+  ['sub','year','📆','التقرير السنوي','إحصائيات السنة الخدمية'],
+  ['sub','hist','🗂','سجل الجلسات','كل الجلسات السابقة'],
+  ['sub','pts','🏅','نقاط الحضور','نقاط شهرية للخدام والمخدومين'],
+  ['sub','sup','🏆','لوحة أمين الخدمة','مقارنة الخدمات والخدام'],
+  ['sub','print','🖨️','ورقة الحضور للطباعة','كشف ورقي لكل خدمة'],
+  ['sub','qr','📷','كروت الحضور QR','كارت لكل مخدوم + مسح بالكاميرا']]},
+ {k:'plan',i:'🗓️',t:'التقويم والجدولة',s:'المناسبات والمحاضرات وجدول الخدمة',items:[
+  ['go','mgrid','📅','تقويم الشهر (شبكة)','كل المناسبات في شاشة واحدة'],
+  ['sub','cal','✝️','تقويم الكنيسة (قائمة)','الأعياد والأصوام ومناسباتك'],
+  ['sub','bd','🎂','أعياد الميلاد','أسبوع أو شهر أو فترة'],
+  ['go','roster','🗓️','جدول الخدمة (الدور)','مين بيخدم إيه كل أسبوع'],
+  ['sub','lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],
+  ['sub','svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام']]},
+ {k:'team',i:'👥',t:'الخدام والمخدومين',s:'الفريق والانضمام والاستيراد',items:[
+  ['sub','team','👥','فريق الخدمة','خدام يشوفوا مخدومين خدماتهم فقط'],
+  ['go','joinqr','🔳','QR انضمام الخدام','كود للخدام الجداد'],
+  ['sub','imp','📥','إضافة أشخاص بالجملة','من جهات الاتصال أو Excel أو vcf'],
+  ['sub','promo','🎓','ترقية السنة الخدمية','نقل الفصول في بداية السنة']]},
+ {k:'set',i:'⚙️',t:'الإعدادات والإدارة',s:'المظهر والتنبيهات والنسخ الاحتياطي',items:[
+  ['sub','set','⚙️','الإعدادات','المظهر وشاشة اليوم والخصوصية والنقاط'],
+  ['sub','nset','🔔','إعدادات التنبيهات','ساعات الهدوء وإشعارات الجهاز'],
+  ['sub','bak','💾','نسخة احتياطية','تنزيل نسخة من بياناتك أو استعادتها'],
+  ['sub','adm','🏛️','أدوات الإدارة','سجل التعديلات والشعار والتقرير الرسمي'],
+  ['sub','help','📖','الشروحات','شرح مبسط لكل ميزة'],
+  ['sub','renew','🔐','تجديد الوصول','اكتب الكود الجديد اللي وصلك',()=>window.RENEW&&!window.IS_ADMIN],
+  ['sub','owner','👑','لوحة المالك','الأكواد وطلبات الانضمام',()=>window.IS_ADMIN]]}
+].map(g=>({...g,items:g.items.map(([a,k,i,t,s,c])=>({a,k,i,t,s,c}))}));
+
+const row=(it,tag)=>`<button data-${it.a==='go'?'go':'sub'}="${it.k}" class="w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start"><div class="w-10 h-10 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0">${it.i}</div><div class="flex-1 min-w-0"><div class="font-bold">${it.t}</div><div class="text-xs text-mute">${it.s}${tag?' · '+tag:''}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`;
+const vis=g=>g.items.filter(it=>!it.c||it.c());
+K.menu=()=>{const q=(ui.msq||'').trim(),open=ui.mgrp;
+ let h=`<div class="flex gap-2 mb-3"><input id="msq" value="${esc(q)}" placeholder="ابحث في القائمة…" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-z32="ms" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>`;
+ if(q){const n=nrm(q),r=GROUPS.flatMap(g=>vis(g).map(it=>({it,g:g.t}))).filter(({it,g})=>nrm(it.t+' '+it.s+' '+g).includes(n));
+  return h+`<div class="space-y-2">${r.map(({it,g})=>row(it,g)).join('')||'<p class="text-center text-mute py-6">مفيش نتائج</p>'}<button data-z32="mc" class="w-full text-sm text-acc py-2">مسح البحث</button></div>`}
+ h+=GROUPS.map(g=>{const o=open===g.k;return `<div class="mb-2.5"><button data-z32="g" data-g="${g.k}" class="w-full rounded-2xl p-4 flex items-center gap-3 text-start ${o?'bg-acc/15 border border-acc/40':'bg-card border border-line'}"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0">${g.i}</div><div class="flex-1 min-w-0"><div class="font-extrabold">${g.t}</div><div class="text-xs text-mute">${g.s}</div></div><span class="text-xs text-mute shrink-0">${vis(g).length}</span><span class="text-mute shrink-0">${o?'▾':'‹'}</span></button>${o?`<div class="space-y-2 mt-2 ps-2" style="border-inline-start:2px solid rgba(255,255,255,.1)">${vis(g).map(it=>row(it)).join('')}</div>`:''}</div>`}).join('');
+ return h+`<div class="mt-5"><div class="text-xs text-mute mb-2">الحساب</div><button data-sub="out" class="w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start"><span class="text-xl">🚪</span><div class="flex-1"><div class="font-bold">تسجيل الخروج</div><div class="text-xs text-mute">خروج من هذا الجهاز</div></div></button></div>
+ <div class="mt-5"><div class="text-xs mb-2" style="color:#f87171">منطقة الخطر</div><button data-sub="wipe" class="w-full rounded-2xl p-3.5 flex items-center gap-3 text-start" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.4)"><span class="text-xl">🧹</span><div class="flex-1"><div class="font-bold" style="color:#f87171">مسح كل المخدومين والجلسات</div><div class="text-xs text-mute">للبدء من الصفر — لا يمكن التراجع</div></div></button></div>`};
+window.K32={menu:K.menu};
+
+/* ---------- الشاشة الرئيسية: ترتيب ثابت ---------- */
+const hrow=(ic_,label,val,attr,act)=>`<button ${attr} class="w-full flex items-center gap-3 p-3.5 text-start" style="border-bottom:1px solid rgba(255,255,255,.06)"><span class="text-xl shrink-0">${ic_}</span><div class="flex-1 min-w-0"><div class="text-[11px] text-mute">${label}</div><div class="font-bold truncate sens">${val}</div></div><span class="text-xs text-acc shrink-0">${act?act+' ':''}›</span></button>`;
+const _vh=vHome;vHome=function(){const h=_vh(),c=hc();let al='',rows='';
+ try{
+  if(c.risk&&K.risks){const l=K.risks();if(l.length){const hi=l.filter(x=>x.lv===2).length;al+=`<button data-go="risk" class="w-full rounded-2xl p-3 mt-3 flex items-center gap-3 text-start" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35)"><span class="text-2xl">📉</span><div class="flex-1"><div class="font-bold text-sm">${l.length} مخدوم معرّضين للغياب</div><div class="text-xs text-mute">${hi?hi+' خطر عالي · ':''}افتقدهم قبل ما يبعدوا</div></div><span class="text-xs text-acc">›</span></button>`}}
+  if(c.roster&&K.rosterInfo){const r=K.rosterInfo();if(r)al+=`<button data-go="roster" class="w-full rounded-2xl p-3 mt-3 flex items-center gap-3 text-start text-sm" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4)">⚠️ <span class="flex-1">جدول الخدمة ${K.when(r.n)}: دور فاضي (${r.e.map(esc).join('، ')})</span><span class="text-acc">›</span></button>`}
+  if(c.pray&&K.pray){const m=K.pray();if(m)rows+=hrow('🙏','نصلي النهارده من أجل',esc(m.name),'data-v="pray" data-id="'+m.id+'"','الملف')}
+  if(c.syn&&K.syn){const s=K.syn();rows+=hrow('🕊️','سنكسار اليوم — '+s.c.d+' '+s.mn,esc(s.names.length?s.names.join(' • '):'اضغط للعرض'),'data-go="synax"','')}
+  if(c.cd&&K.cd){const l=K.cd();if(l.length)rows+=`<button data-go="mgrid" class="w-full flex items-center gap-3 p-3.5 text-start"><span class="text-xl shrink-0">⏳</span><div class="flex-1 min-w-0"><div class="text-[11px] text-mute">المناسبات القريبة</div><div class="flex flex-wrap gap-x-3 gap-y-0.5 text-sm">${l.map(x=>`<span><b class="${x.n<=1?'text-warn':'text-acc'}">${K.when(x.n)}</b> ${esc(x.t)}</span>`).join('')}</div></div><span class="text-xs text-acc shrink-0">›</span></button>`}
+ }catch(_){}
+ const quick=`<div class="grid grid-cols-3 gap-2 mt-3">${[['bibread','📜','الإنجيل'],['agp','🙏','الأجبية'],['qot','📖','القطمارس']].map(([k,i,t])=>`<button data-go="${k}" class="bg-card border border-line rounded-xl py-2.5 text-sm font-bold">${i} ${t}</button>`).join('')}</div>`;
+ return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+al+(rows?`<div class="bg-card border border-line rounded-2xl mt-3 overflow-hidden">${rows}</div>`:'')+quick)};
+
+/* ---------- الإعدادات: عناوين وتجميع ---------- */
+const H=(t,s)=>`<div class="mt-6 mb-2"><div class="font-extrabold text-lg">${t}</div>${s?`<div class="text-xs text-mute">${s}</div>`:''}</div>`;
+const pill=(on,k)=>`<button data-z32="hc" data-k="${k}" class="shrink-0 px-4 py-1.5 rounded-full text-sm border ${on?'bg-acc border-acc text-white':'border-line text-mute'}">${on?'ظاهر':'مخفي'}</button>`;
+const _vs=vSet;vSet=function(){const out=_vs(),open='<div class="'+card+'"';
+ const rm=out.match(/<button data-sv="rst"[^>]*>.*?<\/button>/s),rst=rm?rm[0]:'',body=rm?out.replace(rm[0],''):out;
+ const parts=body.split(open),pre=parts.shift();
+ const take=kw=>{const i=parts.findIndex(p=>p.includes(kw));return i<0?'':open+parts.splice(i,1)[0]};
+ const A=['حجم الخط','نوع الخط','اللون الرئيسي','لون الخلفية'].map(take).join(''),B=take('نقاط الحضور'),C=take('وضع الخصوصية'),rest=parts.map(p=>open+p).join('');
+ const c=hc(),cf=cfg();
+ const tg=[['risk','تنبيه خطر الغياب'],['pray','مخدوم اليوم للصلاة'],['syn','سنكسار اليوم'],['cd','المناسبات القريبة'],['roster','تنبيه جدول الخدمة']].map(([k,t])=>`<div class="flex justify-between items-center gap-3 py-2"><span>${t}</span>${pill(c[k],k)}</div>`).join('');
+ const bs=(S.bible&&S.bible.start)||today();
+ return pre+H('المظهر','حجم الخط وشكله وألوان البرنامج')+A+rst+
+  H('شاشة اليوم','اختار اللي يظهر لك في الشاشة الرئيسية')+`<div class="${card}" style="margin-top:0">${tg}</div>`+
+  H('الحضور والنقاط')+B+H('الخصوصية')+C+rest+
+  H('الاعتراف والتناول','بعد كام يوم يتحسب المخدوم متأخر')+`<div class="${card}" style="margin-top:0"><div class="grid grid-cols-2 gap-2"><label class="text-xs text-mute">الاعتراف (يوم)<input id="cf1" type="number" min="7" max="365" value="${+cfg().c||45}" class="${inp}"></label><label class="text-xs text-mute">التناول (يوم)<input id="cf2" type="number" min="3" max="365" value="${+cfg().m||30}" class="${inp}"></label></div></div>`+
+  H('قراءة الأناجيل','خطة فصل كل يوم')+`<div class="${card}" style="margin-top:0"><div class="text-sm">بداية الخطة: <b>${esc(bs)}</b></div><button data-z32="pstart" class="w-full mt-3 border border-line rounded-xl py-3 text-sm font-bold">ابدأ الخطة من أول متى النهارده</button></div>`+
+  H('أدوات أخرى')+`<div class="space-y-2"><button data-sub="nset" class="w-full bg-card border border-line rounded-2xl p-3.5 text-start">🔔 إعدادات التنبيهات</button><button data-sub="bak" class="w-full bg-card border border-line rounded-2xl p-3.5 text-start">💾 نسخة احتياطية واستعادة</button></div>`};
+
+/* ---------- عناوين واضحة بدون التباس ---------- */
+Object.assign(SUBT,{mgrid:'تقويم الشهر (شبكة)',cal:'تقويم الكنيسة (قائمة)',bible:'خطة قراءة الأناجيل',wsum:'ملخص الأسبوع للواتساب',conf:'الاعتراف والتناول',risk:'خطر الغياب',gmsg:'رسالة ولي الأمر',bibread:'الكتاب المقدس',qot:'قطمارس اليوم',agp:'الأجبية',khul:'الخولاجي',synax:'السنكسار',roster:'جدول الخدمة (الدور)',joinqr:'QR انضمام الخدام'});
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-z32]');if(!b)return;const a=b.dataset.z32,D=b.dataset;
+ if(a==='g'){ui.mgrp=ui.mgrp===D.g?null:D.g;render()}
+ else if(a==='ms'){ui.msq=($('#msq').value||'').trim();render()}
+ else if(a==='mc'){ui.msq='';render()}
+ else if(a==='hc'){const c=hc();c[D.k]=c[D.k]?0:1;try{localStorage.setItem(HC,JSON.stringify(c))}catch(_){}render()}
+ else if(a==='pstart'){S.bible=S.bible||{start:today(),done:{}};S.bible.start=today();save();render();toast('بدأت الخطة من متى 1 النهارده ✓')}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='msq'){ui.msq=e.target.value.trim();render()}});
+document.addEventListener('change',e=>{const t=e.target;if(t.id!=='cf1'&&t.id!=='cf2')return;const c=cfg();if(t.id==='cf1')c.c=Math.max(7,+t.value||45);else c.m=Math.max(3,+t.value||30);try{localStorage.setItem('kenisty_conf',JSON.stringify(c))}catch(_){}toast('اتحفظ ✓')});
 })();
 </script>
 </body>
