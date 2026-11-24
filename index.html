@@ -2441,5 +2441,40 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='msq')
 document.addEventListener('change',e=>{const t=e.target;if(t.id!=='cf1'&&t.id!=='cf2')return;const c=cfg();if(t.id==='cf1')c.c=Math.max(7,+t.value||45);else c.m=Math.max(3,+t.value||30);try{localStorage.setItem('kenisty_conf',JSON.stringify(c))}catch(_){}toast('اتحفظ ✓')});
 })();
 </script>
+<script>
+/* ===== v33: كلمات مشتركة لكل النسخ (words.json) + روابط البابا شنوده الثالث ===== */
+(()=>{
+window.SHARED_WORDS=[];
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_docs',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function loadShared(){let v=null,d=null;
+ try{d=await idb()}catch(_){}
+ try{const r=await fetch('words.json?t='+Date.now(),{cache:'no-store'});if(r.ok){v=await r.json();if(d)await new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'words');t.oncomplete=res;t.onerror=res})}}catch(_){}
+ if(!v&&d){try{v=await new Promise(res=>{const q=d.transaction('k').objectStore('k').get('words');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})}catch(_){}}
+ if(v&&Array.isArray(v.words))window.SHARED_WORDS=v.words.filter(x=>x&&x.t&&x.text);
+ try{if(typeof wbRender==='function')wbRender()}catch(_){}}
+const _ww=wbWords;wbWords=function(t){return _ww(t).concat(window.SHARED_WORDS.filter(x=>x.t===t))};
+
+const BASE='https://st-takla.org/Full-Free-Coptic-Books/His-Holiness-Pope-Shenouda-III-Books-Online/';
+const pg=n=>n<=30?1:n<=60?2:n<=90?3:n<=120?4:n<=150?5:n<=180?6:7;
+const IDX=n=>BASE+'01-Words-of-Spiritual-Benefit_Pope-Shenouda/000-Kelmet-Manfa3a_index-0'+pg(n)+'.html';
+const dayN=o=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+(o||0));return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)%200+1};
+const lnk=(u,t,cls)=>`<a href="${u}" target="_blank" rel="noopener" class="${cls}">${t}</a>`;
+const _vw=vWord;vWord=function(){const h=_vw(),n=dayN(ui.wo||0),sh=window.SHARED_WORDS.length;
+ const extra=`<div class="${card}"><div class="flex items-center gap-2 text-sm font-bold text-acc"><span class="text-lg">📜</span>كلمة منفعة — البابا شنوده الثالث</div>
+  <p class="mt-2 text-[15px] leading-8">كلمة اليوم رقم <b>${n}</b> من 200 كلمة.</p>
+  <p class="text-xs text-mute mt-1">النص على موقع الأنبا تكلا، وبيتفتح في المتصفح (محتاج إنترنت).</p>
+  <div class="grid grid-cols-1 gap-2 mt-3">${lnk(IDX(n),'اقرأ كلمات '+((pg(n)-1)*30+1)+'–'+Math.min(pg(n)*30,200)+' على موقع الأنبا تكلا ↗','block text-center bg-acc text-white font-bold rounded-xl py-2.5 text-sm')}${lnk(BASE+'Pope-Shenoda-Books_.html','مكتبة كتب البابا شنوده الثالث ↗','block text-center border border-line rounded-xl py-2.5 text-sm font-bold')}</div></div>
+  <div class="${card}"><div class="text-sm font-bold">الكلمات المشتركة لكل النسخ</div><p class="text-xs text-mute mt-1 leading-6">${sh?'محمّل '+sh+' كلمة من ملف words.json، وبتدخل في الدوران مع باقي الكلمات.':'لسه مفيش ملف words.json جنب index.html.'}<br>عشان تضيف كلمة تظهر لكل الأجهزة: ضيفها من «+ إضافة» فوق، واضغط «نسخ ملف words.json»، والصقه في ملف words.json على GitHub.</p>
+  <button data-z33="exp" class="w-full mt-3 border border-line rounded-xl py-2.5 text-sm font-bold">نسخ ملف words.json</button></div>`;
+ const i=h.lastIndexOf('</div>');return i<0?h+extra:h.slice(0,i)+extra+h.slice(i)};
+
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-z33]');if(!b)return;
+ const seen=new Set(),all=[];
+ [...window.SHARED_WORDS,...((S.words||[]).filter(x=>x&&x.text).map(x=>({t:x.t,text:x.text,ref:x.ref||''})))].forEach(x=>{const k=x.t+'|'+x.text;if(!seen.has(k)){seen.add(k);all.push(x)}});
+ const txt=JSON.stringify({v:1,src:'الآيات: Biblica Open New Arabic Version. التأملات: كتابة أصلية للخدمة.',words:all},null,1);
+ try{await navigator.clipboard.writeText(txt);toast('اتنسخ '+all.length+' كلمة ✓ الصقها في words.json')}catch(_){window.prompt('انسخ النص ده كله:',txt)}});
+loadShared();
+})();
+</script>
 </body>
 </html>
