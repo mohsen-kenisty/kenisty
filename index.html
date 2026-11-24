@@ -2279,5 +2279,50 @@ if(location.hash==='#read'){ui.tab='more';ui.sub='bibread';setTimeout(planOpen,2
 })();
 </script>
 
+<script>
+/* ===== v31: الخولاجي (يقرأ khulagi.json) ===== */
+(()=>{
+const KD={},idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_docs',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function kload(){if(KD.b)return;KD.b=1;
+ try{const d=await idb();let v=await new Promise(res=>{const q=d.transaction('k').objectStore('k').get('khulagi');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});
+  if(!v){const r=await fetch('khulagi.json');if(!r.ok)throw 0;v=await r.json();await new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,'khulagi');t.oncomplete=res;t.onerror=res})}
+  KD.d=v}catch(_){KD.f=1}
+ KD.b=0;if(ui.tab==='more'&&ui.sub==='khul')render()}
+const fs=()=>{try{return +(localStorage.getItem('kenisty_bfs')||18)}catch(_){return 18}};
+const QK=[['صلاة الصلح','الصلح'],['مستحق وعادل','مستحق'],['حلول الروح القدس','حلول'],['المجمع','المجمع'],['القسمة','القسمة'],['التوزيع','التوزيع']];
+const qfind=l=>QK.map(([lab,kw])=>{let j=l.sections.findIndex(s=>s.h.includes(kw));if(j<0)j=l.sections.findIndex(s=>s.t.slice(0,160).includes(kw));return j<0?null:[lab,j]}).filter(Boolean);
+const BOOKS=[['الباسيلي','باسيليوس الكبير','basil','#1f7a5a','#0f4a37'],['الغريغوري','غريغوريوس الثاولوغوس','gregory','#a33a3a','#6b1f22'],['الكيرلسي','كيرلس الكبير','kyrillos','#4a4fb0','#2a2d73']];
+const GOLD='#d8b765';
+const posGet=()=>{try{return JSON.parse(localStorage.getItem('kenisty_khul_pos')||'null')}catch(_){return null}};
+const findLit=(L,w)=>L.findIndex(l=>l.name.includes(w));
+const homeView=L=>{const pos=posGet(),ok=pos&&L[pos.i]&&L[pos.i].sections[pos.j];
+ const cur=ok?pos.i:findLit(L,'الباسيلي'),qs=cur>=0?qfind(L[cur]):[];
+ const resume=ok?`<button data-zk="s" data-i="${pos.i}" data-j="${pos.j}" class="w-full rounded-3xl p-4 flex items-center gap-4 text-start" style="background:linear-gradient(135deg,#18382f,#10241f);border:1px solid rgba(216,183,101,.25)"><div class="shrink-0 grid place-items-center rounded-2xl" style="width:56px;height:64px;background:#f3e7c6;color:#7a5b1a;font-size:26px">✝</div><div class="flex-1 min-w-0"><div class="text-xs" style="color:#9fb7ad">تابِع من حيث توقفت</div><div class="font-extrabold text-lg truncate">${esc(L[pos.i].name)} · ${esc(L[pos.i].sections[pos.j].h)}</div><div class="mt-2 rounded-full overflow-hidden" style="height:5px;background:rgba(255,255,255,.12)"><div style="height:100%;width:${Math.round((pos.j+1)/L[pos.i].sections.length*100)}%;background:#3ab28a"></div></div></div><span style="color:#3ab28a;font-size:22px">‹</span></button>`:'';
+ const books=BOOKS.map(([n,sub,img,c1,c2])=>{const k=findLit(L,n);return k<0?'':`<button data-zk="l" data-i="${k}" class="text-center"><div class="relative mx-auto rounded-2xl flex flex-col items-center justify-end pb-3" style="aspect-ratio:3/4;background:linear-gradient(160deg,${c1},${c2});box-shadow:inset -10px 0 14px rgba(0,0,0,.35),0 8px 14px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1)"><div class="absolute inset-2 rounded-xl pointer-events-none" style="border:1px solid rgba(216,183,101,.55)"></div><div class="grid place-items-center overflow-hidden" style="width:62%;aspect-ratio:1/1.1;margin-top:12%;border-radius:999px 999px 12px 12px;background:#f3e7c6;border:3px solid #ead9a6;color:#7a5b1a;font-size:30px">✝<img src="icons/${img}.jpg" alt="" style="width:100%;height:100%;object-fit:cover;position:absolute" onerror="this.remove()"></div><div class="font-extrabold mt-auto" style="font-size:20px">${n}</div><div style="color:${GOLD}">✚</div></div><div class="font-extrabold mt-3 leading-6" style="font-size:17px">القداس ${n}</div><div class="text-xs leading-5" style="color:#9fb7ad">القديس ${sub}</div></button>`}).join('');
+ const inc=findLit(L,'رفع بخور'),kes=findLit(L,'القسمة');
+ const card=(k,t,c1,c2,ic)=>k<0?'':`<button data-zk="l" data-i="${k}" class="relative rounded-2xl overflow-hidden flex items-end justify-center text-center pb-3 px-2" style="aspect-ratio:3/4;background:linear-gradient(170deg,${c1},${c2});box-shadow:0 8px 14px rgba(0,0,0,.35)"><span class="absolute" style="top:22%;left:0;right:0;font-size:46px;opacity:.9">${ic}</span><b style="font-size:20px;text-shadow:0 2px 6px rgba(0,0,0,.6);color:#fff7e0">${t}</b></button>`;
+ const shelf='<div style="height:8px;margin-top:-4px;border-radius:4px;background:linear-gradient(#6a5236,#4a3827)"></div>';
+ return `<div class="space-y-5">${resume}
+ <div><h2 class="font-extrabold mb-3" style="font-size:26px">القداسات الثلاثة</h2><div class="grid grid-cols-3 gap-3">${books}</div>${shelf}</div>
+ <div><h2 class="font-extrabold mb-3" style="font-size:26px">رفع البخور والتناول</h2><div class="grid grid-cols-3 gap-3">${card(inc,'رفع بخور عشية وباكر','#17203f','#e09a3a','☪')}${card(kes,'القسمة والتناول','#8a5a1d','#e8b45a','✚')}</div>${shelf}</div>
+ ${qs.length?`<div><div class="flex items-baseline justify-between mb-3"><h2 class="font-extrabold" style="font-size:26px">وصول سريع</h2><span class="text-sm" style="color:#9fb7ad">في ${esc(L[cur].name)}</span></div><div class="space-y-2">${qs.map(([lab,j])=>`<button data-zk="s" data-i="${cur}" data-j="${j}" class="w-full rounded-full py-3.5 font-bold text-lg" style="background:#12251f;border:1px solid rgba(255,255,255,.06)">${lab}</button>`).join('')}</div></div>`:''}
+ <p class="text-[11px] text-mute text-center">${esc(KD.d.src||'')}</p></div>`};
+const vKhul=()=>{if(!KD.d){if(KD.f)return `<div class="space-y-3"><div class="bg-card border border-line rounded-2xl p-4 text-center"><div class="text-3xl">⛪</div><h2 class="font-bold mt-2">الخولاجي المقدس</h2><p class="text-sm text-mute mt-2">لم يتم تحميل الخولاجي بعد. تأكد من الإنترنت (مطلوب أول مرة فقط)، وبعدها اضغط إعادة المحاولة.</p></div><button data-zk="r" class="w-full bg-acc text-white font-bold rounded-xl py-3">إعادة المحاولة</button></div>`;kload();return '<p class="text-center text-mute py-10">جاري التحميل…</p>'}
+ const L=KD.d.liturgies||[],i=ui.kl,j=ui.ks;
+ if(i==null)return homeView(L);
+ const l=L[i];
+ if(j==null)return `<div class="space-y-2"><button data-zk="l" data-i="" class="text-sm text-acc">← كل القداسات</button><h2 class="font-extrabold" style="font-size:24px">${esc(l.name)}</h2>${qfind(l).length?`<div class="flex flex-wrap gap-2 pb-1">${qfind(l).map(([lab,q])=>`<button data-zk="s" data-i="${i}" data-j="${q}" class="px-4 py-2 rounded-full text-sm font-bold" style="background:#12251f;border:1px solid rgba(216,183,101,.35)">${lab}</button>`).join('')}</div>`:''}${l.sections.map((s,k)=>`<button data-zk="s" data-i="${i}" data-j="${k}" class="w-full bg-card border border-line rounded-xl px-4 py-3 text-start text-sm"><span class="text-mute ms-1">${k+1}.</span> ${esc(s.h)}</button>`).join('')}</div>`;
+ const s=l.sections[j],f=fs();try{localStorage.setItem('kenisty_khul_pos',JSON.stringify({i,j}))}catch(_){}
+ return `<div class="space-y-3"><div class="flex justify-between"><button data-zk="s" data-i="${i}" data-j="" class="text-sm text-acc">← ${esc(l.name)}</button><div class="flex items-center gap-2"><span class="text-xs text-mute">${j+1} / ${l.sections.length}</span><button data-zk="f" data-n="-2" class="w-9 h-9 rounded-xl bg-card border border-line">أ-</button><button data-zk="f" data-n="2" class="w-9 h-9 rounded-xl bg-card border border-line">أ+</button></div></div><div class="bg-card border border-line rounded-2xl p-4"><h2 class="font-extrabold text-center mb-3">${esc(s.h)}</h2><div class="whitespace-pre-line" style="font-size:${f}px;line-height:2">${esc(s.t)}</div></div><div class="grid grid-cols-2 gap-2"><button data-zk="s" data-i="${i}" data-j="${j+1<l.sections.length?j+1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${j+1<l.sections.length?'':'disabled'}>‹ التالي</button><button data-zk="s" data-i="${i}" data-j="${j>0?j-1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${j>0?'':'disabled'}>السابق ›</button></div></div>`};
+SUBT.khul='الخولاجي';
+const _vm=vMore;vMore=function(){if(ui.sub==='khul')return vKhul();const h=_vm();return ui.sub?h:h.replace('<div class="space-y-3">',m=>m+`<button data-go="khul" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">⛪</div><div class="flex-1"><div class="font-bold">الخولاجي</div><div class="text-xs text-mute">القداسات الباسيلي والغريغوري والكيرلسي</div></div></button>`)};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-zk]');if(!b)return;const D=b.dataset;
+ if(D.zk==='r'){KD.f=0;KD.b=0;render();return}
+ if(D.zk==='f'){try{localStorage.setItem('kenisty_bfs',Math.max(14,Math.min(34,fs()+(+D.n))))}catch(_){}render();return}
+ if(D.zk==='l'){ui.kl=D.i===''?null:+D.i;ui.ks=null}
+ else{ui.kl=+D.i;ui.ks=D.j===''?null:+D.j}
+ render();scrollTo(0,0)});
+})();
+</script>
 </body>
 </html>
