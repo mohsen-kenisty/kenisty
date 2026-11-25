@@ -1777,7 +1777,7 @@ const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCa
 const Q=s=>document.querySelector(s);let last={},unsub=null,first=true;
 
 /* نقسّم الحالة لمستندات صغيرة في users/{uid}/c (مساحة خاصة بكل مستخدم): meta / p / s_التاريخ / r_التاريخ / n_كود المخدوم */
-const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[],tpls:s.tpls||[],words:s.words||[],roster:s.roster||null,bible:s.bible||null}};
+const pack=s=>{const o={meta:{seq:s.seq,services:s.services,members:s.members,servants:s.servants||[],seqv:s.seqv||1},p:{pf:s.pf||{},plan:s.plan||{},lect:s.lect||[],cal:s.cal||[],alumni:s.alumni||[],promo:s.lastPromo||null,visits:s.visits||[]},x:{guests:s.guests||[],trips:s.trips||[],contests:s.contests||[],smeet:s.smeet||[],brand:s.brand||null,log:s.log||[],tpls:s.tpls||[],words:s.words||[],roster:s.roster||null,bible:s.bible||null,ext:s.ext||null}};
  Object.entries(s.sess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['s_'+d]=v});
  Object.entries(s.vsess||{}).forEach(([d,v])=>{if(Object.keys(v).length)o['v_'+d]=v});
  (s.reports||[]).forEach(r=>o['r_'+r.date]=r);
@@ -1813,7 +1813,7 @@ function load(snap){const docs=[];snap.forEach(d=>docs.push([d.id,d.data().j,d.d
  docs.forEach(([id,j,nm])=>{if(id.startsWith('sv_')){ovl.push([id,j,nm]);return}const v=JSON.parse(j);last[id]=j;
   if(id==='meta'){n.seq=v.seq;n.services=v.services;n.members=v.members;n.servants=v.servants||[];n.seqv=v.seqv||1}
   else if(id==='p'){n.pf=v.pf;n.plan=v.plan;n.lect=v.lect||[];n.cal=v.cal||[];n.alumni=v.alumni||[];n.lastPromo=v.promo||null;n.visits=v.visits||[]}
-  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[];n.tpls=v.tpls||[];n.words=v.words||[];n.roster=v.roster||null;n.bible=v.bible||null}
+  else if(id==='x'){n.guests=v.guests||[];n.trips=v.trips||[];n.contests=v.contests||[];n.smeet=v.smeet||[];n.brand=v.brand||null;n.log=v.log||[];n.tpls=v.tpls||[];n.words=v.words||[];n.roster=v.roster||null;n.bible=v.bible||null;n.ext=v.ext||null}
   else if(id.startsWith('s_'))n.sess[id.slice(2)]=v;
   else if(id.startsWith('r_'))n.reports.push(v);
   else if(id.startsWith('v_'))n.vsess[id.slice(2)]=v;
@@ -2097,7 +2097,7 @@ Object.keys(SUB).forEach(k=>SUBT[k]=SUB[k][0]);
 const menu=()=>[['wsum','📤','ملخص الأسبوع نصًا','رسالة جاهزة لأمين الخدمة أو جروب الخدام'],['mgrid','📅','تقويم الشهر','كل المناسبات في شبكة واحدة'],['roster','🗓️','جدول الخدمة','مين بيخدم إيه كل أسبوع'],['bible','📖','خطة القراءة','فصل كل يوم مع سلسلة أيام'],['joinqr','🔳','QR الانضمام','كود للخدام الجداد']]
  .map(([k,i,t,s])=>`<button data-go="${k}" class="w-full bg-card border border-line rounded-2xl p-4 flex items-center gap-3 text-start"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl">${i}</div><div class="flex-1"><div class="font-bold">${t}</div><div class="text-xs text-mute">${s}</div></div></button>`).join('');
 const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();const h=_vm();return h};
-window.K=window.K||{};K.pray=pray;K.cd=cdItems;K.when=when;K.rosterInfo=()=>{if(!S.roster)return null;const d=rdates()[0],n=until(dd(d)),e=rEmpty(d);return n<=7&&e.length?{n,e}:null};
+window.K=window.K||{};K.chOf=chOf;K.pray=pray;K.cd=cdItems;K.when=when;K.rosterInfo=()=>{if(!S.roster)return null;const d=rdates()[0],n=until(dd(d)),e=rEmpty(d);return n<=7&&e.length?{n,e}:null};
 
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-v]');if(!b)return;const D=b.dataset,a=D.v,t=ds(now());
  if(a==='wsw')wsh($('#wst').value);
@@ -2337,12 +2337,18 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 
 /* ---------- المجموعات: [نوع الرابط, المفتاح, أيقونة, العنوان, الوصف] ---------- */
 const GROUPS=[
+ {k:'tools',i:'🔎',t:'بحث',s:'بحث شامل في كل البرنامج',items:[
+  ['go','gsearch','🔎','بحث شامل','مخدومين وملاحظات وطلبات ومهام وكلمات']]},
  {k:'pray',i:'📜',t:'القراءة والصلاة',s:'الإنجيل والأجبية والقطمارس والخولاجي',items:[
   ['go','bibread','📜','الكتاب المقدس','قراءة وبحث في كل الأسفار'],
   ['go','bible','📖','خطة قراءة الأناجيل','فصل كل يوم مع علامة ✓ وسلسلة أيام'],
   ['go','agp','🙏','الأجبية','صلوات الساعات'],
   ['go','qot','📖','قطمارس اليوم','قراءات القداس'],
   ['go','khul','⛪','الخولاجي','القداسات الباسيلي والغريغوري والكيرلسي'],
+  ['go','lib','📚','مكتبة الكتب','كتب البابا شنوده وغيرها — تحمّلها بنفسك'],
+  ['go','mem','🧠','حفظ الآيات','آية الأسبوع ومين حفظها'],
+  ['go','prayreq','🙏','طلبات الصلاة','قايمة مشتركة بزر «صليت»'],
+  ['go','refl','✍️','تأمل الخدام في فصل اليوم','سطرين عن أصحاح النهارده'],
   ['go','synax','🕊️','السنكسار','سيرة قديس اليوم وبحث في كل الأيام'],
   ['sub','word','✝️','الكلمة اليومية','آية وتأمل وكلمة منفعة'],
   ['sub','sermon','🎙️','الوعظات','سجّل الوعظة (على جهازك بس)']]},
@@ -2352,6 +2358,8 @@ const GROUPS=[
   ['sub','fplan','🗓️','خطة الافتقاد الأسبوعية','توزيع الغايبين على الخدام'],
   ['sub','visits','🏠','الزيارات المجدولة','حدّد ميعاد زيارة وسجّل نتيجتها'],
   ['go','conf','🕯️','الاعتراف والتناول','آخر اعتراف وآخر تناول لكل مخدوم'],
+  ['go','stars','🌟','نجوم المواظبة','شارات وترتيب للمواظبين'],
+  ['go','fam','👪','الأسر','ربط الإخوة ورسالة واحدة للأسرة'],
   ['go','gmsg','💌','رسالة ولي الأمر','حضور آخر 4 اجتماعات'],
   ['sub','gwa','📣','الواتساب الجماعي','رسالة لأكتر من شخص']]},
  {k:'rep',i:'📋',t:'الحضور والتقارير',s:'ملخصات وتقارير وإحصائيات',items:[
@@ -2369,6 +2377,9 @@ const GROUPS=[
   ['sub','cal','✝️','تقويم الكنيسة (قائمة)','الأعياد والأصوام ومناسباتك'],
   ['sub','bd','🎂','أعياد الميلاد','أسبوع أو شهر أو فترة'],
   ['go','roster','🗓️','جدول الخدمة (الدور)','مين بيخدم إيه كل أسبوع'],
+  ['go','lesson','📝','خطة الدرس الأسبوعي','الموضوع والآية والأنشطة'],
+  ['go','tasks','✅','مهام الخدام','تكليفات بتاريخ وتذكير'],
+  ['sub','trips','🚌','الرحلات والتسجيل','مين اتسجل ومين دفع'],
   ['sub','lect','🎓','المحاضرات','اليوم اللي بيحضر فيه كل خادم ومخدوم'],
   ['sub','svc','🧩','أنشطة الخدمة','زوّار ورحلات ومسابقات واجتماع الخدام']]},
  {k:'team',i:'👥',t:'الخدام والمخدومين',s:'الفريق والانضمام والاستيراد',items:[
@@ -2465,15 +2476,273 @@ const _vw=vWord;vWord=function(){const h=_vw(),n=dayN(ui.wo||0),sh=window.SHARED
   <p class="text-xs text-mute mt-1">النص على موقع الأنبا تكلا، وبيتفتح في المتصفح (محتاج إنترنت).</p>
   <div class="grid grid-cols-1 gap-2 mt-3">${lnk(IDX(n),'اقرأ كلمات '+((pg(n)-1)*30+1)+'–'+Math.min(pg(n)*30,200)+' على موقع الأنبا تكلا ↗','block text-center bg-acc text-white font-bold rounded-xl py-2.5 text-sm')}${lnk(BASE+'Pope-Shenoda-Books_.html','مكتبة كتب البابا شنوده الثالث ↗','block text-center border border-line rounded-xl py-2.5 text-sm font-bold')}</div></div>
   <div class="${card}"><div class="text-sm font-bold">الكلمات المشتركة لكل النسخ</div><p class="text-xs text-mute mt-1 leading-6">${sh?'محمّل '+sh+' كلمة من ملف words.json، وبتدخل في الدوران مع باقي الكلمات.':'لسه مفيش ملف words.json جنب index.html.'}<br>عشان تضيف كلمة تظهر لكل الأجهزة: ضيفها من «+ إضافة» فوق، واضغط «نسخ ملف words.json»، والصقه في ملف words.json على GitHub.</p>
-  <button data-z33="exp" class="w-full mt-3 border border-line rounded-xl py-2.5 text-sm font-bold">نسخ ملف words.json</button></div>`;
+  <button data-z33="sug" class="w-full mt-3 bg-acc/15 text-acc rounded-xl py-2.5 text-sm font-bold">✍️ اقترح كلمة للمشرف (واتساب)</button><button data-z33="exp" class="w-full mt-2 border border-line rounded-xl py-2.5 text-sm font-bold">نسخ ملف words.json (للمشرف)</button></div>`;
  const i=h.lastIndexOf('</div>');return i<0?h+extra:h.slice(0,i)+extra+h.slice(i)};
 
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-z33]');if(!b)return;
+ if(b.dataset.z33==='sug'){window.open('https://wa.me/?text='+encodeURIComponent('اقتراح كلمة لبرنامج الخدمة 🙏\nالنوع: (آية / تأمل)\nالنص:\nالمرجع (للآية):'),'_blank','noopener');return}
  const seen=new Set(),all=[];
  [...window.SHARED_WORDS,...((S.words||[]).filter(x=>x&&x.text).map(x=>({t:x.t,text:x.text,ref:x.ref||''})))].forEach(x=>{const k=x.t+'|'+x.text;if(!seen.has(k)){seen.add(k);all.push(x)}});
  const txt=JSON.stringify({v:1,src:'الآيات: Biblica Open New Arabic Version. التأملات: كتابة أصلية للخدمة.',words:all},null,1);
  try{await navigator.clipboard.writeText(txt);toast('اتنسخ '+all.length+' كلمة ✓ الصقها في words.json')}catch(_){window.prompt('انسخ النص ده كله:',txt)}});
 loadShared();
+})();
+</script>
+<script>
+/* ===== v34: مكتبة الكتب — من مجلد books على GitHub أو استيراد من الجهاز أو لصق نص أو رابط ===== */
+(()=>{
+const DB=()=>new Promise((res,rej)=>{const r=indexedDB.open('kenisty_docs',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const kget=async k=>{const d=await DB();return new Promise(res=>{const q=d.transaction('k').objectStore('k').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)})};
+const kput=async(k,v)=>{const d=await DB();return new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=res;t.onerror=res})};
+const kdel=async k=>{const d=await DB();return new Promise(res=>{const t=d.transaction('k','readwrite');t.objectStore('k').delete(k);t.oncomplete=res;t.onerror=res})};
+const nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');
+const BTN='w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start';
+const LIB={meta:null,remote:null,rerr:0,busy:0};let CUR=null,DIR='books/';
+const ST='https://st-takla.org/Full-Free-Coptic-Books/His-Holiness-Pope-Shenouda-III-Books-Online/Pope-Shenoda-Books_.html';
+const rr=()=>{if(ui.tab==='more'&&ui.sub==='lib')render()};
+const lsj=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(_){return d}};
+const lss=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}};
+const fsz=()=>{try{return +(localStorage.getItem('kenisty_bfs')||18)}catch(_){return 18}};
+
+async function init(){if(LIB.busy||LIB.meta)return;LIB.busy=1;
+ try{LIB.meta=(await kget('lib:meta'))||{}}catch(_){LIB.meta={}}
+ for(const d of['books/','booxs/']){try{const r=await fetch(d+'index.json?t='+Date.now(),{cache:'no-store'});if(r.ok){LIB.remote=(await r.json()).books||[];LIB.rerr=0;DIR=d;break}else LIB.rerr=1}catch(_){LIB.rerr=1}}
+ LIB.busy=0;rr()}
+async function loadCur(id){CUR={id,book:null};try{CUR.book=await kget('lib:book:'+id)}catch(_){}rr()}
+async function save(book,from){if(!book.sections.length)throw new Error('مفيش أقسام');
+ let id=book.id||('b'+Date.now().toString(36));while(LIB.meta[id]&&from!=='github')id+='x';book.id=id;
+ await kput('lib:book:'+id,book);LIB.meta[id]={title:book.title,author:book.author||'',n:book.sections.length,from};await kput('lib:meta',LIB.meta);return id}
+
+/* ---- تقسيم النص لأقسام (نفس منطق books_build.py) ---- */
+function splitText(raw){let t=String(raw).replace(/\r\n?/g,'\n');
+ if(/<(p|div|br|h\d|body)\b/i.test(t)){t=t.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi,' ').replace(/<br\s*\/?>|<\/(p|div|h\d|li|tr|td)>/gi,'\n');t=new DOMParser().parseFromString(t,'text/html').body.textContent||''}
+ const L=t.split('\n').map(x=>x.replace(/\s+/g,' ').trim());
+ const isH=l=>l&&l.length<=90&&(/^#{1,3}\s*\S/.test(l)||/^\d{1,3}\s*[-–.)]\s*\S/.test(l)||(/^(كلمة|الكلمة|الفصل|الباب|الأصحاح|مقال|المقال)\s+\S+/.test(l)&&l.length<=60));
+ const blanks=L.filter(x=>!x).length,sep=blanks/Math.max(1,L.length-blanks)>=0.3;
+ const paras=[];let buf='';
+ const flush=()=>{if(buf)paras.push(buf);buf=''};
+ for(const l of L){if(!l){flush();continue}if(isH(l)){flush();paras.push({h:l.replace(/^#+\s*/,'').replace(/^\d{1,3}\s*[-–.)]\s*/,'')});continue}if(sep)buf=buf?buf+' '+l:l;else paras.push(l)}
+ flush();
+ const hs=paras.filter(p=>p.h).length,secs=[];
+ if(hs>=3){let cur=null;for(const p of paras){if(p.h){if(cur&&cur.t)secs.push(cur);cur={h:p.h,t:''}}else if(cur)cur.t+=(cur.t?'\n\n':'')+p}if(cur&&cur.t)secs.push(cur)}
+ else{let cur='',n=1;for(const p of paras){const s=p.h?p.h:p;if((cur+s).length>1500&&cur){secs.push({h:'جزء '+n++,t:cur.trim()});cur=''}cur+=(cur?'\n\n':'')+s}if(cur.trim())secs.push({h:'جزء '+n,t:cur.trim()})}
+ return secs.filter(s=>s.t)}
+const fromJSON=(o,title)=>{const secs=Array.isArray(o)?o:o.sections;if(!Array.isArray(secs)||!secs.length)throw new Error('الملف مش بصيغة الكتاب');
+ return{id:o.id,title:o.title||title,author:o.author||'',src:o.src||'',sections:secs.map((s,i)=>({h:String(s.h||'قسم '+(i+1)),t:String(s.t||s.text||'')})).filter(s=>s.t)}};
+async function decode(file){const buf=await file.arrayBuffer();let t=new TextDecoder('utf-8').decode(buf);if(t.includes('\ufffd')){try{t=new TextDecoder('windows-1256').decode(buf)}catch(_){}}return t}
+async function addFromText(txt,name,from){let book;const s=txt.trim();
+ if(s[0]==='{'||s[0]==='['){try{book=fromJSON(JSON.parse(s),name)}catch(e){if(s[0]==='{')throw e}}
+ if(!book)book={title:name,author:'',src:'',sections:splitText(txt)};
+ return save(book,from)}
+
+/* ---- العرض ---- */
+const loading='<p class="text-center text-mute py-10">جاري التحميل…</p>';
+const vLib=()=>{if(!LIB.meta){init();return loading}
+ const ids=Object.keys(LIB.meta),pos=lsj('kenisty_lib_pos',null);
+ if(ui.lb){if(!CUR||CUR.id!==ui.lb){loadCur(ui.lb);return loading}return vBook()}
+ const rem=(LIB.remote||[]).filter(b=>!LIB.meta[b.id]);
+ const resume=pos&&LIB.meta[pos.id]?`<button data-z34="go" data-id="${pos.id}" data-s="${pos.s}" class="w-full rounded-2xl p-4 flex items-center gap-3 text-start" style="background:linear-gradient(135deg,#18382f,#10241f);border:1px solid rgba(216,183,101,.25)"><span class="text-2xl">📖</span><div class="flex-1 min-w-0"><div class="text-xs" style="color:#9fb7ad">تابِع من حيث توقفت</div><div class="font-extrabold truncate">${esc(LIB.meta[pos.id].title)}</div></div><span style="color:#3ab28a">‹</span></button>`:'';
+ return `<div class="space-y-5">${resume}
+ <div><h2 class="font-extrabold text-xl mb-2">على جهازك</h2>${ids.length?`<div class="space-y-2">${ids.map(id=>{const m=LIB.meta[id];return `<div class="bg-card border border-line rounded-2xl p-3 flex items-center gap-3"><button data-z34="open" data-id="${id}" class="flex-1 min-w-0 text-start"><div class="font-bold truncate">${esc(m.title)}</div><div class="text-xs text-mute">${esc(m.author||'')}${m.author?' · ':''}${m.n} قسم · ${m.from==='github'?'من GitHub':'من جهازك'}</div></button><button data-z34="del" data-id="${id}" class="text-bad px-2" aria-label="حذف">🗑</button></div>`}).join('')}</div>`:'<p class="text-sm text-mute">مفيش كتب لسه. حمّل كتاب من تحت أو استورد ملف.</p>'}</div>
+ <div><h2 class="font-extrabold text-xl mb-2">من مجلد books على GitHub</h2>${LIB.rerr?'<p class="text-sm text-mute">مقدرتش أقرأ index.json من مجلد books (تأكد من الإنترنت ومن رفع المجلد).</p>':rem.length?`<div class="space-y-2">${rem.map(b=>`<div class="bg-card border border-line rounded-2xl p-3 flex items-center gap-3"><div class="flex-1 min-w-0"><div class="font-bold truncate">${esc(b.title)}</div><div class="text-xs text-mute">${esc(b.author||'')}${b.sections?' · '+b.sections+' قسم':''}</div></div><button data-z34="dl" data-id="${esc(b.id)}" class="px-3 py-1.5 rounded-lg bg-acc text-white text-sm font-bold">تحميل</button></div>`).join('')}</div>`:'<p class="text-sm text-mute">كل كتب المجلد محمّلة عندك ✓ (أو المجلد فاضي).</p>'}</div>
+ <div><h2 class="font-extrabold text-xl mb-2">إضافة كتاب</h2><div class="space-y-2">
+  <button data-z34="file" class="${BTN}"><span class="text-xl">📁</span><div class="flex-1"><div class="font-bold">استيراد ملف من الموبايل</div><div class="text-xs text-mute">json أو txt أو html</div></div></button>
+  <button data-z34="paste" class="${BTN}"><span class="text-xl">📋</span><div class="flex-1"><div class="font-bold">لصق نص</div><div class="text-xs text-mute">انسخ النص والصقه، وهيتقسّم أقسام</div></div></button>
+  <button data-z34="url" class="${BTN}"><span class="text-xl">🔗</span><div class="flex-1"><div class="font-bold">من رابط ملف</div><div class="text-xs text-mute">رابط ملف json (مثلًا raw من GitHub)</div></div></button>
+  <a href="${ST}" target="_blank" rel="noopener" class="${BTN}"><span class="text-xl">🌐</span><div class="flex-1"><div class="font-bold">كتب البابا شنوده الثالث ↗</div><div class="text-xs text-mute">على موقع الأنبا تكلا — بتتفتح في المتصفح</div></div></a>
+  <input id="libf" type="file" accept=".json,.txt,.html,.htm,text/plain,application/json,text/html" class="hidden"></div>
+  <p class="text-[11px] text-mute mt-3 leading-6">الكتب بتتخزّن على جهازك وتشتغل أوفلاين. الكتب المحمّلة من مجلد books بتبقى لكل الخدام اللي عندهم نفس المجلد. اتأكد إن عندك حق استخدام أي كتاب بتضيفه.</p></div></div>`};
+const bm=id=>lsj('kenisty_lib_bm',{})[id]||[];
+function vBook(){const b=CUR.book;if(!b)return '<p class="text-center text-mute py-10">الكتاب مش موجود على الجهاز.</p>';
+ const S_=b.sections,i=ui.ls,f=fsz(),star=bm(b.id);
+ if(i==null){const q=(ui.lq||'').trim(),n=nrm(q);
+  let list=S_.map((s,k)=>[s,k]);if(ui.lf)list=list.filter(([s,k])=>star.includes(k));
+  let res=null;if(q.length>=2)res=S_.map((s,k)=>[s,k]).filter(([s])=>nrm(s.h+' '+s.t).includes(n)).slice(0,40);
+  return `<div class="space-y-3"><button data-z34="home" class="text-sm text-acc">← المكتبة</button><div><h2 class="font-extrabold text-xl">${esc(b.title)}</h2><div class="text-xs text-mute">${esc(b.author||'')}${b.src?' · '+esc(b.src):''}</div></div>
+  <div class="flex gap-2"><input id="lbq" value="${esc(q)}" placeholder="ابحث في الكتاب" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-z34="find" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>
+  <div class="flex gap-2"><button data-z34="fav" class="px-4 py-1.5 rounded-full text-sm border ${ui.lf?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">⭐ المفضلة (${star.length})</button>${q?'<button data-z34="clr" class="text-xs text-acc">مسح البحث</button>':''}</div>
+  ${(res||list).map(([s,k])=>{const sn=res?(s.t.replace(/\s+/g,' ').slice(0,90)+'…'):'';return `<button data-z34="sec" data-s="${k}" class="w-full bg-card border border-line rounded-xl px-4 py-3 text-start text-sm"><span class="text-mute ms-1">${k+1}.</span> <b>${esc(s.h)}</b>${star.includes(k)?' ⭐':''}${sn?`<div class="text-xs text-mute mt-1">${esc(sn)}</div>`:''}</button>`}).join('')||'<p class="text-center text-mute py-6">مفيش نتائج</p>'}</div>`}
+ const s=S_[i];lss('kenisty_lib_pos',{id:b.id,s:i});const on=star.includes(i);
+ return `<div class="space-y-3"><div class="flex items-center justify-between"><button data-z34="toc" class="text-sm text-acc">← ${esc(b.title)}</button><div class="flex items-center gap-2"><span class="text-xs text-mute">${i+1} / ${S_.length}</span><button data-z34="star" data-s="${i}" class="w-9 h-9 rounded-xl bg-card border border-line">${on?'⭐':'☆'}</button><button data-z34="fs" data-n="-2" class="w-9 h-9 rounded-xl bg-card border border-line">أ-</button><button data-z34="fs" data-n="2" class="w-9 h-9 rounded-xl bg-card border border-line">أ+</button></div></div>
+ <div class="bg-card border border-line rounded-2xl p-4"><h2 class="font-extrabold text-center mb-3">${esc(s.h)}</h2><div style="font-size:${f}px;line-height:2">${s.t.split(/\n{2,}/).map(p=>`<p class="mb-3 whitespace-pre-line">${esc(p)}</p>`).join('')}</div></div>
+ <div class="grid grid-cols-2 gap-2"><button data-z34="sec" data-s="${i+1<S_.length?i+1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${i+1<S_.length?'':'disabled'}>‹ التالي</button><button data-z34="sec" data-s="${i>0?i-1:''}" class="w-full border border-line rounded-xl py-3 text-sm font-bold" ${i>0?'':'disabled'}>السابق ›</button></div></div>`}
+
+SUBT.lib='مكتبة الكتب';
+const _vm=vMore;vMore=function(){if(ui.sub==='lib')return vLib();return _vm()};
+
+/* ---- التفاعل ---- */
+const sheetOpen=h=>{$('#sb').innerHTML=h;$('#sheet').classList.remove('hidden')};
+const done=async(p,msg)=>{try{const id=await p;toast(msg||'اتضاف ✓');LIB.meta=LIB.meta;rr();return id}catch(e){toast('تعذّر: '+(e&&e.message||'خطأ'))}};
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-z34]');if(!b)return;const D=b.dataset,a=D.z34;
+ if(a==='open'||a==='go'){ui.lb=D.id;ui.ls=a==='go'&&D.s!==undefined&&D.s!==''?+D.s:null;ui.lq='';CUR=null;render();scrollTo(0,0)}
+ else if(a==='home'){ui.lb=null;ui.ls=null;CUR=null;render()}
+ else if(a==='toc'){ui.ls=null;render();scrollTo(0,0)}
+ else if(a==='sec'){ui.ls=D.s===''?null:+D.s;render();scrollTo(0,0)}
+ else if(a==='find'){ui.lq=($('#lbq').value||'').trim();render()}
+ else if(a==='clr'){ui.lq='';render()}
+ else if(a==='fav'){ui.lf=!ui.lf;render()}
+ else if(a==='star'){const m=lsj('kenisty_lib_bm',{}),id=CUR.id,k=+D.s,arr=m[id]=m[id]||[],j=arr.indexOf(k);j<0?arr.push(k):arr.splice(j,1);lss('kenisty_lib_bm',m);render()}
+ else if(a==='fs'){try{localStorage.setItem('kenisty_bfs',Math.max(14,Math.min(34,fsz()+(+D.n))))}catch(_){}render()}
+ else if(a==='del'){if(!confirm('حذف الكتاب من جهازك؟'))return;await kdel('lib:book:'+D.id);delete LIB.meta[D.id];await kput('lib:meta',LIB.meta);rr()}
+ else if(a==='dl'){const m=(LIB.remote||[]).find(x=>x.id===D.id);if(!m)return;toast('جاري التحميل…');
+  try{const r=await fetch(DIR+m.file,{cache:'no-store'});if(!r.ok)throw new Error('الملف مش موجود');const bk=fromJSON(await r.json(),m.title);bk.id=m.id;bk.title=bk.title||m.title;bk.author=bk.author||m.author||'';await save(bk,'github');toast('اتحمّل ✓');rr()}catch(er){toast('تعذّر: '+er.message)}}
+ else if(a==='file'){const f=$('#libf');if(f)f.click()}
+ else if(a==='paste'){sheetOpen(`<div><h2 class="font-extrabold mb-2">لصق نص كتاب</h2><input id="lpt" placeholder="اسم الكتاب" class="${inp}"><textarea id="lpx" rows="10" placeholder="الصق النص هنا. العناوين زي «1) …» أو «كلمة 5» بتتحوّل لأقسام." class="${inp} mt-2"></textarea><button data-z34="psave" class="${BT34} mt-3">حفظ في المكتبة</button></div>`)}
+ else if(a==='psave'){const t=($('#lpx').value||'').trim(),n=($('#lpt').value||'').trim()||'كتاب جديد';if(t.length<20)return toast('الصق النص الأول');$('#sheet').classList.add('hidden');done(addFromText(t,n,'device'))}
+ else if(a==='url'){const u=(prompt('رابط ملف JSON للكتاب:')||'').trim();if(!/^https?:\/\//.test(u))return;toast('جاري التحميل…');
+  try{const r=await fetch(u);if(!r.ok)throw new Error('الرابط مش شغال');done(addFromText(await r.text(),u.split('/').pop().replace(/\.\w+$/,''),'device'))}catch(er){toast('تعذّر: '+(er.message||'ممنوع من الموقع'))}}});
+const BT34='w-full bg-acc text-white font-bold rounded-xl py-3';
+document.addEventListener('change',async e=>{if(e.target.id!=='libf')return;const f=e.target.files&&e.target.files[0];if(!f)return;
+ try{const t=await decode(f);done(addFromText(t,f.name.replace(/\.\w+$/,''),'device'))}catch(er){toast('تعذّر قراءة الملف')}e.target.value=''});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lbq'){ui.lq=e.target.value.trim();render()}});
+})();
+</script>
+<script>
+/* ===== v35: حفظ الآيات • طلبات الصلاة • تأمل الخدام • خطة الدرس • مهام • الأسر • نجوم المواظبة • بحث شامل • تنبيه نسخة جديدة • تذكير نسخة احتياطية ===== */
+(()=>{
+const APPV='2026-11-25-1';
+const K=window.K=window.K||{};
+const ds=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const td=()=>ds(new Date());
+const wkOf=d=>{const t=new Date(d);t.setHours(12,0,0,0);t.setDate(t.getDate()-t.getDay());return ds(t)};
+const X=()=>S.ext=S.ext||{},xa=k=>X()[k]=X()[k]||[],xo=k=>X()[k]=X()[k]||{};
+const uid=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');
+const BT='w-full bg-acc text-white font-bold rounded-xl py-3',BO='w-full border border-line rounded-xl py-3 text-sm font-bold';
+const sheet=h=>{$('#sb').innerHTML=h;$('#sheet').classList.remove('hidden')},closeS=()=>$('#sheet').classList.add('hidden');
+const wsh=(t,p)=>window.open((p?wa(p):'https://wa.me/')+'?text='+encodeURIComponent(t),'_blank','noopener');
+const val=id=>{const e=$('#'+id);return e?String(e.value||'').trim():''};
+const svName=id=>{const s=(S.servants||[]).find(x=>x.id===id);return s?s.name:''};
+const empty=t=>`<p class="text-center text-mute py-8">${t}</p>`;
+const myName=()=>{try{return localStorage.getItem('kenisty_myname')||window.TNAME||''}catch(_){return ''}};
+const chip=(on,a,k,t)=>`<button data-z35="${a}" data-k="${k}" class="px-4 py-1.5 rounded-full text-sm border ${on?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${t}</button>`;
+
+/* ---- 1) حفظ الآيات ---- */
+const verses=()=>[...(typeof WB_V!=='undefined'?WB_V:[]),...wbWords('v')].map(v=>Array.isArray(v)?{text:v[0],ref:v[1]||''}:{text:v.text||'',ref:v.ref||''}).filter(v=>v.text);
+const weekVerse=()=>{const l=verses();if(!l.length)return null;const w=wkOf(td());return{w,...l[Math.floor(new Date(w+'T12:00:00')/6048e5)%l.length]}};
+const vMem=()=>{const v=weekVerse();if(!v)return empty('مفيش آيات.');const done=xo('mem')[v.w]||[],all=[...S.members].sort((a,b)=>a.name<b.name?-1:1);
+ return `<div class="space-y-3"><div class="${card} !mt-0 text-center"><div class="text-xs text-mute">آية الأسبوع للحفظ</div><p class="text-xl font-extrabold leading-10 mt-2">${esc(v.text)}</p><div class="text-acc font-bold mt-1">${esc(v.ref)}</div><button data-z35="memshare" class="${BO} mt-3">📤 إرسالها على واتساب</button></div>
+ <div class="flex items-center justify-between"><b>مين حفظها (${done.length} من ${all.length})</b></div>
+ ${all.map(m=>`<button data-z35="memt" data-id="${m.id}" class="w-full flex items-center gap-3 bg-card border ${done.includes(m.id)?'border-ok/50':'border-line'} rounded-xl px-4 py-3 text-start"><span class="text-xl">${done.includes(m.id)?'✅':'⬜'}</span><span class="flex-1 truncate sens">${esc(m.name)}</span></button>`).join('')}</div>`};
+
+/* ---- 2) طلبات الصلاة ---- */
+const vPray=()=>{const l=[...xa('prayers')].sort((a,b)=>(a.done-b.done)||(b.ts-a.ts)),f=ui.pf||'act',L=l.filter(p=>f==='act'?!p.done:f==='ans'?p.done:true);
+ return `<div class="space-y-3"><button data-z35="pradd" class="${BT}">+ طلب صلاة جديد</button><div class="flex gap-2">${chip(f==='act','prf','act','مفتوحة ('+l.filter(p=>!p.done).length+')')}${chip(f==='ans','prf','ans','استجاب الله ('+l.filter(p=>p.done).length+')')}${chip(f==='all','prf','all','الكل')}</div>
+ ${L.map(p=>`<div class="bg-card border ${p.done?'border-ok/40':'border-line'} rounded-2xl p-3"><div class="whitespace-pre-line sens">${esc(p.text)}</div><div class="text-xs text-mute mt-1">${p.who?esc(p.who)+' · ':''}${new Date(p.ts).toLocaleDateString('ar-EG',{day:'numeric',month:'short'})}${p.done?' · ✅ استجاب الله':''}</div>
+ <div class="flex gap-2 mt-2"><button data-z35="prpray" data-id="${p.id}" class="flex-1 bg-acc/15 text-acc rounded-xl py-2 text-sm font-bold">🙏 صليت (${p.c||0})</button><button data-z35="prdone" data-id="${p.id}" class="px-3 rounded-xl border border-line text-sm">${p.done?'↩':'✓ استجاب'}</button><button data-z35="prdel" data-id="${p.id}" class="px-3 rounded-xl border border-line text-bad">🗑</button></div></div>`).join('')||empty('مفيش طلبات هنا.')}</div>`};
+
+/* ---- 3) تأمل الخدام في فصل اليوم ---- */
+const vRefl=()=>{const t=td(),ch=K.chOf?K.chOf(t):'',R=xo('refl'),today=R[t]||[],days=Object.keys(R).filter(d=>d!==t).sort().reverse().slice(0,7);
+ return `<div class="space-y-3"><div class="${card} !mt-0 text-center"><div class="text-xs text-mute">أصحاح النهارده</div><div class="text-2xl font-extrabold mt-1">${esc(ch||'—')}</div><button data-z35="rfadd" class="${BT} mt-3">✍️ اكتب تأملك (سطرين)</button></div>
+ <b>تأملات النهارده (${today.length})</b>${today.map((r,i)=>`<div class="bg-card border border-line rounded-2xl p-3"><div class="text-xs text-acc font-bold">${esc(r.n||'خادم')}</div><div class="whitespace-pre-line mt-1">${esc(r.t)}</div></div>`).join('')||empty('لسه مفيش تأملات.')}
+ ${today.length?`<button data-z35="rfshare" class="${BO}">📤 مشاركة تأملات النهارده</button>`:''}
+ ${days.length?`<b>أيام سابقة</b>${days.map(d=>`<div class="bg-card border border-line rounded-xl p-3 text-sm"><div class="text-xs text-mute mb-1">${d} · ${R[d].length} تأمل</div>${R[d].map(r=>`<div><b>${esc(r.n||'')}:</b> ${esc(r.t)}</div>`).join('')}</div>`).join('')}`:''}</div>`};
+
+/* ---- 4) خطة الدرس الأسبوعي ---- */
+const nextSvc=()=>{const r=S.roster,day=r&&r.day!=null?r.day:5,t=new Date();t.setHours(12,0,0,0);t.setDate(t.getDate()+(day-t.getDay()+7)%7);return ds(t)};
+const vLesson=()=>{const L=[...xa('lessons')].sort((a,b)=>a.date<b.date?1:-1),t=td();
+ return `<div class="space-y-3"><button data-z35="lsadd" class="${BT}">+ خطة درس جديدة</button>${L.map(x=>`<div class="bg-card border ${x.date>=t?'border-acc/40':'border-line'} rounded-2xl p-3"><div class="flex justify-between gap-2"><b>${esc(x.topic||'بدون عنوان')}</b><span class="text-xs text-mute shrink-0">${x.date}${x.date>=t?' · قادم':''}</span></div>${x.verse?`<div class="text-sm text-acc mt-1">${esc(x.verse)}</div>`:''}${x.acts?`<div class="text-sm mt-2 whitespace-pre-line"><b>الأنشطة:</b> ${esc(x.acts)}</div>`:''}${x.notes?`<div class="text-xs text-mute mt-1 whitespace-pre-line">${esc(x.notes)}</div>`:''}${x.sv?`<div class="text-xs text-mute mt-1">الخادم: ${esc(svName(x.sv))}</div>`:''}<div class="flex gap-2 mt-2"><button data-z35="lsshare" data-id="${x.id}" class="flex-1 border border-line rounded-xl py-2 text-sm">📤 واتساب</button><button data-z35="lsedit" data-id="${x.id}" class="px-3 rounded-xl border border-line text-sm">تعديل</button><button data-z35="lsdel" data-id="${x.id}" class="px-3 rounded-xl border border-line text-bad">🗑</button></div></div>`).join('')||empty('لسه مفيش خطط دروس.')}</div>`};
+const lsForm=x=>{x=x||{date:nextSvc()};const sv=(S.servants||[]).map(s=>`<option value="${s.id}" ${x.sv===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+ sheet(`<div class="max-h-[85vh] overflow-y-auto"><h2 class="font-extrabold mb-2">${x.id?'تعديل':'خطة'} درس</h2><label class="text-xs text-mute">التاريخ<input id="ls_d" type="date" value="${x.date}" class="${inp}"></label><input id="ls_t" value="${esc(x.topic||'')}" placeholder="موضوع الدرس" class="${inp} mt-2"><input id="ls_v" value="${esc(x.verse||'')}" placeholder="الآية المحورية" class="${inp} mt-2"><textarea id="ls_a" rows="3" placeholder="الأنشطة" class="${inp} mt-2">${esc(x.acts||'')}</textarea><textarea id="ls_n" rows="2" placeholder="ملاحظات" class="${inp} mt-2">${esc(x.notes||'')}</textarea><select id="ls_s" class="${inp} mt-2"><option value="">— الخادم المسؤول —</option>${sv}</select><button data-z35="lssave" data-id="${x.id||''}" class="${BT} mt-3">حفظ</button></div>`)};
+
+/* ---- 5) مهام الخدام ---- */
+const tOver=t=>!t.done&&t.due&&t.due<td();
+K.tasksOver=()=>xa('tasks').filter(tOver).length;
+const vTasks=()=>{const f=ui.tf||'open',T=xa('tasks'),L=[...T].sort((a,b)=>(a.done-b.done)||((a.due||'9')<(b.due||'9')?-1:1)).filter(t=>f==='open'?!t.done:f==='over'?tOver(t):f==='done'?t.done:true);
+ return `<div class="space-y-3"><button data-z35="tkadd" class="${BT}">+ مهمة جديدة</button><div class="flex flex-wrap gap-2">${chip(f==='open','tkf','open','مفتوحة ('+T.filter(t=>!t.done).length+')')}${chip(f==='over','tkf','over','متأخرة ('+T.filter(tOver).length+')')}${chip(f==='done','tkf','done','خلصت')}${chip(f==='all','tkf','all','الكل')}</div>
+ ${L.map(t=>`<div class="bg-card border ${tOver(t)?'border-bad/50':'border-line'} rounded-2xl p-3 flex items-start gap-3"><button data-z35="tkt" data-id="${t.id}" class="text-2xl shrink-0">${t.done?'✅':'⬜'}</button><div class="flex-1 min-w-0"><div class="${t.done?'line-through text-mute':''}">${esc(t.text)}</div><div class="text-xs text-mute mt-1">${t.sv?esc(svName(t.sv))+' · ':''}${t.due?(tOver(t)?'⚠️ ':'')+t.due:'بدون ميعاد'}</div></div><button data-z35="tkdel" data-id="${t.id}" class="text-bad px-1">🗑</button></div>`).join('')||empty('مفيش مهام هنا.')}</div>`};
+
+/* ---- 6) الأسر ---- */
+const vFam=()=>{const F=xa('fam');return `<div class="space-y-3"><button data-z35="fmadd" class="${BT}">+ أسرة جديدة</button>${F.map(f=>{const ms=f.m.map(id=>S.members.find(m=>m.id===id)).filter(Boolean);return `<div class="bg-card border border-line rounded-2xl p-3"><div class="flex justify-between"><b>${esc(f.name)}</b><span class="text-xs text-mute">${ms.length} أفراد</span></div><div class="text-sm text-mute mt-1 sens">${ms.map(m=>esc(m.name.split(' ')[0])).join('، ')||'—'}</div><div class="flex gap-2 mt-2"><button data-z35="fmmsg" data-id="${f.id}" class="flex-1 bg-ok/15 text-ok rounded-xl py-2 text-sm font-bold">💌 رسالة للأسرة</button><button data-z35="fmedit" data-id="${f.id}" class="px-3 rounded-xl border border-line text-sm">تعديل</button><button data-z35="fmdel" data-id="${f.id}" class="px-3 rounded-xl border border-line text-bad">🗑</button></div></div>`}).join('')||empty('اربط الإخوة بنفس الأسرة، وابعت رسالة واحدة للأسرة كلها.')}</div>`};
+const fmForm=f=>{f=f||{m:[]};sheet(`<div class="max-h-[85vh] overflow-y-auto"><h2 class="font-extrabold mb-2">${f.id?'تعديل':'أسرة'} أسرة</h2><input id="fm_n" value="${esc(f.name||'')}" placeholder="اسم الأسرة (مثلًا: أسرة مينا)" class="${inp}"><div class="mt-2 space-y-1">${[...S.members].sort((a,b)=>a.name<b.name?-1:1).map(m=>`<label class="flex items-center gap-3 bg-card border border-line rounded-xl px-3 py-2"><input type="checkbox" class="fmc w-5 h-5" value="${m.id}" ${f.m.includes(m.id)?'checked':''}><span class="sens">${esc(m.name)}</span></label>`).join('')}</div><button data-z35="fmsave" data-id="${f.id||''}" class="${BT} mt-3">حفظ</button></div>`)};
+const famMsg=f=>{const ms=f.m.map(id=>S.members.find(m=>m.id===id)).filter(Boolean),ph=(ms.find(m=>m.phone)||{}).phone;
+ const lines=ms.map(m=>{const a=(m.att||[]).slice(-4),x=a.reduce((p,c)=>p+c,0);return '• '+m.name.split(' ')[0]+': '+x+' من '+a.length});
+ return{ph,txt:'سلام ونعمة 🙏\nأسرة '+f.name.replace(/^أسرة\s*/,'')+' الفاضلة،\nحضور أولادكم في آخر اجتماعات:\n'+lines.join('\n')+'\nربنا يبارك فيهم وفيكم ✝️'}};
+
+/* ---- 7) نجوم المواظبة ---- */
+const streakOf=m=>{const a=m.att||[];let c=0;for(let i=a.length-1;i>=0&&a[i]===1;i--)c++;return c};
+const badges=(m)=>{const s=streakOf(m),b=[];if(s>=4)b.push('🌟');if(s>=8)b.push('🏅');if(s>=12)b.push('🏆');const st=(xo('stars')[m.id])||0;if(st)b.push('⭐×'+st);return b.join(' ')};
+const rate8=m=>{const a=(m.att||[]).slice(-8);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*100):0};
+const vStars=()=>{const L=[...S.members].filter(m=>(m.att||[]).length).map(m=>({m,s:streakOf(m),r:rate8(m)})).sort((a,b)=>b.s-a.s||b.r-a.r),top=L[0];
+ return `<div class="space-y-3">${top?`<div class="${card} !mt-0 text-center" style="background:linear-gradient(135deg,#3b2f0f,#1f1a0a);border:1px solid rgba(216,183,101,.4)"><div class="text-xs" style="color:#d8b765">نجم المواظبة</div><div class="text-2xl font-extrabold mt-1 sens">${esc(top.m.name)}</div><div class="text-sm text-mute">${top.s} أسبوع ورا بعض · ${top.r}% في آخر 8</div></div>`:''}
+ <div class="text-xs text-mute">🌟 4 أسابيع ورا بعض · 🏅 8 · 🏆 12 · ⭐ نجمة تضيفها إنت</div>
+ ${L.map(({m,s,r},i)=>`<div class="bg-card border border-line rounded-xl px-3 py-2.5 flex items-center gap-3"><span class="w-6 text-center text-mute text-sm">${i+1}</span><div class="flex-1 min-w-0"><div class="truncate sens">${esc(m.name)}</div><div class="text-xs text-mute">${s} ورا بعض · ${r}%</div></div><span class="text-sm">${badges(m)}</span><button data-z35="starp" data-id="${m.id}" class="w-8 h-8 rounded-lg border border-line text-sm">+⭐</button></div>`).join('')||empty('سجّل حضور جلسات الأول.')}
+ ${L.length?`<button data-z35="starshare" class="${BO}">📤 مشاركة نجوم الأسبوع</button>`:''}</div>`};
+
+/* ---- 8) بحث شامل ---- */
+const vGs=()=>{const q=(ui.gq||'').trim(),n=nrm(q);
+ let h=`<div class="space-y-3"><div class="flex gap-2"><input id="gsq" value="${esc(q)}" placeholder="ابحث في كل البرنامج…" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-z35="gs" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>`;
+ if(n.length<2)return h+empty('اكتب اسم مخدوم أو رقم تليفون أو كلمة من ملاحظة أو طلب صلاة أو مهمة.')+'</div>';
+ const has=t=>nrm(t||'').includes(n),sec=(t,rows)=>rows.length?`<div><b class="block mb-1">${t} (${rows.length})</b><div class="space-y-1">${rows.join('')}</div></div>`:'',row=(a,id,t,s)=>`<button data-z35="${a}" data-id="${id}" class="w-full bg-card border border-line rounded-xl px-3 py-2.5 text-start"><div class="text-sm sens">${esc(t)}</div>${s?`<div class="text-xs text-mute truncate">${esc(s)}</div>`:''}</button>`;
+ const mem=S.members.filter(m=>has(m.name)||has(m.phone)||has(m.gname)).slice(0,15).map(m=>row('gsm',m.id,m.name,m.phone||''));
+ const notes=[];Object.keys(S.notes||{}).forEach(id=>{const m=S.members.find(x=>x.id===id);if(m)(S.notes[id]||[]).forEach(x=>{if(has(x.text))notes.push(row('gsm',id,m.name,String(x.text).slice(0,90)))})});
+ const pr=xa('prayers').filter(p=>has(p.text)).slice(0,10).map(p=>row('gsp',p.id,p.text.slice(0,70),p.done?'استجاب الله':'مفتوح'));
+ const tk=xa('tasks').filter(t=>has(t.text)).slice(0,10).map(t=>row('gst',t.id,t.text,t.due||''));
+ const ls=xa('lessons').filter(x=>has(x.topic)||has(x.verse)||has(x.acts)).slice(0,10).map(x=>row('gsl',x.id,x.topic||x.verse,x.date));
+ const wd=[...(S.words||[]),...(window.SHARED_WORDS||[])].filter(w=>has(w.text)).slice(0,8).map(w=>row('gsw','',w.text.slice(0,80),w.ref||''));
+ const body=sec('المخدومين',mem)+sec('الملاحظات',notes.slice(0,15))+sec('طلبات الصلاة',pr)+sec('المهام',tk)+sec('خطط الدروس',ls)+sec('الكلمات',wd);
+ return h+(body||empty('مفيش نتائج.'))+`<button data-z35="gsb" class="${BO}">📜 ابحث عن «${esc(q)}» في الكتاب المقدس</button></div>`};
+
+/* ---- تسجيل الشاشات ---- */
+const SUB={mem:['حفظ الآيات',vMem],prayreq:['طلبات الصلاة',vPray],refl:['تأمل الخدام',vRefl],lesson:['خطة الدرس الأسبوعي',vLesson],tasks:['مهام الخدام',vTasks],fam:['الأسر',vFam],stars:['نجوم المواظبة',vStars],gsearch:['بحث شامل',vGs]};
+Object.keys(SUB).forEach(k=>SUBT[k]=SUB[k][0]);
+const _vm=vMore;vMore=function(){if(SUB[ui.sub])return SUB[ui.sub][1]();return _vm()};
+
+/* ---- الشاشة الرئيسية: تنبيهات مهمة بس ---- */
+const bakAge=()=>{try{const l=localStorage.getItem('kenisty_lastbak');if(!l){const f=localStorage.getItem('kenisty_firstuse')||td();localStorage.setItem('kenisty_firstuse',f);return Math.round((Date.now()-new Date(f+'T12:00:00'))/864e5)}return Math.round((Date.now()-new Date(l+'T12:00:00'))/864e5)}catch(_){return 0}};
+const banner=(c,html)=>`<div class="rounded-2xl p-3 mt-3 text-sm" style="background:${c[0]};border:1px solid ${c[1]}">${html}</div>`;
+const _vh=vHome;vHome=function(){const h=_vh();let a='';
+ try{
+  if(K.newVer)a+=banner(['rgba(58,178,138,.12)','rgba(58,178,138,.4)'],`<div class="font-bold">🆕 فيه نسخة جديدة من البرنامج</div><button data-z35="upd" class="${BT} mt-2 !py-2">تحديث دلوقتي</button>`);
+  const to=K.tasksOver();if(to)a+=`<button data-go="tasks" class="w-full text-start">${banner(['rgba(239,68,68,.1)','rgba(239,68,68,.35)'],`⚠️ ${to} مهمة متأخرة <span class="text-acc">›</span>`)}</button>`;
+  if(bakAge()>=7&&S.members.length)a+=banner(['rgba(245,158,11,.1)','rgba(245,158,11,.4)'],`<div class="font-bold">💾 عدّى ${bakAge()} يوم من آخر نسخة احتياطية</div><div class="grid grid-cols-2 gap-2 mt-2"><button data-sub="bak" class="${BO} !py-2">افتح النسخ</button><button data-z35="bakok" class="${BO} !py-2">عملتها ✓</button></div>`);
+ }catch(_){}
+ return a?h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+a):h};
+async function checkVer(){try{const r=await fetch('index.html?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const t=await r.text(),m=t.match(/const APPV='([^']+)'/);if(m&&m[1]!==APPV){K.newVer=1;if(ui.tab==='home'||!ui.tab)try{render()}catch(_){}}}catch(_){}}
+setTimeout(checkVer,6000);
+
+/* ---- التفاعل ---- */
+const act=async(a,D)=>{const t=td();
+ if(a==='memt'){const v=weekVerse(),M=xo('mem');const arr=M[v.w]=M[v.w]||[],i=arr.indexOf(D.id);i<0?arr.push(D.id):arr.splice(i,1);save();render()}
+ else if(a==='memshare'){const v=weekVerse();wsh('📖 آية الأسبوع للحفظ\n\n«'+v.text+'»\n'+v.ref+'\n\nمين يحفظها ويقولها في الاجتماع؟ 🙏')}
+ else if(a==='prf'){ui.pf=D.k;render()}
+ else if(a==='pradd')sheet(`<div><h2 class="font-extrabold mb-2">طلب صلاة</h2><textarea id="pr_t" rows="4" placeholder="اكتب الطلب (حاجة عامة بدون تفاصيل حساسة)" class="${inp}"></textarea><input id="pr_w" placeholder="من/عن (اختياري)" class="${inp} mt-2"><button data-z35="prsave" class="${BT} mt-3">حفظ</button></div>`)
+ else if(a==='prsave'){const x=val('pr_t');if(!x)return toast('اكتب الطلب');xa('prayers').push({id:uid(),text:x,who:val('pr_w'),ts:Date.now(),c:0,done:0});save();closeS();render()}
+ else if(a==='prpray'){const p=xa('prayers').find(x=>x.id===D.id);if(p){p.c=(p.c||0)+1;save();render()}}
+ else if(a==='prdone'){const p=xa('prayers').find(x=>x.id===D.id);if(p){p.done=p.done?0:1;save();render()}}
+ else if(a==='prdel'){if(confirm('حذف الطلب؟')){X().prayers=xa('prayers').filter(x=>x.id!==D.id);save();render()}}
+ else if(a==='rfadd'){if(!myName()){const n=(prompt('اسمك (هيظهر جنب تأملك):')||'').trim();if(!n)return;try{localStorage.setItem('kenisty_myname',n)}catch(_){}}
+  sheet(`<div><h2 class="font-extrabold mb-1">تأملي في ${esc((K.chOf&&K.chOf(t))||'أصحاح النهارده')}</h2><textarea id="rf_t" rows="4" placeholder="سطرين عن اللي لمسك في الأصحاح" class="${inp}"></textarea><button data-z35="rfsave" class="${BT} mt-3">حفظ</button></div>`)}
+ else if(a==='rfsave'){const x=val('rf_t');if(!x)return toast('اكتب تأملك');const R=xo('refl');(R[t]=R[t]||[]).push({n:myName(),t:x,ts:Date.now()});save();closeS();render()}
+ else if(a==='rfshare'){const R=(xo('refl')[t]||[]);wsh('✍️ تأملات الخدام — '+((K.chOf&&K.chOf(t))||'')+'\n\n'+R.map(r=>'• '+(r.n?r.n+': ':'')+r.t).join('\n\n'))}
+ else if(a==='lsadd')lsForm();
+ else if(a==='lsedit')lsForm(xa('lessons').find(x=>x.id===D.id));
+ else if(a==='lssave'){const o={date:val('ls_d')||nextSvc(),topic:val('ls_t'),verse:val('ls_v'),acts:val('ls_a'),notes:val('ls_n'),sv:val('ls_s')};if(!o.topic)return toast('اكتب موضوع الدرس');const L=xa('lessons');if(D.id)Object.assign(L.find(x=>x.id===D.id),o);else L.push({id:uid(),...o});save();closeS();render()}
+ else if(a==='lsdel'){if(confirm('حذف الخطة؟')){X().lessons=xa('lessons').filter(x=>x.id!==D.id);save();render()}}
+ else if(a==='lsshare'){const x=xa('lessons').find(y=>y.id===D.id);wsh('📝 خطة الدرس — '+x.date+'\nالموضوع: '+x.topic+(x.verse?'\nالآية: '+x.verse:'')+(x.acts?'\nالأنشطة: '+x.acts:'')+(x.sv?'\nالخادم: '+svName(x.sv):'')+(x.notes?'\nملاحظات: '+x.notes:''))}
+ else if(a==='tkf'){ui.tf=D.k;render()}
+ else if(a==='tkadd'){const sv=(S.servants||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');sheet(`<div><h2 class="font-extrabold mb-2">مهمة جديدة</h2><textarea id="tk_t" rows="3" placeholder="المهمة" class="${inp}"></textarea><select id="tk_s" class="${inp} mt-2"><option value="">— على مين؟ —</option>${sv}</select><label class="text-xs text-mute block mt-2">الميعاد<input id="tk_d" type="date" class="${inp}"></label><button data-z35="tksave" class="${BT} mt-3">حفظ</button></div>`)}
+ else if(a==='tksave'){const x=val('tk_t');if(!x)return toast('اكتب المهمة');xa('tasks').push({id:uid(),text:x,sv:val('tk_s'),due:val('tk_d'),done:0});save();closeS();render()}
+ else if(a==='tkt'){const x=xa('tasks').find(y=>y.id===D.id);if(x){x.done=x.done?0:1;save();render()}}
+ else if(a==='tkdel'){if(confirm('حذف المهمة؟')){X().tasks=xa('tasks').filter(x=>x.id!==D.id);save();render()}}
+ else if(a==='fmadd')fmForm();
+ else if(a==='fmedit')fmForm(xa('fam').find(x=>x.id===D.id));
+ else if(a==='fmsave'){const n=val('fm_n');if(!n)return toast('اكتب اسم الأسرة');const m=[...document.querySelectorAll('.fmc:checked')].map(c=>c.value),F=xa('fam');if(D.id){const f=F.find(x=>x.id===D.id);f.name=n;f.m=m}else F.push({id:uid(),name:n,m});save();closeS();render()}
+ else if(a==='fmdel'){if(confirm('حذف الأسرة (الأفراد مش بيتمسحوا)؟')){X().fam=xa('fam').filter(x=>x.id!==D.id);save();render()}}
+ else if(a==='fmmsg'){const f=xa('fam').find(x=>x.id===D.id),r=famMsg(f);wsh(r.txt,r.ph)}
+ else if(a==='starp'){const S2=xo('stars');S2[D.id]=(S2[D.id]||0)+1;save();render();toast('⭐ اتضافت')}
+ else if(a==='starshare'){const L=[...S.members].filter(m=>(m.att||[]).length).map(m=>({m,s:streakOf(m)})).sort((a,b)=>b.s-a.s).slice(0,5);wsh('🌟 نجوم المواظبة\n\n'+L.map(({m,s},i)=>(i+1)+'. '+m.name+' — '+s+' أسبوع '+badges(m)).join('\n')+'\n\nربنا يبارك مواظبتكم 🙏')}
+ else if(a==='gs'){ui.gq=val('gsq');render()}
+ else if(a==='gsm')noteSheet(D.id);
+ else if(a==='gsp'){ui.sub='prayreq';ui.pf='all';render()}
+ else if(a==='gst'){ui.sub='tasks';ui.tf='all';render()}
+ else if(a==='gsl'){ui.sub='lesson';render()}
+ else if(a==='gsb'){ui.sub='bibread';ui.bq=ui.gq||'';ui.bb=null;ui.bc=null;render()}
+ else if(a==='bakok'){try{localStorage.setItem('kenisty_lastbak',td())}catch(_){}render();toast('تمام ✓ هفكّرك بعد أسبوع')}
+ else if(a==='upd'){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(_){}location.reload()}};
+K.act35=act;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-z35]');if(b)act(b.dataset.z35,b.dataset)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='gsq'){ui.gq=e.target.value.trim();render()}});
 })();
 </script>
 </body>
