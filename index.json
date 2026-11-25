@@ -1,0 +1,11 @@
+{
+ "books": [
+  {
+   "id": "service-reflections",
+   "title": "تأملات للخادم",
+   "author": "كتابة أصلية للخدمة",
+   "file": "service-reflections.json",
+   "sections": 30
+  }
+ ]
+}
