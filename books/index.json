@@ -1,3 +1,4 @@
+
 {
   "books": [
     {
@@ -6,6 +7,13 @@
       "author": "كتابة أصلية للخدمة",
       "file": "service-reflections.json",
       "sections": 30
+    },
+    {
+      "id": "kelma-manfa3a",
+      "title": "كلمة منفعة",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/kelma-manfa3a.json",
+      "sections": 200
     }
   ]
 }
