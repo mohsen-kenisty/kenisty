@@ -14,6 +14,13 @@
       "author": "البابا شنودة الثالث",
       "file": "shenouda/kelma-manfa3a.json",
       "sections": 200
+    },
+    {
+      "id": "maqalat-roheya",
+      "title": "مقالات روحية",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/maqalat-roheya.json",
+      "sections": 33
     }
   ]
 }
