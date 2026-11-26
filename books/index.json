@@ -21,6 +21,62 @@
       "author": "البابا شنودة الثالث",
       "file": "shenouda/maqalat-roheya.json",
       "sections": 33
+    },
+    {
+      "id": "ashrat-mafaheem",
+      "title": "عشرة مفاهيم",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/ashrat-mafaheem.json",
+      "sections": 61
+    },
+    {
+      "id": "hayat-el-iman",
+      "title": "حياة الإيمان",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/hayat-el-iman.json",
+      "sections": 85
+    },
+    {
+      "id": "el-wasaet-el-roheya",
+      "title": "الوسائط الروحية",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/el-wasaet-el-roheya.json",
+      "sections": 46
+    },
+    {
+      "id": "el-that",
+      "title": "الذات",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/el-that.json",
+      "sections": 22
+    },
+    {
+      "id": "el-roh-el-kodos",
+      "title": "الروح القدس وعمله فينا",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/el-roh-el-kodos.json",
+      "sections": 70
+    },
+    {
+      "id": "ma3alem-el-tareek",
+      "title": "معالم الطريق الروحي",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/ma3alem-el-tareek.json",
+      "sections": 130
+    },
+    {
+      "id": "entelaq-el-roh",
+      "title": "انطلاق الروح",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/entelaq-el-roh.json",
+      "sections": 35
+    },
+    {
+      "id": "hayat-el-tawado3",
+      "title": "حياة التواضع والوداعة",
+      "author": "البابا شنودة الثالث",
+      "file": "shenouda/hayat-el-tawado3.json",
+      "sections": 109
     }
   ]
 }
