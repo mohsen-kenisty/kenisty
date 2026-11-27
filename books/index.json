@@ -77,6 +77,13 @@
       "author": "البابا شنودة الثالث",
       "file": "shenouda/hayat-el-tawado3.json",
       "sections": 109
+    },
+    {
+      "id": "bostan-elrohban",
+      "title": "بستان الرهبان",
+      "author": "أقوال الآباء والرهبان",
+      "file": "bostan/bostan.json",
+      "sections": 59
     }
   ]
 }
