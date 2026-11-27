@@ -2330,7 +2330,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-zk]');if(!
 (()=>{
 const K=window.K=window.K||{};
 const nrm=s=>String(s).replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');
-const HC='kenisty_home',HCD={risk:1,pray:1,syn:1,cd:1,roster:1};
+const HC='kenisty_home',HCD={banner:1,risk:1,pray:1,syn:1,cd:1,roster:1};
 const hc=()=>{try{return Object.assign({},HCD,JSON.parse(localStorage.getItem(HC)||'{}'))}catch(_){return{...HCD}}};
 const cfg=()=>{try{return JSON.parse(localStorage.getItem('kenisty_conf')||'{}')}catch(_){return{}}};
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
@@ -2397,13 +2397,13 @@ const GROUPS=[
   ['sub','owner','👑','لوحة المالك','الأكواد وطلبات الانضمام',()=>window.IS_ADMIN]]}
 ].map(g=>({...g,items:g.items.map(([a,k,i,t,s,c])=>({a,k,i,t,s,c}))}));
 
-const row=(it,tag)=>`<button data-${it.a==='go'?'go':'sub'}="${it.k}" class="w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start"><div class="w-10 h-10 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0">${it.i}</div><div class="flex-1 min-w-0"><div class="font-bold">${it.t}</div><div class="text-xs text-mute">${it.s}${tag?' · '+tag:''}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`;
+const row=(it,tag)=>`<button data-${it.a==='go'?'go':'sub'}="${it.k}" class="w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start"><div class="w-10 h-10 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0 text-acc">${window.CIC?CIC(it.k,it.i):it.i}</div><div class="flex-1 min-w-0"><div class="font-bold">${it.t}</div><div class="text-xs text-mute">${it.s}${tag?' · '+tag:''}</div></div><span class="text-mute rotate-180">${ic('back','w-5 h-5')}</span></button>`;
 const vis=g=>g.items.filter(it=>!it.c||it.c());
 K.menu=()=>{const q=(ui.msq||'').trim(),open=ui.mgrp;
  let h=`<div class="flex gap-2 mb-3"><input id="msq" value="${esc(q)}" placeholder="ابحث في القائمة…" class="flex-1 bg-card border border-line rounded-xl px-3 py-2.5"><button data-z32="ms" class="bg-acc text-white font-bold rounded-xl px-4">بحث</button></div>`;
  if(q){const n=nrm(q),r=GROUPS.flatMap(g=>vis(g).map(it=>({it,g:g.t}))).filter(({it,g})=>nrm(it.t+' '+it.s+' '+g).includes(n));
   return h+`<div class="space-y-2">${r.map(({it,g})=>row(it,g)).join('')||'<p class="text-center text-mute py-6">مفيش نتائج</p>'}<button data-z32="mc" class="w-full text-sm text-acc py-2">مسح البحث</button></div>`}
- h+=GROUPS.map(g=>{const o=open===g.k;return `<div class="mb-2.5"><button data-z32="g" data-g="${g.k}" class="w-full rounded-2xl p-4 flex items-center gap-3 text-start ${o?'bg-acc/15 border border-acc/40':'bg-card border border-line'}"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0">${g.i}</div><div class="flex-1 min-w-0"><div class="font-extrabold">${g.t}</div><div class="text-xs text-mute">${g.s}</div></div><span class="text-xs text-mute shrink-0">${vis(g).length}</span><span class="text-mute shrink-0">${o?'▾':'‹'}</span></button>${o?`<div class="space-y-2 mt-2 ps-2" style="border-inline-start:2px solid rgba(255,255,255,.1)">${vis(g).map(it=>row(it)).join('')}</div>`:''}</div>`}).join('');
+ h+=GROUPS.map(g=>{const o=open===g.k;return `<div class="mb-2.5"><button data-z32="g" data-g="${g.k}" class="w-full rounded-2xl p-4 flex items-center gap-3 text-start ${o?'bg-acc/15 border border-acc/40':'bg-card border border-line'}"><div class="w-11 h-11 rounded-xl bg-acc/15 grid place-items-center text-xl shrink-0 text-acc">${window.CIC?CIC('g_'+g.k,g.i):g.i}</div><div class="flex-1 min-w-0"><div class="font-extrabold">${g.t}</div><div class="text-xs text-mute">${g.s}</div></div><span class="text-xs text-mute shrink-0">${vis(g).length}</span><span class="text-mute shrink-0">${o?'▾':'‹'}</span></button>${o?`<div class="space-y-2 mt-2 ps-2" style="border-inline-start:2px solid rgba(255,255,255,.1)">${vis(g).map(it=>row(it)).join('')}</div>`:''}</div>`}).join('');
  return h+`<div class="mt-5"><div class="text-xs text-mute mb-2">الحساب</div><button data-sub="out" class="w-full bg-card border border-line rounded-2xl p-3.5 flex items-center gap-3 text-start"><span class="text-xl">🚪</span><div class="flex-1"><div class="font-bold">تسجيل الخروج</div><div class="text-xs text-mute">خروج من هذا الجهاز</div></div></button></div>
  <div class="mt-5"><div class="text-xs mb-2" style="color:#f87171">منطقة الخطر</div><button data-sub="wipe" class="w-full rounded-2xl p-3.5 flex items-center gap-3 text-start" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.4)"><span class="text-xl">🧹</span><div class="flex-1"><div class="font-bold" style="color:#f87171">مسح كل المخدومين والجلسات</div><div class="text-xs text-mute">للبدء من الصفر — لا يمكن التراجع</div></div></button></div>`};
 window.K32={menu:K.menu};
@@ -2418,7 +2418,7 @@ const _vh=vHome;vHome=function(){const h=_vh(),c=hc();let al='',rows='';
   if(c.syn&&K.syn){const s=K.syn();rows+=hrow('🕊️','سنكسار اليوم — '+s.c.d+' '+s.mn,esc(s.names.length?s.names.join(' • '):'اضغط للعرض'),'data-go="synax"','')}
   if(c.cd&&K.cd){const l=K.cd();if(l.length)rows+=`<button data-go="mgrid" class="w-full flex items-center gap-3 p-3.5 text-start"><span class="text-xl shrink-0">⏳</span><div class="flex-1 min-w-0"><div class="text-[11px] text-mute">المناسبات القريبة</div><div class="flex flex-wrap gap-x-3 gap-y-0.5 text-sm">${l.map(x=>`<span><b class="${x.n<=1?'text-warn':'text-acc'}">${K.when(x.n)}</b> ${esc(x.t)}</span>`).join('')}</div></div><span class="text-xs text-acc shrink-0">›</span></button>`}
  }catch(_){}
- const quick=`<div class="grid grid-cols-3 gap-2 mt-3">${[['bibread','📜','الإنجيل'],['agp','🙏','الأجبية'],['qot','📖','القطمارس']].map(([k,i,t])=>`<button data-go="${k}" class="bg-card border border-line rounded-xl py-2.5 text-sm font-bold">${i} ${t}</button>`).join('')}</div>`;
+ const quick=`<div class="grid grid-cols-3 gap-2 mt-3">${[['bibread','📜','الإنجيل'],['agp','🙏','الأجبية'],['qot','📖','القطمارس']].map(([k,i,t])=>`<button data-go="${k}" class="bg-card border border-line rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-1.5"><span class="text-acc">${window.CIC?CIC(k,i,18):i}</span>${t}</button>`).join('')}</div>`;
  return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,m=>m+al+(rows?`<div class="bg-card border border-line rounded-2xl mt-3 overflow-hidden">${rows}</div>`:'')+quick)};
 
 /* ---------- الإعدادات: عناوين وتجميع ---------- */
@@ -2430,7 +2430,7 @@ const _vs=vSet;vSet=function(){const out=_vs(),open='<div class="'+card+'"';
  const take=kw=>{const i=parts.findIndex(p=>p.includes(kw));return i<0?'':open+parts.splice(i,1)[0]};
  const A=['حجم الخط','نوع الخط','اللون الرئيسي','لون الخلفية'].map(take).join(''),B=take('نقاط الحضور'),C=take('وضع الخصوصية'),rest=parts.map(p=>open+p).join('');
  const c=hc(),cf=cfg();
- const tg=[['risk','تنبيه خطر الغياب'],['pray','مخدوم اليوم للصلاة'],['syn','سنكسار اليوم'],['cd','المناسبات القريبة'],['roster','تنبيه جدول الخدمة']].map(([k,t])=>`<div class="flex justify-between items-center gap-3 py-2"><span>${t}</span>${pill(c[k],k)}</div>`).join('');
+ const tg=[['banner','البانر المصوّر والتاريخ القبطي'],['risk','تنبيه خطر الغياب'],['pray','مخدوم اليوم للصلاة'],['syn','سنكسار اليوم'],['cd','المناسبات القريبة'],['roster','تنبيه جدول الخدمة']].map(([k,t])=>`<div class="flex justify-between items-center gap-3 py-2"><span>${t}</span>${pill(c[k],k)}</div>`).join('');
  const bs=(S.bible&&S.bible.start)||today();
  return pre+H('المظهر','حجم الخط وشكله وألوان البرنامج')+A+rst+
   H('شاشة اليوم','اختار اللي يظهر لك في الشاشة الرئيسية')+`<div class="${card}" style="margin-top:0">${tg}</div>`+
@@ -2607,7 +2607,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='lbq')
 <script>
 /* ===== v35: حفظ الآيات • طلبات الصلاة • تأمل الخدام • خطة الدرس • مهام • الأسر • نجوم المواظبة • بحث شامل • تنبيه نسخة جديدة • تذكير نسخة احتياطية ===== */
 (()=>{
-const APPV='2026-11-26-1';
+const APPV='2026-11-26-2';
 const K=window.K=window.K||{};
 const ds=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
 const td=()=>ds(new Date());
@@ -2620,7 +2620,7 @@ const sheet=h=>{$('#sb').innerHTML=h;$('#sheet').classList.remove('hidden')},clo
 const wsh=(t,p)=>window.open((p?wa(p):'https://wa.me/')+'?text='+encodeURIComponent(t),'_blank','noopener');
 const val=id=>{const e=$('#'+id);return e?String(e.value||'').trim():''};
 const svName=id=>{const s=(S.servants||[]).find(x=>x.id===id);return s?s.name:''};
-const empty=t=>`<p class="text-center text-mute py-8">${t}</p>`;
+const empty=t=>`<div class="text-center text-mute py-8">${window.CIC?`<div class="flex justify-center mb-2 text-acc" style="opacity:.45">${CIC('cross','',40)}</div>`:''}<p>${t}</p></div>`;
 const myName=()=>{try{return localStorage.getItem('kenisty_myname')||window.TNAME||''}catch(_){return ''}};
 const chip=(on,a,k,t)=>`<button data-z35="${a}" data-k="${k}" class="px-4 py-1.5 rounded-full text-sm border ${on?'bg-acc border-acc text-white font-bold':'border-line text-mute bg-card'}">${t}</button>`;
 
@@ -2750,6 +2750,97 @@ const act=async(a,D)=>{const t=td();
 K.act35=act;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-z35]');if(b)act(b.dataset.z35,b.dataset)});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='gsq'){ui.gq=e.target.value.trim();render()}});
+})();
+</script>
+<script>
+/* ===== v36: الشكل الكنسي — أيقونات وبانر مرسوم وإضافات اليوم ===== */
+(()=>{
+const CI={
+ cross:'<path d="M12 3v18M3 12h18"/><path d="M9.5 3h5M9.5 21h5M3 9.5v5M21 9.5v5"/>',
+ church:'<path d="M12 2v4.5M10.6 3.6h2.8"/><path d="M7.5 11a4.5 4.5 0 0 1 9 0"/><path d="M5 11h14M6 11v9M18 11v9M3 20h18"/><path d="M10 20v-3.5a2 2 0 0 1 4 0V20"/>',
+ arch:'<path d="M5 21V10a7 7 0 0 1 14 0v11z"/><path d="M8.8 13.5l2.4 2.4 4.2-4.6"/>',
+ flock:'<circle cx="9" cy="10.5" r="2.6"/><path d="M4.5 19.5c0-2.7 2-4.4 4.5-4.4s4.5 1.7 4.5 4.4"/><circle cx="17" cy="11.5" r="2.1"/><path d="M14.8 15.6c.7-.4 1.4-.6 2.2-.6 2.1 0 3.5 1.3 3.5 3.6"/><path d="M9 2.4v3.2M7.4 3.8h3.2"/>',
+ bell:'<path d="M12 1.8v3M10.6 3.2h2.8"/><path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21.5a2.2 2.2 0 0 0 4 0"/>',
+ bible:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M12.5 6.5v6M10 9h5"/>',
+ bookopen:'<path d="M3 5.5c3-1 6-.8 9 1 3-1.8 6-2 9-1V19c-3-1-6-.8-9 1-3-1.8-6-2-9-1z"/><path d="M12 6.5V20"/>',
+ candle:'<path d="M12 2.5c2 2.2 2.2 3.6 0 5-2.2-1.4-2-2.8 0-5z"/><rect x="9.5" y="9" width="5" height="10" rx="1"/><path d="M7 21.5h10"/>',
+ scroll:'<path d="M6 4h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 9h6M9 12h6M9 15h4"/>',
+ chalice:'<path d="M7 4h10c0 4-1.5 6.5-5 7-3.5-.5-5-3-5-7z"/><path d="M12 11v6M10 17h4M8.5 20.5h7"/>',
+ saint:'<ellipse cx="12" cy="3.8" rx="3.6" ry="1.2"/><circle cx="12" cy="9.5" r="3"/><path d="M6 21c0-3.6 2.7-6 6-6s6 2.4 6 6z"/>',
+ wscroll:'<path d="M7 4h9a2 2 0 0 1 2 2v14H9a2 2 0 0 1-2-2z"/><path d="M12.5 8v6M10 10.5h5"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
+ books:'<path d="M5 3h4v18H5zM10 3h4v18h-4z"/><path d="M15.2 5l3.6-.9 2.6 15.4-3.6.9z"/>',
+ heartx:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M12 9.5v5M9.8 12h4.4"/>',
+ pen:'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
+ trend:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 12v5h-5"/>',
+ visit:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M12 11v6M9.5 13.5h5"/>',
+ route:'<circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h6a3 3 0 0 1 0 6h-4a3 3 0 0 0 0 6h6"/>',
+ circx:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 11h8"/>',
+ mail:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+ mega:'<path d="M4 10v4h3l7 4V6L7 10z"/><path d="M17 9.5a4 4 0 0 1 0 5"/>',
+ plane:'<path d="M4 12l16-8-6 16-3-7z"/>',
+ report:'<path d="M4 20V4M4 20h16"/><path d="M8 16v-5M12 16V8M16 16v-8"/>',
+ history:'<path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5"/><path d="M4 4v4.5h4.5M12 8v4l2.5 1.5"/>',
+ medal:'<circle cx="12" cy="9" r="5"/><path d="M8.5 13.5L7 21l5-2.5 5 2.5-1.5-7.5"/>',
+ trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8.5 21h7"/>',
+ printer:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+ qr:'<rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h3v3M20.5 14v6.5H14"/>',
+ calx:'<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="M12 12.5v5.5M9.7 15h4.6"/>',
+ cake:'<path d="M4 20h16v-6H4z"/><path d="M4 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2"/><path d="M12 12V8M12 4.5v1"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ grad:'<path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11.5V16c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-4.5"/>',
+ grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+ teamp:'<circle cx="9" cy="8" r="3"/><path d="M3.5 20c0-3.3 2.5-5.5 5.5-5.5s5.5 2.2 5.5 5.5"/><path d="M17 5v6M14 8h6"/>',
+ family:'<circle cx="8" cy="8" r="2.2"/><circle cx="16" cy="8" r="2.2"/><circle cx="12" cy="13" r="1.8"/><path d="M4 19c0-2.5 1.8-4 4-4M20 19c0-2.5-1.8-4-4-4M9 20c0-2 1.3-3.2 3-3.2s3 1.2 3 3.2"/>',
+ inbox:'<path d="M12 3v11M8 10.5l4 4 4-4"/><path d="M4 15v4.5h16V15"/>',
+ promo:'<path d="M12 20V6M6.5 11.5L12 6l5.5 5.5"/><path d="M5 3.5h14"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+ shield:'<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5M12 17h.01"/>',
+ key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15 12v2"/>',
+ crown:'<path d="M4 18h16l1-10-5 4-4-6-4 6-5-4z"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+ clip:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v2H9zM8.5 11h7M8.5 14.5h7"/>',
+ tasks:'<path d="M4.5 6.5l1.5 1.5 3-3M4.5 13l1.5 1.5 3-3M4.5 19.5l1.5 1.5 3-3"/><path d="M13 7h7M13 13.5h7M13 20h7"/>',
+ bus:'<rect x="4" y="4" width="16" height="13" rx="2"/><path d="M4 11h16"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'
+};
+const MAP={g_tools:'search',g_pray:'bible',g_care:'visit',g_rep:'report',g_plan:'calx',g_team:'family',g_set:'gear',
+ bibread:'bible',bible:'bookopen',agp:'candle',qot:'scroll',khul:'chalice',synax:'saint',word:'wscroll',sermon:'mic',lib:'books',mem:'bookopen',prayreq:'heartx',refl:'pen',
+ risk:'trend',fu:'visit',fplan:'route',visits:'visit',conf:'circx',gmsg:'mail',gwa:'mega',wsum:'plane',wk:'report',month:'report',year:'report',hist:'history',pts:'medal',sup:'trophy',print:'printer',qr:'qr',
+ mgrid:'calx',cal:'calx',bd:'cake',roster:'clock',lect:'grad',svc:'grid',team:'teamp',joinqr:'qr',imp:'inbox',promo:'promo',set:'gear',nset:'bell',bak:'inbox',adm:'shield',help:'help',renew:'key',owner:'crown',
+ stars:'star',fam:'family',lesson:'clip',tasks:'tasks',trips:'bus',gsearch:'search',cross:'cross',church:'church'};
+window.CIC=(k,fb,sz)=>{const n=MAP[k]||k,p=CI[n];return p?`<svg viewBox="0 0 24 24" width="${sz||24}" height="${sz||24}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle" aria-hidden="true">${p}</svg>`:(fb||'')};
+window.CI_ALL=CI;
+/* أيقونات الشريط السفلي: كنيسة / شباك مقوّس / رعية / جرس / صليب */
+try{Object.assign(ICON,{home:CI.church,att:CI.arch,mem:CI.flock,ntf:CI.bell,more:CI.cross})}catch(_){}
+
+/* ---------- البانر المصوّر في شاشة اليوم ---------- */
+const MN=['توت','بابه','هاتور','كيهك','طوبة','أمشير','برمهات','برمودة','بشنس','بؤونة','أبيب','مسرى','النسيء'];
+const nf=n=>Number(n).toLocaleString('ar-EG',{useGrouping:false});
+const HRS=['باكر','الثالثة','السادسة','التاسعة','الغروب','النوم','نصف الليل'];
+const hourIdx=()=>{const h=new Date().getHours();return h>=4&&h<9?0:h<12&&h>=9?1:h>=12&&h<15?2:h>=15&&h<17?3:h>=17&&h<21?4:h>=21?5:6};
+const scene=`<svg viewBox="0 0 360 60" preserveAspectRatio="xMidYMax slice" style="position:absolute;left:0;right:0;bottom:0;width:100%;height:66px" aria-hidden="true">
+ <g fill="#08121d"><rect x="156" y="40" width="48" height="18"/><rect x="166" y="30" width="28" height="10"/><path d="M166 30a14 14 0 0 1 28 0z"/><rect x="104" y="46" width="28" height="12"/><path d="M108 46a10 10 0 0 1 20 0z"/><rect x="228" y="46" width="28" height="12"/><path d="M232 46a10 10 0 0 1 20 0z"/><rect x="66" y="34" width="14" height="24"/><path d="M66 34l7-9 7 9z"/><rect x="280" y="34" width="14" height="24"/><path d="M280 34l7-9 7 9z"/><rect x="0" y="56" width="360" height="4"/></g>
+ <g stroke="#d8b765" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M180 3v13M174.5 8h11"/><path d="M118 27v9M114 31h8"/><path d="M242 27v9M238 31h8"/><path d="M73 15v10M69.5 19h7"/><path d="M287 15v10M283.5 19h7"/></g>
+ <g fill="#d8b765" opacity=".85"><path d="M170 58v-8a5 5 0 0 1 10 0v8z"/><path d="M184 58v-8a5 5 0 0 1 10 0v8z" opacity=".7"/><path d="M112 58v-5a3 3 0 0 1 6 0v5z"/><path d="M238 58v-5a3 3 0 0 1 6 0v5z"/></g>
+ <rect x="0" y="56" width="360" height="1.4" fill="#d8b765" opacity=".6"/></svg>
+ <svg viewBox="0 0 360 120" preserveAspectRatio="xMidYMin slice" style="position:absolute;left:0;right:0;top:0;width:100%;height:100%" aria-hidden="true"><g fill="#d8b765" opacity=".55"><circle cx="36" cy="22" r="1.2"/><circle cx="92" cy="12" r="1"/><circle cx="146" cy="34" r="1.1"/><circle cx="210" cy="10" r="1"/><circle cx="258" cy="26" r="1.3"/><circle cx="318" cy="14" r="1"/><circle cx="338" cy="44" r="1"/><circle cx="18" cy="56" r="1"/></g></svg>`;
+const events=()=>{const out=[];try{const t=new Date();t.setHours(12,0,0,0);const a=new Date(+t-70*864e5),b=new Date(+t+864e5);
+ calEvents(a,b).forEach(e=>{const d=new Date(e.dt);d.setHours(12,0,0,0);const en=e.end?new Date(e.end):d;en.setHours(12,0,0,0);
+  if(e.k==='fast'&&d<=t&&t<=en)out.push(['صوم',e.n]);else if(e.k==='feast'&&+d===+t)out.push(['عيد',e.n])})}catch(_){}
+ const seen=new Set();return out.filter(x=>!seen.has(x[1])&&seen.add(x[1])).slice(0,2)};
+const banner=()=>{const d=new Date(),c=copOf(d),wd=d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}),ev=events(),hi=hourIdx();
+ const fe=ev.some(x=>x[0]==='عيد'),fa=ev.some(x=>x[0]==='صوم'),bg=fe?'#4a3a14 0%,#1a1608 72%':fa?'#2f2650 0%,#120f22 72%':'#17344f 0%,#0d1b2a 72%';
+ return `<div style="position:relative;overflow:hidden;border-radius:24px;margin-top:2px;padding:16px 16px 76px;background:linear-gradient(160deg,${bg});border:1px solid rgba(216,183,101,.3)">${scene}
+ <div style="position:relative"><div style="color:#d8b765;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px">${CIC('cross','✝',16)} سلام ونعمة</div>
+ <div style="font-size:24px;font-weight:800;margin-top:4px">${wd}</div>
+ <div style="color:#a9bdb3;font-size:13px;margin-top:2px">${nf(c.d)} ${MN[c.m-1]} ${nf(c.y)} للشهداء</div>
+ ${ev.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${ev.map(([k,n])=>`<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:${k==='صوم'?'rgba(167,139,250,.18)':'rgba(245,158,11,.18)'};color:${k==='صوم'?'#c4b5fd':'#fbbf24'};border:1px solid ${k==='صوم'?'rgba(167,139,250,.4)':'rgba(245,158,11,.4)'}">${k==='صوم'?'🥣':'✨'} ${k}: ${n}</span>`).join('')}</div>`:''}</div>
+ <button data-z36="hour" data-i="${hi}" style="position:absolute;left:12px;top:14px;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:rgba(8,18,29,.82);border:1px solid rgba(216,183,101,.55);color:#f3e7c6;font-size:13px;font-weight:700">${CIC('candle','🙏',18)} صلاة الساعة: ${HRS[hi]}</button></div>`};
+const hcv=()=>{try{return JSON.parse(localStorage.getItem('kenisty_home')||'{}')}catch(_){return{}}};
+const _vh=vHome;vHome=function(){const h=_vh();if(hcv().banner===0)return h;try{return h.replace(/^\s*<div class="text-sm text-mute">[^<]*<\/div>/,()=>banner())}catch(_){return h}};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-z36]');if(!b)return;if(b.dataset.z36==='hour'){ui.tab='more';ui.sub='agp';ui.ah=+b.dataset.i;render();scrollTo(0,0)}});
 })();
 </script>
 </body>
